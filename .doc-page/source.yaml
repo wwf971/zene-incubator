@@ -16,3 +16,4 @@ rules:
       - /README.md
       # the seed of the example and its source: tools, not documents
       - script-data/
+      - script-build/

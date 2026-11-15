@@ -12,4 +12,5 @@ It is a react-doc package served as a doc page, with react-doc checked out besid
 ```sh
 node ../../react-doc/main/frontend/cli/doc-cli.js dev . --port 45200
 npm test    # the semantic model
+sh script-build/pages-deploy.sh    # build the static page and publish it on the branch gh-pages
 ```
