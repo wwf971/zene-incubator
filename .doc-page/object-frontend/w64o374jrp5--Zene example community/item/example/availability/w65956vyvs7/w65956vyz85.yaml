@@ -1,0 +1,27 @@
+subject:
+  kind: individual
+  id: 3b0ilj6nn11
+zone: "+09"
+declarationList:
+  - id: 77f4m3busgn
+    timeDeclared: 20240305_10000000+09
+    state: unavailable
+    span:
+      unit: always
+    weekdayList:
+      - thu
+    dayPartList:
+      - evening
+    note: choir night
+  - id: 34bbxwv94lv
+    timeDeclared: 20240305_10000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sat
+      - sun
+    dayPartList:
+      - afternoon
+timeCreated: 20240305_10000000+09
+id: 4ojvsoffeqa

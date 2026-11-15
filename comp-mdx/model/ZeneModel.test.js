@@ -14,8 +14,9 @@ const T0 = '20261115_10000000+09';
 
 // a small community: Kenji owns Aurora, Mika is a member, Lena is new; tags in a DAG
 function entryListBase() {
-	const tag = (id, label, kindList, rest = {}) => ({ kind: 'tag', data: { id, label, kindList, ...rest } });
+	const tag = (id, label, kindList, rest = {}) => ({ id, label, kindList, ...rest });
 	return [
+		{ kind: 'taxonomy', data: { id: 'tx', name: 'Tags', tagList: [
 		tag('t0', 'Instrument', ['skill']),
 		tag('t1', 'Strings', ['skill'], { parentList: ['t0'] }),
 		tag('t2', 'Bowed strings', ['skill'], { parentList: ['t1'] }),
@@ -24,6 +25,7 @@ function entryListBase() {
 		tag('t5', 'Dvořák', ['composer']),
 		tag('t6', 'Symphony No. 9', ['work'], { composerList: ['t5'] }),
 		tag('t7', 'Concertmaster', ['role']),
+		] } },
 		{ kind: 'individual', data: { id: 'pk', name: 'Kenji Mori', account: 'ak', skillList: [{ tag: 't3' }] } },
 		{ kind: 'individual', data: { id: 'pm', name: 'Mika Tanaka', account: 'am', area: 'Setagaya', skillList: [{ tag: 't3', level: 5 }] } },
 		{ kind: 'individual', data: { id: 'pl', name: 'Lena Park', account: 'al', skillList: [{ tag: 't4' }] } },
@@ -146,7 +148,7 @@ test('search: words in any order, tags matched at or below in the DAG, through c
 
 test('the tag DAG leaves out an edge closing a cycle, and says so', () => {
 	const entryList = entryListBase();
-	entryList.find((one) => one.data.id === 't0').data.parentList = ['t3'];
+	entryList.find((one) => one.kind === 'taxonomy').data.tagList.find((one) => one.id === 't0').parentList = ['t3'];
 	const world = zeneWorldBuild(entryList);
 	assert.ok(world.problemList.some((one) => one.includes('cycle')));
 	// whichever edge was left out, no tag lies above and below another one
@@ -155,6 +157,16 @@ test('the tag DAG leaves out an edge closing a cycle, and says so', () => {
 		const below = world.tag.descendantSet(id);
 		assert.deepEqual([...above].filter((one) => below.has(one)), [id]);
 	}
+});
+
+test('tags live in one taxonomy item: a new tag is an update of it', () => {
+	const community = communityCreate();
+	assert.equal(community.world.get('tag', 't3').taxonomy, 'tx');
+	const answer = community.run('tag.create', LENA, { label: 'Viola d\'amore', kindList: ['skill'], parentList: ['t2'] });
+	assert.equal(answer.code, 0, answer.message);
+	assert.deepEqual(answer.data.effectList.map((one) => `${one.op} ${one.kind}`), ['update taxonomy']);
+	assert.ok(community.world.tag.descendantSet('t1').has(answer.data.result.tagId));
+	assert.equal(community.run('tag.create', LENA, { label: 'viola', kindList: ['skill'] }).message, 'the tag Viola is there already');
 });
 
 test('follows make the feed; the effects of one action name each entity once', () => {

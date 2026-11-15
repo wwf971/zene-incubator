@@ -1,0 +1,80 @@
+subject:
+  kind: individual
+  id: 0om7mlfwcx6
+zone: "+09"
+current:
+  timeDeclared: 20261110_21000000+09
+  state: available
+  note: open for extra player requests from January
+declarationList:
+  - id: 4v5rjc8et3s
+    timeDeclared: 20240402_21130000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sat
+    dayPartList:
+      - afternoon
+      - evening
+  - id: 49owgbo6yrk
+    timeDeclared: 20240402_21130000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sun
+    dayPartList:
+      - morning
+      - afternoon
+  - id: iflb5pnpf7p
+    timeDeclared: 20240402_21130000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - wed
+    hourFrom: 19:30
+    hourTo: 22:00
+    note: after work
+  - id: 0wbx2j40sdo
+    timeDeclared: 20240402_21130000+09
+    state: unavailable
+    span:
+      unit: always
+    weekdayList:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+    dayPartList:
+      - morning
+      - afternoon
+    note: work
+  - id: hstdogpqvvk
+    timeDeclared: 20240402_21130000+09
+    state: limited
+    span:
+      unit: month
+      value: 2026-12
+    note: the month of the Winter Concert
+  - id: fjh63qc7ahn
+    timeDeclared: 20240402_21130000+09
+    state: available
+    span:
+      unit: day
+      value: 2026-12-24
+    dayPartList:
+      - evening
+    note: free for a Christmas gig
+  - id: cq2je2a34lj
+    timeDeclared: 20240402_21130000+09
+    state: unavailable
+    span:
+      unit: range
+      from: 2026-12-28
+      to: 2027-01-03
+    note: the new year with family in Osaka
+timeCreated: 20240402_21130000+09
+id: 3o17t3rrydd

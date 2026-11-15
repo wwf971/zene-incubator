@@ -1,0 +1,27 @@
+name: Kenji Mori
+area: Meguro, Tokyo
+timeCreated: 20230510_09000000+09
+roleList:
+  - role: practitioner
+    timeStart: 19980401_00000000+09
+  - role: organizer
+    timeStart: 20150401_00000000+09
+skillList:
+  - tag: 05bbukcmtng
+    level: 5
+    yearStart: 1990
+    isPrimary: true
+  - tag: ben2q3dan7d
+    level: 4
+    yearStart: 2012
+workTagList:
+  - e14beic3ge3
+  - 5i4rvug7i2g
+lookingForList:
+  - players for Aurora
+pricing:
+  isPaidOk: false
+  isFreeOk: true
+  note: I do not take paid work
+account: 9h3mms94pl1
+id: 1hlstw56pws

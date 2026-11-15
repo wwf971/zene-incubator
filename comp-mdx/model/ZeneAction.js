@@ -5,6 +5,7 @@ import {
 	zeneMembershipRoleList, zeneRoleManageIs,
 } from './ZeneRole.js';
 import { zeneTimeMs, zeneTimeText, zeneTimeZoneOf } from './ZeneTime.js';
+import { ZENE_AVAILABILITY_STATE_LIST, zeneDayOf, zeneDeclarationCheck } from './ZeneAvailability.js';
 
 // The actions of a community (doc/zene-action.md): everything a person can do that changes
 // data. An action is the unit the user interface asks for and, later, what a backend answers:
@@ -94,7 +95,7 @@ export const ZENE_ACTION_LIST = [
 		effectText: ['update individual'],
 		who: (ctx) => signedIn(ctx) || (ctx.input.individual === ctx.actor.personId ? '' : 'only the person edits their profile'),
 		check: (ctx) => found(ctx, 'individual', ctx.input.individual, 'person'),
-		plan: (ctx, fx) => fx.update('individual', ctx.input.individual, pick(ctx.input, ['name', 'area', 'roleList', 'skillList', 'workTagList', 'lookingForList', 'availability', 'pricing'])),
+		plan: (ctx, fx) => fx.update('individual', ctx.input.individual, pick(ctx.input, ['name', 'area', 'roleList', 'skillList', 'workTagList', 'lookingForList', 'pricing'])),
 	},
 	{
 		id: 'homepage.write', group: 'account', label: 'Write a homepage',
@@ -544,7 +545,7 @@ export const ZENE_ACTION_LIST = [
 		id: 'tag.create', group: 'tag', label: 'Add a tag',
 		whoText: 'anyone signed in',
 		inputText: 'label, kinds, parents; for a work its composers and the work it comes from',
-		effectText: ['create tag'],
+		effectText: ['update taxonomy (a tag added; create taxonomy when the community has none)'],
 		who: signedIn,
 		check: (ctx) => {
 			const label = String(ctx.input.label ?? '').trim();
@@ -555,7 +556,56 @@ export const ZENE_ACTION_LIST = [
 			if (twin) return `the tag ${twin.label} is there already`;
 			return [...(ctx.input.parentList ?? []), ...(ctx.input.composerList ?? []), ...(ctx.input.originList ?? [])].every((id) => ctx.world.get('tag', id)) ? '' : 'a tag named above it is not there';
 		},
-		plan: (ctx, fx) => ({ tagId: fx.create('tag', { label: ctx.input.label.trim(), ...pick(ctx.input, ['kindList', 'parentList', 'composerList', 'originList', 'icon', 'note']) }) }),
+		plan: (ctx, fx) => {
+			const tagId = ctx.idNew();
+			const tag = { id: tagId, label: ctx.input.label.trim(), ...pick(ctx.input, ['kindList', 'parentList', 'composerList', 'originList', 'icon', 'note']), timeCreated: ctx.time, createdBy: ctx.actor.accountId };
+			const taxonomy = ctx.world.list('taxonomy')[0];
+			if (taxonomy) fx.update('taxonomy', taxonomy.id, { tagList: [...fx.current('taxonomy', taxonomy.id).tagList, tag] });
+			else fx.create('taxonomy', { name: 'Tags', tagList: [tag] });
+			return { tagId };
+		},
+	},
+	// --- availability (doc/zene-availability.md) -------------------------------------------------
+	{
+		id: 'availability.declare', group: 'availability', label: 'Declare when one can play',
+		whoText: 'the person themselves; for a group, its owners and admins',
+		inputText: 'whose (a person or a group); a declaration: a state, a span (always, a year, a season, a month, a week, days, a day), weekdays, parts of the day or hours, a note; with the id of one declared before, it replaces it',
+		effectText: ['update availability (a declaration added or replaced)', 'create availability (the first time)'],
+		who: (ctx) => subjectManageWho(ctx, ctx.input.subject),
+		check: (ctx) => zeneDeclarationCheck(ctx.input.declaration ?? {}),
+		plan: (ctx, fx) => {
+			const declarationId = ctx.input.declaration.id || ctx.idNew();
+			const declaration = { ...ctx.input.declaration, id: declarationId, timeDeclared: ctx.time };
+			availabilityChange(ctx, fx, (availability) => ({
+				declarationList: availability.declarationList.some((one) => one.id === declarationId)
+					? availability.declarationList.map((one) => (one.id === declarationId ? declaration : one))
+					: [...availability.declarationList, declaration],
+			}));
+			return { declarationId };
+		},
+	},
+	{
+		id: 'availability.remove', group: 'availability', label: 'Take back a declaration',
+		whoText: 'the person themselves; for a group, its owners and admins',
+		inputText: 'whose, the id of the declaration',
+		effectText: ['update availability (a declaration taken out)'],
+		who: (ctx) => subjectManageWho(ctx, ctx.input.subject),
+		check: (ctx) => (availabilityOf(ctx)?.declarationList.some((one) => one.id === ctx.input.declarationId) ? '' : 'there is no such declaration'),
+		plan: (ctx, fx) => availabilityChange(ctx, fx, (availability) => ({ declarationList: availability.declarationList.filter((one) => one.id !== ctx.input.declarationId) })),
+	},
+	{
+		id: 'availability.currentSet', group: 'availability', label: 'Say how one is now',
+		whoText: 'the person themselves; for a group, its owners and admins',
+		inputText: "whose; a state (empty: say nothing), a note, the day it holds until",
+		effectText: ['update availability (its current state)', 'create availability (the first time)'],
+		who: (ctx) => subjectManageWho(ctx, ctx.input.subject),
+		check: (ctx) => {
+			if (ctx.input.state && !ZENE_AVAILABILITY_STATE_LIST.some((one) => one.id === ctx.input.state)) return 'an unknown state';
+			return ctx.input.until && Number.isNaN(zeneDayOf(ctx.input.until)) ? 'the day it holds until is a date: 2027-01-31' : '';
+		},
+		plan: (ctx, fx) => availabilityChange(ctx, fx, () => ({
+			current: ctx.input.state ? { state: ctx.input.state, note: String(ctx.input.note ?? '').trim(), until: ctx.input.until ?? '', timeDeclared: ctx.time } : null,
+		})),
 	},
 ];
 
@@ -573,6 +623,7 @@ export const ZENE_ACTION_GROUP_LIST = [
 	{ id: 'event', label: 'Events' },
 	{ id: 'post', label: 'Posts and hiring' },
 	{ id: 'tag', label: 'Tags' },
+	{ id: 'availability', label: 'Availability' },
 ];
 
 // --- running --------------------------------------------------------------------------------
@@ -688,6 +739,32 @@ export function zeneEffectListApply(entryByKey, effectList) {
 }
 
 // --- helpers of the actions ---------------------------------------------------------------------
+
+// who may speak for a person or a group: the person; the owners and admins of the group
+function subjectManageWho(ctx, subject) {
+	const reason = signedIn(ctx);
+	if (reason) return reason;
+	if (subject?.kind === 'individual') return subject.id === ctx.actor.personId ? '' : 'only the person says when they can play';
+	if (subject?.kind === 'group') return zeneGroupManageIs(ctx.world, ctx.actor.personId, subject.id, ctx.time) ? '' : 'only its owners and admins say when a group can play';
+	return 'availability is a person\'s or a group\'s';
+}
+
+function availabilityOf(ctx) {
+	const subject = ctx.input.subject ?? {};
+	return ctx.world.availabilityOfSubject(subject.kind, subject.id);
+}
+
+// the availability of the subject changed; made with the change when the subject has none yet
+function availabilityChange(ctx, fx, change) {
+	const availability = availabilityOf(ctx);
+	if (availability) {
+		fx.update('availability', availability.id, change(fx.current('availability', availability.id)));
+		return;
+	}
+	const subject = { kind: ctx.input.subject.kind, id: ctx.input.subject.id };
+	const empty = { subject, zone: zeneTimeZoneOf(ctx.time) >= 0 ? `+${String(zeneTimeZoneOf(ctx.time)).padStart(2, '0')}` : `-${String(-zeneTimeZoneOf(ctx.time)).padStart(2, '0')}`, current: null, declarationList: [] };
+	fx.create('availability', { ...empty, ...change(empty) });
+}
 
 function followOf(ctx) {
 	return (ctx.world.followByFrom.get(ctx.actor.accountId) ?? []).find((one) => one.to === ctx.input.account);

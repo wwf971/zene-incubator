@@ -1,0 +1,24 @@
+itemId: w65958zdpdx
+name: ""
+lang: yaml
+contentType: text/yaml
+fileExt: yaml
+owner:
+  ref: frontend:w64o374jrp5
+versionIdHead: w65958zd2gi
+isDeleted: false
+isLocked: false
+timeCreated: 20261116_00511469+09
+versionList:
+  - versionId: w65958zd2gi
+    versionIdPrevList: []
+    time: 20261116_00511469+09
+    note: seeded from script-data/zene-example.yaml
+    size: 400
+    hash: d43b2e25a0da89de652d20a69eceb60570620f6f
+    isLocked: false
+    dependencyList: []
+eventList:
+  - eventType: create
+    time: 20261116_00511469+09
+    versionId: w65958zd2gi

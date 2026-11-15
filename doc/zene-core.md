@@ -5,20 +5,21 @@ description: What Zene is made of, in one page.
 
 Zene helps people join music groups and organize music events. Four things exist; everything else describes them or links them.
 
+<!--renderComp=DiagramText-->
 ```text
-                    account (a homepage, posts, follows; an event's is temporary)
-                       │ speaks for one of
-         ┌─────────────┼───────────────────────┐
-         ▼             ▼                       ▼
-     individual ──► music group ──► subgroup   music event ◄── rehearsal (an event below an event)
-     (a person)   membership:      members of     principals: 0..n groups and 0..n individuals,
-                  roles for        the group      each with a role (organizer, performer, host, guest)
-                  periods          only
+             account: a homepage, posts, follows (an event's is temporary)
+                   │ speaks for one of
+      ┌────────────┼───────────────────────────┐
+      ▼            ▼                           ▼
+  individual ─► music group ─► subgroup       music event ◄── rehearsal
+  (a person)    membership:   members of     principals: 0..n groups and
+                roles for     the group      0..n individuals, each with a
+                periods       only           role (organizer, performer …)
 ```
 
 ## Music individuals
 
-A person in music. Two roles, each held for a period: a **practitioner** plays or sings, an **organizer** organizes events; one person may be both. A practitioner says what they play (skill tags, with a level), when they are free, and what they ask for.
+A person in music. Two roles, each held for a period: a **practitioner** plays or sings, an **organizer** organizes events; one person may be both. A practitioner says what they play (skill tags, with a level), what they ask for, and when they can play: declarations at any scale (every Saturday afternoon, all of August, the evening of the 24th), the narrowest deciding where they meet, and a current state shown as their status ([Availability](zene-availability.md)).
 
 ## Music groups
 

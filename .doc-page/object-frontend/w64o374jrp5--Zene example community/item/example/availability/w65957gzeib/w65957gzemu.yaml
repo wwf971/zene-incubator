@@ -1,0 +1,25 @@
+subject:
+  kind: individual
+  id: 3meizdwrtqu
+zone: "+09"
+declarationList:
+  - id: 0pf53yeunvm
+    timeDeclared: 20231205_20000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sat
+      - sun
+    dayPartList:
+      - afternoon
+      - evening
+  - id: dnk6ovmehce
+    timeDeclared: 20231205_20000000+09
+    state: unavailable
+    span:
+      unit: month
+      value: 2027-02
+    note: recording an album
+timeCreated: 20231205_20000000+09
+id: 4jxkji6d5sf

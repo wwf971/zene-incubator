@@ -61,6 +61,7 @@ export function ZeneTagRow({ world, tagIdList, onOpen, size = 'm' }) {
 }
 
 // a row of a list: a picture, two lines, what stands on its right; a tap opens it
+// (the part opening it is a button of its own, so what stands on the right may be a button too)
 export function ZeneRow({ picture, title, detail = '', right = null, onOpen, isMuted = false }) {
 	const body = (
 		<>
@@ -69,11 +70,15 @@ export function ZeneRow({ picture, title, detail = '', right = null, onOpen, isM
 				<span className="zene-row-title">{title}</span>
 				{detail ? <span className="zene-row-detail">{detail}</span> : null}
 			</span>
-			{right ?? (onOpen ? <ChevronRight size={16} className="zene-row-chevron" /> : null)}
+			{!right && onOpen ? <ChevronRight size={16} className="zene-row-chevron" /> : null}
 		</>
 	);
-	if (!onOpen) return <div className={`zene-row${isMuted ? ' is-muted' : ''}`}>{body}</div>;
-	return <button type="button" className={`zene-row${isMuted ? ' is-muted' : ''}`} onClick={onOpen}>{body}</button>;
+	return (
+		<div className={`zene-row${isMuted ? ' is-muted' : ''}${onOpen ? ' is-open' : ''}`}>
+			{onOpen ? <button type="button" className="zene-row-main" onClick={onOpen}>{body}</button> : <span className="zene-row-main">{body}</span>}
+			{right}
+		</div>
+	);
 }
 
 // an account in a row

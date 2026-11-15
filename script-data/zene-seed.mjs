@@ -68,14 +68,27 @@ function accountPush(subjectKind, subjectLocal, raw, extra = {}) {
 	return `$${accountLocal}`;
 }
 
-for (const raw of source.tag ?? []) {
+// every tag in one item: the taxonomy of the community; each tag keeps an id of its own
+const tagList = (source.tag ?? []).map((raw) => {
 	const { $: _local, ...data } = raw;
-	push('tag', localOf(raw, 'tag'), data);
-}
+	return { ...data, id: idOf(localOf(raw, 'tag')), timeCreated: data.timeCreated ?? TIME_DEFAULT };
+});
+push('taxonomy', localOf({ $: 'taxonomy' }, 'taxonomy'), { name: 'Tags of the community', tagList });
 for (const kind of ['individual', 'group', 'event']) {
 	for (const raw of source[kind] ?? []) {
 		const local = localOf(raw, kind);
-		const { $: _local, account: _account, ...data } = raw;
+		const { $: _local, account: _account, availability, ...data } = raw;
+		// when the person or the group can play: an item of its own, each declaration with an id
+		if (availability) {
+			const availabilityLocal = localOf({ $: `availability-${local}` }, 'availability');
+			const timeDeclared = raw.timeCreated ?? TIME_DEFAULT;
+			push('availability', availabilityLocal, {
+				subject: { kind, id: `$${local}` }, zone: availability.zone ?? '+09',
+				...(availability.current ? { current: { timeDeclared, ...availability.current } } : {}),
+				declarationList: (availability.declarationList ?? []).map((one, index) => ({ id: idOf(`${availabilityLocal}:${index}`), timeDeclared, ...one })),
+				timeCreated: raw.timeCreated,
+			});
+		}
 		let extra = {};
 		if (kind === 'event') {
 			const expire = zeneEventAccountExpireOf({ timeStart: data.timeStart, timeEnd: data.timeEnd });

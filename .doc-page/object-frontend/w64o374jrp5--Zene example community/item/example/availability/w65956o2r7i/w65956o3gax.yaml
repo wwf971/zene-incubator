@@ -1,0 +1,22 @@
+subject:
+  kind: individual
+  id: 1gjll63l3k9
+zone: "+09"
+current:
+  timeDeclared: 20261105_08000000+09
+  state: available
+  note: looking for a second orchestra
+declarationList:
+  - id: 5jn7tvkbloi
+    timeDeclared: 20250108_08000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sat
+      - sun
+    dayPartList:
+      - afternoon
+      - evening
+timeCreated: 20250108_08000000+09
+id: 8ser4xmvejj

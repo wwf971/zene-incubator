@@ -10,7 +10,12 @@ react_doc=${REACT_DOC_DIR:-$(cd "$here/../../react-doc" && pwd)}
 out="$here/../dist"
 site="$here/../gh-pages"
 
-node "$react_doc/main/frontend/cli/doc-cli.js" build "$here" --out "$out" --force
+# the build is made from what is committed, exported to a folder of its own: a file the checkout
+# has and git does not (a playground, an object being tried out) is never published
+exported=$(mktemp -d)
+git -C "$here" archive HEAD | tar -x -C "$exported"
+node "$react_doc/main/frontend/cli/doc-cli.js" build "$exported" --out "$out" --force
+rm -r "$exported"
 
 # the worktree of the branch gh-pages: the branch of the remote when it exists, else a new branch
 # without history (made inside a detached worktree, which git of every version can do)

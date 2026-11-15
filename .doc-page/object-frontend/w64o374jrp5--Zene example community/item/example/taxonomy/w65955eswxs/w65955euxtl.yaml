@@ -1,0 +1,544 @@
+name: Tags of the community
+tagList:
+  - label: Instrument
+    kindList:
+      - skill
+    icon: note
+    color: "#ffd166"
+    id: aqg9l2xqid6
+    timeCreated: 20261101_10000000+09
+  - label: Strings
+    kindList:
+      - skill
+    parentList:
+      - aqg9l2xqid6
+    icon: violin
+    color: "#f4a261"
+    id: 0ygxs8ptmk0
+    timeCreated: 20261101_10000000+09
+  - label: Bowed strings
+    kindList:
+      - skill
+    parentList:
+      - 0ygxs8ptmk0
+    icon: violin
+    id: a6pmqmvy5ik
+    timeCreated: 20261101_10000000+09
+  - label: Violin
+    kindList:
+      - skill
+    parentList:
+      - a6pmqmvy5ik
+    icon: violin
+    id: de87qtndl8y
+    timeCreated: 20261101_10000000+09
+  - label: Viola
+    kindList:
+      - skill
+    parentList:
+      - a6pmqmvy5ik
+    icon: viola
+    id: b870sp6mv2a
+    timeCreated: 20261101_10000000+09
+  - label: Cello
+    kindList:
+      - skill
+    parentList:
+      - a6pmqmvy5ik
+    icon: cello
+    id: 05bbukcmtng
+    timeCreated: 20261101_10000000+09
+  - label: Double bass
+    kindList:
+      - skill
+    parentList:
+      - a6pmqmvy5ik
+      - 46sippt62ip
+      - 0q0v3i5tix0
+    icon: doublebass
+    id: fdok35y3l36
+    timeCreated: 20261101_10000000+09
+  - label: Plucked strings
+    kindList:
+      - skill
+    parentList:
+      - 0ygxs8ptmk0
+    icon: guitar
+    id: 46sippt62ip
+    timeCreated: 20261101_10000000+09
+  - label: Guitar
+    kindList:
+      - skill
+    parentList:
+      - 46sippt62ip
+      - 0q0v3i5tix0
+    icon: guitar
+    id: f1irsyluvrs
+    timeCreated: 20261101_10000000+09
+  - label: Bass guitar
+    kindList:
+      - skill
+    parentList:
+      - 46sippt62ip
+      - 0q0v3i5tix0
+    icon: bassguitar
+    id: 9jkztierort
+    timeCreated: 20261101_10000000+09
+  - label: Harp
+    kindList:
+      - skill
+    parentList:
+      - 46sippt62ip
+    icon: harp
+    id: dgxwrvvm1to
+    timeCreated: 20261101_10000000+09
+  - label: Keyboards
+    kindList:
+      - skill
+    parentList:
+      - aqg9l2xqid6
+    icon: piano
+    color: "#8ecae6"
+    id: 883z4ytjpgr
+    timeCreated: 20261101_10000000+09
+  - label: Piano
+    kindList:
+      - skill
+    parentList:
+      - 883z4ytjpgr
+      - 0q0v3i5tix0
+    icon: piano
+    id: hvi7hdlbzqv
+    timeCreated: 20261101_10000000+09
+  - label: Synthesizer
+    kindList:
+      - skill
+    parentList:
+      - 883z4ytjpgr
+    icon: synth
+    id: 248spau74f5
+    timeCreated: 20261101_10000000+09
+  - label: Woodwinds
+    kindList:
+      - skill
+    parentList:
+      - aqg9l2xqid6
+    icon: flute
+    color: "#95d5b2"
+    id: 3mjnwvn0naa
+    timeCreated: 20261101_10000000+09
+  - label: Flute
+    kindList:
+      - skill
+    parentList:
+      - 3mjnwvn0naa
+    icon: flute
+    id: a8luec27vbd
+    timeCreated: 20261101_10000000+09
+  - label: Clarinet
+    kindList:
+      - skill
+    parentList:
+      - 3mjnwvn0naa
+    icon: clarinet
+    id: ds1pb13297p
+    timeCreated: 20261101_10000000+09
+  - label: Oboe
+    kindList:
+      - skill
+    parentList:
+      - 3mjnwvn0naa
+    icon: clarinet
+    id: ghufnf7l7m4
+    timeCreated: 20261101_10000000+09
+  - label: Saxophone
+    kindList:
+      - skill
+    parentList:
+      - 3mjnwvn0naa
+    icon: sax
+    id: 9ckznm7jsz8
+    timeCreated: 20261101_10000000+09
+  - label: Brass
+    kindList:
+      - skill
+    parentList:
+      - aqg9l2xqid6
+    icon: trumpet
+    color: "#ffb703"
+    id: 5ywhcjbiobx
+    timeCreated: 20261101_10000000+09
+  - label: Trumpet
+    kindList:
+      - skill
+    parentList:
+      - 5ywhcjbiobx
+    icon: trumpet
+    id: 8fnpkg01r25
+    timeCreated: 20261101_10000000+09
+  - label: French horn
+    kindList:
+      - skill
+    parentList:
+      - 5ywhcjbiobx
+    icon: horn
+    id: 59m7q2ih48b
+    timeCreated: 20261101_10000000+09
+  - label: Trombone
+    kindList:
+      - skill
+    parentList:
+      - 5ywhcjbiobx
+    icon: trombone
+    id: 4h5ico4wo1r
+    timeCreated: 20261101_10000000+09
+  - label: Tuba
+    kindList:
+      - skill
+    parentList:
+      - 5ywhcjbiobx
+    icon: tuba
+    id: ayoalwgigtl
+    timeCreated: 20261101_10000000+09
+  - label: Percussion
+    kindList:
+      - skill
+    parentList:
+      - aqg9l2xqid6
+    icon: drum
+    color: "#e5989b"
+    id: 8uz38sxs6d8
+    timeCreated: 20261101_10000000+09
+  - label: Drum kit
+    kindList:
+      - skill
+    parentList:
+      - 8uz38sxs6d8
+      - 0q0v3i5tix0
+    icon: drum
+    id: 8fwsgmwqla0
+    timeCreated: 20261101_10000000+09
+  - label: Timpani
+    kindList:
+      - skill
+    parentList:
+      - 8uz38sxs6d8
+    icon: timpani
+    id: 9cr4jkf22hh
+    timeCreated: 20261101_10000000+09
+  - label: Mallet percussion
+    kindList:
+      - skill
+    parentList:
+      - 8uz38sxs6d8
+    icon: xylophone
+    id: j00el9dy4wn
+    timeCreated: 20261101_10000000+09
+  - label: Rhythm section
+    kindList:
+      - skill
+    parentList:
+      - aqg9l2xqid6
+    icon: metronome
+    note: "what keeps a band's time: drums, bass, piano, guitar"
+    id: 0q0v3i5tix0
+    timeCreated: 20261101_10000000+09
+  - label: Voice
+    kindList:
+      - skill
+    icon: mic
+    color: "#cdb4db"
+    id: g2h74l9s2je
+    timeCreated: 20261101_10000000+09
+  - label: Soprano
+    kindList:
+      - skill
+    parentList:
+      - g2h74l9s2je
+    icon: mic
+    id: fr5axvrf7pq
+    timeCreated: 20261101_10000000+09
+  - label: Alto
+    kindList:
+      - skill
+    parentList:
+      - g2h74l9s2je
+    icon: mic
+    id: i9rp6pmu1tv
+    timeCreated: 20261101_10000000+09
+  - label: Tenor
+    kindList:
+      - skill
+    parentList:
+      - g2h74l9s2je
+    icon: mic
+    id: 5re24v6baoc
+    timeCreated: 20261101_10000000+09
+  - label: Bass (voice)
+    kindList:
+      - skill
+    parentList:
+      - g2h74l9s2je
+    icon: mic
+    id: 3lesspyrxtx
+    timeCreated: 20261101_10000000+09
+  - label: Choral singing
+    kindList:
+      - skill
+    parentList:
+      - g2h74l9s2je
+    icon: choir
+    id: 4zok9ltgom9
+    timeCreated: 20261101_10000000+09
+  - label: Directing and writing
+    kindList:
+      - skill
+    icon: baton
+    color: "#a2d2ff"
+    id: etdaeb2bg6r
+    timeCreated: 20261101_10000000+09
+  - label: Conducting
+    kindList:
+      - skill
+    parentList:
+      - etdaeb2bg6r
+    icon: baton
+    id: ben2q3dan7d
+    timeCreated: 20261101_10000000+09
+  - label: Arranging
+    kindList:
+      - skill
+    parentList:
+      - etdaeb2bg6r
+    icon: score
+    id: eza92gnn6z1
+    timeCreated: 20261101_10000000+09
+  - label: Composing
+    kindList:
+      - skill
+    parentList:
+      - etdaeb2bg6r
+    icon: quill
+    id: gzc2pb31hgw
+    timeCreated: 20261101_10000000+09
+  - label: Conductor
+    kindList:
+      - role
+    icon: baton
+    color: "#a2d2ff"
+    id: gxhl1asde4r
+    timeCreated: 20261101_10000000+09
+  - label: Concertmaster
+    kindList:
+      - role
+    icon: violin
+    color: "#f4a261"
+    id: 0bgzpwrurx9
+    timeCreated: 20261101_10000000+09
+  - label: Section leader
+    kindList:
+      - role
+    icon: star
+    color: "#ffd166"
+    id: fg5ut8r1d9f
+    timeCreated: 20261101_10000000+09
+  - label: Classical
+    kindList:
+      - genre
+    icon: lyre
+    color: "#e9c46a"
+    id: 8395x0sliqt
+    timeCreated: 20261101_10000000+09
+  - label: Jazz
+    kindList:
+      - genre
+    icon: sax
+    color: "#264653"
+    id: 42e92eajahi
+    timeCreated: 20261101_10000000+09
+  - label: Game music
+    kindList:
+      - genre
+    icon: gamepad
+    color: "#90be6d"
+    id: avdftln5ek2
+    timeCreated: 20261101_10000000+09
+  - label: Film and anime music
+    kindList:
+      - genre
+    icon: film
+    color: "#f28482"
+    id: egimjwhi7f2
+    timeCreated: 20261101_10000000+09
+  - label: Choral music
+    kindList:
+      - genre
+    icon: choir
+    color: "#cdb4db"
+    id: bku8ctv767k
+    timeCreated: 20261101_10000000+09
+  - label: Antonín Dvořák
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: 1ytczbo2z0l
+    timeCreated: 20261101_10000000+09
+  - label: Johannes Brahms
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: fm2cackpw3w
+    timeCreated: 20261101_10000000+09
+  - label: Johann Sebastian Bach
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: 86n96cb21yy
+    timeCreated: 20261101_10000000+09
+  - label: Nobuo Uematsu
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: h770d6j0s7m
+    timeCreated: 20261101_10000000+09
+  - label: Koji Kondo
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: cy10xru9cv8
+    timeCreated: 20261101_10000000+09
+  - label: Joe Hisaishi
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: d3g93ai2do0
+    timeCreated: 20261101_10000000+09
+  - label: Billy Strayhorn
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: 24o2b3iwz34
+    timeCreated: 20261101_10000000+09
+  - label: Franz Xaver Gruber
+    kindList:
+      - composer
+    icon: composer
+    color: "#bde0fe"
+    id: 56vh9hee9tz
+    timeCreated: 20261101_10000000+09
+  - label: Symphony No. 9 "From the New World"
+    kindList:
+      - work
+    parentList:
+      - 8395x0sliqt
+    composerList:
+      - 1ytczbo2z0l
+    icon: score
+    id: e14beic3ge3
+    timeCreated: 20261101_10000000+09
+  - label: Hungarian Dance No. 5
+    kindList:
+      - work
+    parentList:
+      - 8395x0sliqt
+    composerList:
+      - fm2cackpw3w
+    icon: score
+    id: j7bc1lv2dsj
+    timeCreated: 20261101_10000000+09
+  - label: Cello Suite No. 1
+    kindList:
+      - work
+    parentList:
+      - 8395x0sliqt
+    composerList:
+      - 86n96cb21yy
+    icon: score
+    id: 5i4rvug7i2g
+    timeCreated: 20261101_10000000+09
+  - label: Final Fantasy VII
+    kindList:
+      - work
+    parentList:
+      - avdftln5ek2
+    icon: gamepad
+    note: the game the music comes from
+    id: 5edc6allaqw
+    timeCreated: 20261101_10000000+09
+  - label: One-Winged Angel
+    kindList:
+      - work
+    originList:
+      - 5edc6allaqw
+    composerList:
+      - h770d6j0s7m
+    icon: score
+    id: 8x39daednqn
+    timeCreated: 20261101_10000000+09
+  - label: The Legend of Zelda
+    kindList:
+      - work
+    parentList:
+      - avdftln5ek2
+    icon: gamepad
+    note: the game the music comes from
+    id: ihvqwmla2ob
+    timeCreated: 20261101_10000000+09
+  - label: "The Legend of Zelda: main theme"
+    kindList:
+      - work
+    originList:
+      - ihvqwmla2ob
+    composerList:
+      - cy10xru9cv8
+    icon: score
+    id: 128aag8axmt
+    timeCreated: 20261101_10000000+09
+  - label: Spirited Away
+    kindList:
+      - work
+    parentList:
+      - egimjwhi7f2
+    icon: film
+    note: the film the music comes from
+    id: jooxsgpihxn
+    timeCreated: 20261101_10000000+09
+  - label: One Summer's Day
+    kindList:
+      - work
+    originList:
+      - jooxsgpihxn
+    composerList:
+      - d3g93ai2do0
+    icon: score
+    id: 461zujnxm2w
+    timeCreated: 20261101_10000000+09
+  - label: Take the "A" Train
+    kindList:
+      - work
+    parentList:
+      - 42e92eajahi
+    composerList:
+      - 24o2b3iwz34
+    icon: score
+    id: bvfqae7yhnw
+    timeCreated: 20261101_10000000+09
+  - label: Silent Night
+    kindList:
+      - work
+    parentList:
+      - bku8ctv767k
+    composerList:
+      - 56vh9hee9tz
+    icon: score
+    id: 2obz3cx3uw5
+    timeCreated: 20261101_10000000+09
+id: ed0o6stwrio
+timeCreated: 20261101_10000000+09

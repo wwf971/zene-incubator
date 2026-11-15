@@ -1,0 +1,37 @@
+subject:
+  kind: individual
+  id: g3mht3zykia
+zone: "+09"
+current:
+  timeDeclared: 20261111_09000000+09
+  state: available
+  note: new in Tokyo
+declarationList:
+  - id: devjix8uc13
+    timeDeclared: 20261110_22000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sat
+      - sun
+    dayPartList:
+      - morning
+      - afternoon
+      - evening
+  - id: 3eqckdp030l
+    timeDeclared: 20261110_22000000+09
+    state: limited
+    span:
+      unit: always
+    weekdayList:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+    dayPartList:
+      - evening
+    note: after language school
+timeCreated: 20261110_22000000+09
+id: a9btgdlwyyv

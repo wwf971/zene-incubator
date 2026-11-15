@@ -1,0 +1,24 @@
+subject:
+  kind: individual
+  id: bxn7zawzz28
+zone: "+09"
+declarationList:
+  - id: hqfw1ejsqad
+    timeDeclared: 20240115_19000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sun
+    dayPartList:
+      - morning
+      - afternoon
+  - id: fks2xb103v2
+    timeDeclared: 20240115_19000000+09
+    state: unavailable
+    span:
+      unit: season
+      value: 2027-summer
+    note: a summer course in Vienna
+timeCreated: 20240115_19000000+09
+id: ip9w1ms2cdv

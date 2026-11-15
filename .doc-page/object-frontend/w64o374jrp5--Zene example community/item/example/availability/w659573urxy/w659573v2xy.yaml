@@ -1,0 +1,34 @@
+subject:
+  kind: individual
+  id: i8c3r1cxelw
+zone: "+09"
+declarationList:
+  - id: cdovx7bvs26
+    timeDeclared: 20240620_23000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - fri
+    dayPartList:
+      - evening
+      - night
+  - id: 6wwllvyezgh
+    timeDeclared: 20240620_23000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sun
+    dayPartList:
+      - afternoon
+      - evening
+  - id: ihp49j5jbk2
+    timeDeclared: 20240620_23000000+09
+    state: limited
+    span:
+      unit: month
+      value: 2027-01
+    note: Game Music Night rehearsals
+timeCreated: 20240620_23000000+09
+id: esaiwjxga9s

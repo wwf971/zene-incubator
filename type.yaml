@@ -19,7 +19,11 @@ typeList:
       - { id: post, label: Post, langList: [yaml], groupPath: post }
       - { id: application, label: Application, langList: [yaml], groupPath: application }
       - { id: follow, label: Follow, langList: [yaml], groupPath: follow }
-      - { id: tag, label: Tag, langList: [yaml], groupPath: tag }
+      # when a person or a group can play: their declarations and their current state, one item each
+      # (doc/zene-availability.md)
+      - { id: availability, label: Availability, langList: [yaml], groupPath: availability }
+      # every tag of the community in one item: they are curated and read together (doc/zene-data.md#tags)
+      - { id: taxonomy, label: Taxonomy, langList: [yaml], groupPath: taxonomy }
       # the homepage of an account: a document of the object (react-doc:
       # main/doc_page_impl_obj_frontend.md#documents-of-an-object), rendered by the page as any
       # document; its document path is its asset path, {partition}/page/{id}.md

@@ -1,0 +1,24 @@
+itemId: w65959hw32z
+name: ""
+lang: yaml
+contentType: text/yaml
+fileExt: yaml
+owner:
+  ref: frontend:w64o374jrp5
+versionIdHead: w65959hxfky
+isDeleted: false
+isLocked: false
+timeCreated: 20261116_00511517+09
+versionList:
+  - versionId: w65959hxfky
+    versionIdPrevList: []
+    time: 20261116_00511517+09
+    note: seeded from script-data/zene-example.yaml
+    size: 331
+    hash: bae8e277ad48ce45e2527c026e20f91e6096ba19
+    isLocked: false
+    dependencyList: []
+eventList:
+  - eventType: create
+    time: 20261116_00511517+09
+    versionId: w65959hxfky

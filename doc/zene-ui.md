@@ -5,19 +5,20 @@ description: The screens, gestures and forms of the app, drawn on a simulated ph
 
 The mode **App** of a community draws the app as it will be on a phone: the screen of a phone, the bar of five buttons at the bottom, pages a swipe goes through, screens pushed and swiped back, sheets sliding up. It is a simulation for designing the app and its data together, not the mobile app itself: that will be built with a mobile framework (Flutter, Capacitor or React Native) over the same model and the same actions.
 
+<!--renderComp=DiagramText-->
 ```text
-┌──────────── the phone ────────────┐   ┌──── the session ────┐
-│ status bar                         │   │ holding the phone:   │
+┌──────────── the phone ───────────────┐   ┌──── the session ─────┐
+│ status bar                           │   │ holding the phone:   │
 │ ┌─ Home ─┬ Discover ┬ Activity ┬ Me ┐│   │   a face per person  │
-│ │ the root screen of each tab,     ││   │ acting as            │
-│ │ side by side: a swipe goes on    ││   │ the partition read,  │
-│ │   + screens pushed over a tab:   ││   │   the session's      │
-│ │     a swipe to the right goes    ││   │   changes over it    │
-│ │     back                         ││   │ the actions run,     │
-│ └──────────────────────────────────┘│   │   with their effects │
-│ sheets: forms, menus (slide up)    │   │   on data items      │
-│ [Home][Discover][ + ][Activity][Me]│   └──────────────────────┘
-└────────────────────────────────────┘
+│ │ the root screen of each tab,      ││   │ acting as            │
+│ │ side by side: a swipe goes on     ││   │ the partition read,  │
+│ │   + screens pushed over a tab:    ││   │   the session's      │
+│ │     a swipe to the right goes     ││   │   changes over it    │
+│ │     back                          ││   │ the actions run,     │
+│ └───────────────────────────────────┘│   │   with their effects │
+│ sheets: forms, menus (slide up)      │   │   on data items      │
+│ [Home][Discover][ + ][Activity][Me]  │   └──────────────────────┘
+└──────────────────────────────────────┘
 ```
 
 ## Screens
@@ -36,8 +37,30 @@ Pushed on a tab: an **account's homepage**, an **event** without an account (a r
 
 A homepage is the header of a social app (picture, counts, name, bio, the buttons of what the person may do here) and **views** below it, swiped through:
 
-- **About** (the first, by default): what the data says, laid out to read. For a person: what they play with levels, their roles since when, what they look for, a week of when they are free, their prices, the works they love. For a group: how one joins, what it looks for, what it plays. For an event: when and where, commercial or not, the program with its composers, who takes part (with Accept / Decline for an invitation), open positions, rehearsals. Then the **homepage** the account writes in Markdown, rendered as any document of the page.
+- **About** (the first, by default): what the data says, laid out to read. For a person: what they play with levels, their roles since when, what they look for, when they can play ([Availability](zene-availability.md): the status, a calendar of the parts of each day, the declarations), their prices, the works they love. For a group: how one joins, what it looks for, what it plays. For an event: when and where, commercial or not, the program with its composers, who takes part (with Accept / Decline for an invitation), open positions, rehearsals. Then the **homepage** the account writes in Markdown, rendered as any document of the page.
 - **Posts**: a grid. **Events**: coming and past. **Groups**: a person's groups with the roles held now and before; a group's members with their roles (a manager opens one to give or end a role) and its subgroups.
+
+### Editing a homepage in place
+
+Whoever may act as an account edits its homepage where it is shown, not in a form: **Edit** beside the name turns the homepage into its edit mode, **Done** ends it.
+
+<!--renderComp=DiagramText-->
+```text
+read                    edit mode                        runs
+Mika Tanaka             [Mika Tanaka]                    account.update
+Setagaya, Tokyo         [Setagaya, Tokyo]                individual.update
+Violin, level 5         Violin  level 1 2 3 4 5  ×       individual.update
+                        + Add what you play              a sheet of tags
+Looking for: students   students ×   [+ add]             individual.update
+the calendar            tap a part of a day, then:       availability.declare
+                        Available  Limited  Unavailable
+One rehearsal  ¥6,000   [One rehearsal] [6000] JPY ×     individual.update
+```
+
+- **Every change is one action**, run at once: a level tapped, a skill taken out, a price typed and left. It is in the session's log like any other action, and refused with its reason like any other.
+- **A text is typed where it stands**, in a field of the same size and look, with a dashed line saying it can be typed; its draft is the app's (the data stays as it was until the text is committed), Escape gives it up.
+- **What has no place on the homepage opens a sheet**: the tags to add, a declaration at a scale the calendar cannot tap, the Markdown of the homepage.
+- A group is edited the same way by its owners and admins: its description, where it plays, how members join, who it looks for, what it plays, when it can play.
 
 ## Forms
 
@@ -58,12 +81,14 @@ Tags are drawn as **cartoon stickers**: one hand for all of them, a dark ink out
 
 The app reads a partition and runs actions through `ZeneBackendLocal`:
 
+<!--renderComp=DiagramText-->
 ```text
-world = the items of the partition  +  the session (the effects of the actions run)
-          read through the api            kept in this browser, per object and partition
-          of the object's mode            Discard: forgotten
-                                          Write into the partition (edit mode): each changed entity
-                                          created, written or removed as its data item
+world = the items of the partition  +  the session
+        read through the api of         the effects of the actions run, kept in
+        the object's mode               this browser, per object and partition
+                                        Discard: forgotten
+                                        Write into the partition (edit mode):
+                                        each changed entity written as its item
 ```
 
 - **Reading a page changes nothing.** The actions of a reader go to the session, in the browser; the files change only in edit mode, by **Write into the partition**. So the static build of the page is a working app: every action works there, kept in the visitor's browser.

@@ -23,7 +23,10 @@ export const ZeneDataTable = observer(function ZeneDataTable({ data = {}, config
 	const changeByKey = new Map(backend.changeList.map((change) => [`${change.kind}:${change.id}`, change.op]));
 	const baseKeySet = new Set(backend.baseRead.entryList.map((entry) => `${entry.kind}:${entry.data.id}`));
 	const deletedList = backend.changeList.filter((change) => change.op === 'delete' && change.kind === kind && baseKeySet.has(`${change.kind}:${change.id}`));
-	const entityList = world.list(kind);
+	// the taxonomy is one item: its rows are the tags inside it, each at the path of the item
+	const isTaxonomy = kind === 'taxonomy';
+	const entityList = isTaxonomy ? world.list('tag') : world.list(kind);
+	const rowKind = isTaxonomy ? 'tag' : kind;
 	return (
 		<div className="zene-data not-prose">
 			<div className="zene-data-kind-row" role="tablist" aria-label="Kinds of data items">
@@ -35,20 +38,21 @@ export const ZeneDataTable = observer(function ZeneDataTable({ data = {}, config
 			</div>
 			<p className="zene-data-line">
 				Partition <strong>{partition}</strong>: {backend.baseRead.countAll} data items{backend.changeCount > 0 ? `, with ${backend.changeCount} effect(s) of the session over them` : ''}.
-				Paths are /{partition}/{kind}/{'{id}'}.
+				{isTaxonomy ? ` Every tag lies in the one taxonomy item: ${world.count('tag')} tags.` : ` Paths are /${partition}/${kind}/{id}.`}
 			</p>
 			<div className="zene-data-scroll">
 				<table className="zene-table">
 					<thead><tr><th>Path</th><th>Name</th><th>Says</th><th>Session</th></tr></thead>
 					<tbody>
 						{entityList.map((entity) => {
-							const op = changeByKey.get(`${kind}:${entity.id}`);
-							const isCreated = op && !baseKeySet.has(`${kind}:${entity.id}`);
+							const itemKey = isTaxonomy ? `taxonomy:${entity.taxonomy}` : `${kind}:${entity.id}`;
+							const op = changeByKey.get(itemKey);
+							const isCreated = op && !baseKeySet.has(itemKey);
 							return (
 								<tr key={entity.id} data-op={isCreated ? 'create' : op ?? ''}>
-									<td className="zene-data-path">{zeneEntityPathBuild(partition, kind, entity.id)}</td>
-									<td>{zeneEntityNameGet(world, kind, entity)}</td>
-									<td className="zene-data-says">{entitySayText(world, kind, entity)}</td>
+									<td className="zene-data-path">{isTaxonomy ? `${zeneEntityPathBuild(partition, 'taxonomy', entity.taxonomy)} › ${entity.id}` : zeneEntityPathBuild(partition, kind, entity.id)}</td>
+									<td>{zeneEntityNameGet(world, rowKind, entity)}</td>
+									<td className="zene-data-says">{entitySayText(world, rowKind, entity)}</td>
 									<td>{isCreated ? 'created' : op ? 'updated' : ''}</td>
 								</tr>
 							);
@@ -82,6 +86,7 @@ function entitySayText(world, kind, entity) {
 		case 'follow': return '';
 		case 'tag': return `${entity.kindList.join(', ')}${entity.parentList.length ? `; below ${entity.parentList.map(label).join(', ')}` : ''}${entity.composerList.length ? `; by ${entity.composerList.map(label).join(', ')}` : ''}${entity.originList.length ? `; from ${entity.originList.map(label).join(', ')}` : ''}`;
 		case 'page': return `${entity.text.length} characters`;
+		case 'availability': return `${entity.current ? `now ${entity.current.state}; ` : ''}${entity.declarationList.length} declaration(s)`;
 		default: return '';
 	}
 }

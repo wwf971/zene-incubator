@@ -1,10 +1,13 @@
 import { observer } from 'mobx-react-lite';
 import { MdxRenderer } from '@wwf971/react-doc';
-import { CalendarDays, Grid3x3, Info, MoreHorizontal, Pencil, UserPlus, Users } from 'lucide-react';
+import { CalendarDays, Check, Grid3x3, Info, MoreHorizontal, Pencil, UserPlus, Users } from 'lucide-react';
 import { ZENE_EVENT_ACCOUNT_KEEP_DAY } from '../../model/ZeneKind.js';
 import { zeneAccountStat, zeneAccountStateText, zeneEventListOfSubject, zeneGroupListOfPerson, zeneMemberListOfGroup } from '../../model/ZeneQuery.js';
 import { zeneEventManageIs, zeneEventParticipantIs, zeneGroupManageIs, zeneMembershipActiveGet, zeneMembershipRoleList } from '../../model/ZeneRole.js';
+import { zeneAvailabilityReport } from '../../model/ZeneAvailability.js';
 import { ZenePager } from '../ZeneSwipe.jsx';
+import { ZeneAddButton, ZeneInlineText, ZeneRemoveButton } from '../part/ZeneInline.jsx';
+import { ZeneAvailabilitySection } from './ZeneAvailabilityView.jsx';
 import { ZeneAvatar } from '../part/ZeneAvatar.jsx';
 import { ZeneIcon } from '../part/ZeneIcon.jsx';
 import {
@@ -36,8 +39,12 @@ export const ZeneAccountView = observer(function ZeneAccountView({ app, account 
 	const kind = account.subject.kind;
 	const tagIdList = kind === 'individual' ? (subject?.skillList ?? []).filter((one) => one.isPrimary).map((one) => one.tag)
 		: kind === 'group' ? (subject?.tagList ?? []).slice(0, 3) : (subject?.programList ?? []).map((one) => one.tag).slice(0, 3);
+	const isEditing = app.store.isEditing(account.id) && accountEditableIs(app, account);
+	const availability = kind === 'event' ? undefined : world.availabilityOfSubject(kind, account.subject.id);
+	const status = availability ? zeneAvailabilityReport(availability, { time: app.time, weekCount: 2 }).status : null;
+	const accountUpdate = (change) => app.actionRun('account.update', { account: account.id, ...change });
 	return (
-		<div className="zene-profile">
+		<div className={`zene-profile${isEditing ? ' is-editing' : ''}`}>
 			<div className="zene-profile-head">
 				<ZeneAvatar account={account} size={78} isRing={kind === 'event'} />
 				<div className="zene-profile-stat-row">
@@ -49,11 +56,20 @@ export const ZeneAccountView = observer(function ZeneAccountView({ app, account 
 				</div>
 			</div>
 			<div className="zene-profile-name">
-				<strong>{account.name}</strong>
+				{isEditing ? <ZeneInlineText app={app} inputKey={`name:${account.id}`} value={account.name} isEditing onCommit={(name) => accountUpdate({ name })} className="is-name" /> : <strong>{account.name}</strong>}
+				{status?.state && !isEditing ? <span className="zene-avail-pill" data-state={status.state} title={status.source === 'current' ? 'what they said of now' : 'from their calendar, the next two weeks'}><i />{status.state}</span> : null}
 				{stateText ? <span className="zene-pill is-muted" title={`An event account can be used until ${ZENE_EVENT_ACCOUNT_KEEP_DAY} days after its event`}>{stateText}</span> : null}
 			</div>
-			{kind === 'individual' && subject?.area ? <p className="zene-profile-line">{subject.area}</p> : null}
-			{account.bio ? <p className="zene-profile-bio">{account.bio}</p> : null}
+			{kind === 'individual' && (subject?.area || isEditing) ? (
+				<p className="zene-profile-line">
+					<ZeneInlineText app={app} inputKey={`area:${subject.id}`} value={subject.area} isEditing={isEditing} placeholder="where you play" onCommit={(area) => app.actionRun('individual.update', { individual: subject.id, area })} />
+				</p>
+			) : null}
+			{account.bio || isEditing ? (
+				<p className="zene-profile-bio">
+					<ZeneInlineText app={app} inputKey={`bio:${account.id}`} value={account.bio} isEditing={isEditing} isMultiLine placeholder="a line about you" onCommit={(bio) => accountUpdate({ bio })} />
+				</p>
+			) : null}
 			<ZeneTagRow world={world} tagIdList={tagIdList} onOpen={(id) => app.tagOpen(id)} size="s" />
 			<ZeneProfileButtonRow app={app} account={account} subject={subject} />
 			<nav className="zene-view-tab-row" aria-label="Views of the homepage">
@@ -97,8 +113,14 @@ const ZeneProfileButtonRow = observer(function ZeneProfileButtonRow({ app, accou
 	const isOwn = account.id === accountId;
 	const kind = account.subject.kind;
 	const buttonList = [];
-	if (isOwn && kind === 'individual') {
-		buttonList.push(<button key="edit" type="button" className="zene-button" onClick={() => app.store.sheetOpen('profileEdit', { individual: subject.id })}><Pencil size={14} />Edit profile</button>);
+	// the homepage edited where it is shown, by whoever may act as its account
+	if (accountEditableIs(app, account)) {
+		const isEditing = app.store.isEditing(account.id);
+		buttonList.push(
+			<button key="edit" type="button" className={`zene-button${isEditing ? ' is-primary' : ''}`} aria-pressed={isEditing} onClick={() => app.store.editToggle(account.id)}>
+				{isEditing ? <Check size={14} /> : <Pencil size={14} />}{isEditing ? 'Done' : 'Edit'}
+			</button>,
+		);
 	}
 	if (!isOwn) {
 		buttonList.push(follow
@@ -114,7 +136,6 @@ const ZeneProfileButtonRow = observer(function ZeneProfileButtonRow({ app, accou
 		else if (subject.joinPolicy === 'open') buttonList.push(<ZeneActionButton key="join" app={app} actionId="group.join" input={{ group: subject.id }} label="Join" tone="primary" />);
 		else if (subject.joinPolicy === 'apply') buttonList.push(<button key="apply" type="button" className="zene-button is-primary" disabled={Boolean(app.backend.actionReasonGet('group.apply', app.store.actor, { group: subject.id }, { isInputChecked: true }))} title={app.backend.actionReasonGet('group.apply', app.store.actor, { group: subject.id }, { isInputChecked: true }) || undefined} onClick={() => app.store.sheetOpen('apply', { kind: 'group', id: subject.id })}>Apply</button>);
 		else buttonList.push(<span key="invite" className="zene-pill is-muted">members by invitation</span>);
-		if (zeneGroupManageIs(world, personId, subject.id, app.time)) buttonList.push(<button key="edit" type="button" className="zene-button" onClick={() => app.store.sheetOpen('groupEdit', { group: subject.id })}><Pencil size={14} />Edit</button>);
 	}
 	if (kind === 'event' && subject) buttonList.push(...eventButtonList(app, subject));
 	return <div className="zene-button-row is-profile">{buttonList}</div>;
@@ -139,77 +160,122 @@ function eventButtonList(app, event) {
 
 // --- About ------------------------------------------------------------------------------------
 
-const DAY_LIST = [['mon', 'Mon'], ['tue', 'Tue'], ['wed', 'Wed'], ['thu', 'Thu'], ['fri', 'Fri'], ['sat', 'Sat'], ['sun', 'Sun']];
+// whether the person on the device edits this homepage: they may act as its account
+function accountEditableIs(app, account) {
+	return app.backend.actionReasonGet('account.update', app.store.actor, { account: account.id }) === '';
+}
 
+// what a person is to the community, read and, in the edit mode of their homepage, edited where it is
+// shown: each change is one action (individual.update, availability.*)
 const ZeneAboutPerson = observer(function ZeneAboutPerson({ app, account, person }) {
 	const world = app.world;
-	const { availability, pricing } = person;
+	const { pricing } = person;
+	const isEditing = app.store.isEditing(account.id) && accountEditableIs(app, account);
+	const update = (change) => app.actionRun('individual.update', { individual: person.id, ...change });
+	const skillListSet = (skillList) => update({ skillList });
+	const priceListSet = (itemList) => update({ pricing: { ...pricing, itemList } });
+	const roleOn = (role) => person.roleList.find((one) => one.role === role && !one.timeEnd);
 	return (
 		<div className="zene-about">
 			<ZeneSection title="Plays" detail={person.skillList.length ? '' : 'nothing yet'}>
 				<div className="zene-skill-list">
-					{person.skillList.map((skill) => (
+					{person.skillList.map((skill, index) => (
 						<div key={skill.tag} className="zene-skill">
 							<ZeneTagChip world={world} tagId={skill.tag} onClick={(id) => app.tagOpen(id)} />
-							<span className="zene-level" title={`level ${skill.level} of 5`}>{[1, 2, 3, 4, 5].map((n) => <i key={n} className={n <= skill.level ? 'is-on' : ''} />)}</span>
+							<span className={`zene-level${isEditing ? ' is-editing' : ''}`} title={`level ${skill.level} of 5`}>
+								{[1, 2, 3, 4, 5].map((n) => (isEditing
+									? <button key={n} type="button" className={n <= skill.level ? 'is-on' : ''} aria-label={`level ${n}`} onClick={() => skillListSet(person.skillList.map((one, at) => (at === index ? { ...one, level: n } : one)))} />
+									: <i key={n} className={n <= skill.level ? 'is-on' : ''} />))}
+							</span>
 							{skill.yearStart ? <span className="zene-skill-year">since {skill.yearStart}</span> : null}
+							{isEditing ? <ZeneRemoveButton title={`Take ${world.tag.get(skill.tag)?.label} out`} onClick={() => skillListSet(person.skillList.filter((_, at) => at !== index))} /> : null}
 						</div>
 					))}
+					{isEditing ? <ZeneAddButton label="Add what you play" onClick={() => app.store.sheetOpen('tagAdd', { purpose: 'skill', individual: person.id })} /> : null}
 				</div>
 			</ZeneSection>
 			<ZeneSection title="Roles">
 				<ul className="zene-plain-list">
 					{person.roleList.map((role, index) => (
-						<li key={index}>
+						<li key={index} className={role.timeEnd ? 'is-muted' : ''}>
 							<strong>{role.role === 'organizer' ? 'Organizer' : 'Practitioner'}</strong>
 							{role.timeStart ? <> since <ZeneTime time={role.timeStart} part="date" /></> : null}
 							{role.timeEnd ? <> until <ZeneTime time={role.timeEnd} part="date" /></> : null}
+							{isEditing && !role.timeEnd ? <button type="button" className="zene-link is-small" onClick={() => update({ roleList: person.roleList.map((one, at) => (at === index ? { ...one, timeEnd: app.time } : one)) })}>end it now</button> : null}
 						</li>
 					))}
 				</ul>
-			</ZeneSection>
-			{person.lookingForList.length > 0 ? (
-				<ZeneSection title="Looking for">
-					<div className="zene-chip-row">{person.lookingForList.map((text) => <span key={text} className="zene-pill is-soft">{text}</span>)}</div>
-				</ZeneSection>
-			) : null}
-			{availability.slotList.length > 0 || availability.note ? (
-				<ZeneSection title="Available" detail={`times in ${availability.zone}`}>
-					<div className="zene-week">
-						{DAY_LIST.map(([day, label]) => {
-							const slotList = availability.slotList.filter((one) => one.day === day);
-							return (
-								<div key={day} className={`zene-week-day${slotList.length ? ' is-free' : ''}`}>
-									<span className="zene-week-label">{label}</span>
-									{slotList.map((slot, index) => <span key={index} className="zene-week-slot">{slot.from}<br />{slot.to}</span>)}
-								</div>
-							);
-						})}
-					</div>
-					{availability.note ? <p className="zene-note">{availability.note}</p> : null}
-				</ZeneSection>
-			) : null}
-			<ZeneSection title="Pricing">
-				<div className="zene-chip-row">
-					<span className={`zene-pill${pricing.isPaidOk ? ' is-soft' : ' is-muted'}`}>{pricing.isPaidOk ? 'takes paid work' : 'no paid work'}</span>
-					<span className={`zene-pill${pricing.isFreeOk ? ' is-soft' : ' is-muted'}`}>{pricing.isFreeOk ? 'plays for free too' : 'paid work only'}</span>
-				</div>
-				{pricing.itemList.length > 0 ? (
-					<div className="zene-price-list">
-						{pricing.itemList.map((item, index) => (
-							<div key={index} className="zene-price">
-								<span>{item.label}</span>
-								<strong>{amountText(item.amount, item.currency)}</strong>
-								<em>{item.unit}</em>
-							</div>
+				{isEditing ? (
+					<div className="zene-button-row is-inline">
+						{['practitioner', 'organizer'].filter((role) => !roleOn(role)).map((role) => (
+							<ZeneAddButton key={role} label={role === 'organizer' ? 'Organizer from now' : 'Practitioner from now'} onClick={() => update({ roleList: [...person.roleList, { role, timeStart: app.time }] })} />
 						))}
 					</div>
 				) : null}
-				{pricing.note ? <p className="zene-note">{pricing.note}</p> : null}
 			</ZeneSection>
-			{person.workTagList.length > 0 ? (
+			{person.lookingForList.length > 0 || isEditing ? (
+				<ZeneSection title="Looking for">
+					<div className="zene-chip-row">
+						{person.lookingForList.map((text, index) => (
+							<span key={text} className="zene-pill is-soft">
+								{text}
+								{isEditing ? <ZeneRemoveButton title={`Take "${text}" out`} onClick={() => update({ lookingForList: person.lookingForList.filter((_, at) => at !== index) })} /> : null}
+							</span>
+						))}
+						{isEditing ? (
+							<span className="zene-pill-add">
+								<ZeneInlineText app={app} inputKey={`looking:${person.id}`} value="" isEditing placeholder="+ add: an orchestra, students …" onCommit={(text) => text.trim() && update({ lookingForList: [...person.lookingForList, text.trim()] })} />
+							</span>
+						) : null}
+					</div>
+				</ZeneSection>
+			) : null}
+			<ZeneAvailabilitySection app={app} subject={{ kind: 'individual', id: person.id }} isEditing={isEditing} />
+			<ZeneSection title="Pricing">
+				<div className="zene-chip-row">
+					<button type="button" className={`zene-pill${pricing.isPaidOk ? ' is-soft' : ' is-muted'}${isEditing ? ' is-toggle' : ''}`} disabled={!isEditing} title={isEditing ? 'Tap to change' : undefined} onClick={() => update({ pricing: { ...pricing, isPaidOk: !pricing.isPaidOk } })}>
+						{pricing.isPaidOk ? 'takes paid work' : 'no paid work'}
+					</button>
+					<button type="button" className={`zene-pill${pricing.isFreeOk ? ' is-soft' : ' is-muted'}${isEditing ? ' is-toggle' : ''}`} disabled={!isEditing} title={isEditing ? 'Tap to change' : undefined} onClick={() => update({ pricing: { ...pricing, isFreeOk: !pricing.isFreeOk } })}>
+						{pricing.isFreeOk ? 'plays for free too' : 'paid work only'}
+					</button>
+				</div>
+				{pricing.itemList.length > 0 || isEditing ? (
+					<div className="zene-price-list">
+						{pricing.itemList.map((item, index) => {
+							const itemSet = (change) => priceListSet(pricing.itemList.map((one, at) => (at === index ? { ...one, ...change } : one)));
+							return (
+								<div key={index} className={`zene-price${isEditing ? ' is-editing' : ''}`}>
+									<ZeneInlineText app={app} inputKey={`price-label:${person.id}:${index}`} value={item.label} isEditing={isEditing} onCommit={(label) => itemSet({ label })} />
+									{isEditing ? (
+										<span className="zene-price-amount">
+											<ZeneInlineText app={app} inputKey={`price-amount:${person.id}:${index}`} value={String(item.amount)} isEditing type="number" onCommit={(text) => itemSet({ amount: Number(text) || 0 })} />
+											<em>{item.currency}</em>
+										</span>
+									) : <strong>{amountText(item.amount, item.currency)}</strong>}
+									<em><ZeneInlineText app={app} inputKey={`price-unit:${person.id}:${index}`} value={item.unit} isEditing={isEditing} placeholder="per what" onCommit={(unit) => itemSet({ unit })} /></em>
+									{isEditing ? <ZeneRemoveButton title="Take this price out" onClick={() => priceListSet(pricing.itemList.filter((_, at) => at !== index))} /> : null}
+								</div>
+							);
+						})}
+						{isEditing ? <ZeneAddButton label="Add a price" onClick={() => priceListSet([...pricing.itemList, { label: 'A rehearsal', amount: 5000, currency: 'JPY', unit: 'per rehearsal' }])} /> : null}
+					</div>
+				) : null}
+				{pricing.note || isEditing ? (
+					<p className="zene-note"><ZeneInlineText app={app} inputKey={`price-note:${person.id}`} value={pricing.note} isEditing={isEditing} placeholder="a note on prices" onCommit={(note) => update({ pricing: { ...pricing, note } })} /></p>
+				) : null}
+			</ZeneSection>
+			{person.workTagList.length > 0 || isEditing ? (
 				<ZeneSection title="Works they love">
-					<ZeneTagRow world={world} tagIdList={person.workTagList} onOpen={(id) => app.tagOpen(id)} size="s" />
+					<div className="zene-chip-row">
+						{person.workTagList.map((id) => (
+							<span key={id} className="zene-chip-removable">
+								<ZeneTagChip world={world} tagId={id} onClick={(tagId) => app.tagOpen(tagId)} size="s" />
+								{isEditing ? <ZeneRemoveButton title="Take it out" onClick={() => update({ workTagList: person.workTagList.filter((one) => one !== id) })} /> : null}
+							</span>
+						))}
+						{isEditing ? <ZeneAddButton label="Add a work or a composer" onClick={() => app.store.sheetOpen('tagAdd', { purpose: 'work', individual: person.id })} /> : null}
+					</div>
 				</ZeneSection>
 			) : null}
 			<ZeneHomepage app={app} account={account} />
@@ -217,28 +283,62 @@ const ZeneAboutPerson = observer(function ZeneAboutPerson({ app, account, person
 	);
 });
 
-const POLICY_TEXT = { open: 'anyone may join', apply: 'members apply, the managers decide', invite: 'members by invitation' };
+const POLICY_LIST = [
+	{ id: 'open', label: 'open', text: 'anyone may join' },
+	{ id: 'apply', label: 'by application', text: 'members apply, the managers decide' },
+	{ id: 'invite', label: 'by invitation', text: 'members by invitation' },
+];
 
 const ZeneAboutGroup = observer(function ZeneAboutGroup({ app, account, group }) {
 	const world = app.world;
+	const isEditing = app.store.isEditing(account.id) && accountEditableIs(app, account);
+	const update = (change) => app.actionRun('group.update', { group: group.id, ...change });
 	return (
 		<div className="zene-about">
-			{group.description ? <p className="zene-about-text">{group.description}</p> : null}
+			{group.description || isEditing ? (
+				<p className="zene-about-text">
+					<ZeneInlineText app={app} inputKey={`description:${group.id}`} value={group.description} isEditing={isEditing} isMultiLine placeholder="what the group is" onCommit={(description) => update({ description })} />
+				</p>
+			) : null}
 			<ZeneSection title="The group">
 				<ul className="zene-plain-list">
-					{group.area ? <li><strong>Where</strong> {group.area}</li> : null}
+					{group.area || isEditing ? <li><strong>Where</strong> <ZeneInlineText app={app} inputKey={`group-area:${group.id}`} value={group.area} isEditing={isEditing} placeholder="where it plays" onCommit={(area) => update({ area })} /></li> : null}
 					{group.timeFounded ? <li><strong>Founded</strong> <ZeneTime time={group.timeFounded} part="date" /></li> : null}
-					<li><strong>Joining</strong> {POLICY_TEXT[group.joinPolicy]}</li>
+					<li>
+						<strong>Joining</strong>{' '}
+						{isEditing ? (
+							<span className="zene-segment is-small is-inline" role="radiogroup" aria-label="How members join">
+								{POLICY_LIST.map((one) => <button key={one.id} type="button" role="radio" aria-checked={group.joinPolicy === one.id} className={`zene-segment-item${group.joinPolicy === one.id ? ' is-on' : ''}`} title={one.text} onClick={() => update({ joinPolicy: one.id })}>{one.label}</button>)}
+							</span>
+						) : POLICY_LIST.find((one) => one.id === group.joinPolicy)?.text}
+					</li>
 				</ul>
 			</ZeneSection>
-			{group.recruitList.length > 0 ? (
+			{group.recruitList.length > 0 || isEditing ? (
 				<ZeneSection title="Looking for">
-					<div className="zene-chip-row">{group.recruitList.map((one, index) => <ZeneTagChip key={index} world={world} tagId={one.tag} detail={one.count > 1 ? `× ${one.count}` : ''} onClick={(id) => app.tagOpen(id)} />)}</div>
+					<div className="zene-chip-row">
+						{group.recruitList.map((one, index) => (
+							<span key={index} className="zene-chip-removable">
+								<ZeneTagChip world={world} tagId={one.tag} detail={one.count > 1 ? `× ${one.count}` : ''} onClick={(id) => app.tagOpen(id)} />
+								{isEditing ? <ZeneRemoveButton title="Not looking for it any more" onClick={() => update({ recruitList: group.recruitList.filter((_, at) => at !== index) })} /> : null}
+							</span>
+						))}
+						{isEditing ? <ZeneAddButton label="Look for" onClick={() => app.store.sheetOpen('tagAdd', { purpose: 'recruit', group: group.id })} /> : null}
+					</div>
 				</ZeneSection>
 			) : null}
 			<ZeneSection title="Plays">
-				<ZeneTagRow world={world} tagIdList={group.tagList} onOpen={(id) => app.tagOpen(id)} size="s" />
+				<div className="zene-chip-row">
+					{group.tagList.map((id) => (
+						<span key={id} className="zene-chip-removable">
+							<ZeneTagChip world={world} tagId={id} onClick={(tagId) => app.tagOpen(tagId)} size="s" />
+							{isEditing ? <ZeneRemoveButton title="Take it out" onClick={() => update({ tagList: group.tagList.filter((one) => one !== id) })} /> : null}
+						</span>
+					))}
+					{isEditing ? <ZeneAddButton label="Add a genre or a work" onClick={() => app.store.sheetOpen('tagAdd', { purpose: 'groupTag', group: group.id })} /> : null}
+				</div>
 			</ZeneSection>
+			<ZeneAvailabilitySection app={app} subject={{ kind: 'group', id: group.id }} isEditing={isEditing} />
 			<ZeneHomepage app={app} account={account} />
 		</div>
 	);

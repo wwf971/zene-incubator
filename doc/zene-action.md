@@ -7,14 +7,15 @@ Everything a person does that changes data is an **action** of one catalog (`com
 
 ## Running an action
 
+<!--renderComp=DiagramText-->
 ```text
 run(world, { actionId, actor, input, time })
-  -> who      may this actor do it?            a question about the actor, answered from the data
-               no: refused, -7 (sign in first) or -8 (not allowed), with the reason
-  -> check    is what is asked possible now?   the input and the state: a handle taken, an application waiting
-               no: refused, -1, with the reason
-  -> plan     its effects                      { op: create | update | delete, kind, id, data }
-  -> { code: 0, data: { effectList, result } } nothing is written yet
+  -> who     may this actor do it?            asked of the data
+             no: refused, -7 (sign in first) or -8 (not allowed)
+  -> check   is what is asked possible now?   the input, the state
+             no: refused, -1, with the reason
+  -> plan    its effects: { op: create | update | delete, kind, id, data }
+  -> { code: 0, data: { effectList, result } }      nothing written yet
 whoever ran it applies the effects to its storage
 ```
 
@@ -48,26 +49,33 @@ mode: action
 
 **Joining a group by application.**
 
+<!--renderComp=DiagramText-->
 ```text
-Lena (signed in)         group.apply { group: Aurora, message, skillList }
-                           who: signed in       check: not a member, the group takes applications, none waiting
-                           -> create application (pending)
-Mika (admin of Aurora)   sees it in Activity: zeneInbox lists pending applications she decides for
-                         application.accept { application }
-                           who: decides for the target
-                           -> update application (accepted, timeDecided, decidedBy @mika.violin)
-                           -> create membership (Lena in Aurora, active, via the application)
+Lena                group.apply { group: Aurora, message, skillList }
+(signed in)           who: signed in
+                      check: not a member, the group takes applications,
+                             none waiting
+                      -> create application (pending)
+Mika                sees it in Activity (zeneInbox: what she decides for)
+(admin of Aurora)   application.accept { application }
+                      who: decides for the target
+                      -> update application (accepted, decidedBy @mika.violin)
+                      -> create membership (Lena in Aurora, via the application)
 ```
 
 **Hiring for an event.**
 
+<!--renderComp=DiagramText-->
 ```text
-Aurora's admin, acting as @aurora.orch     post.create { postKind: hiring, hiring: { target: the Winter Concert, tag: viola, count: 2 } }
-                                             check: the actor manages the target
-Lena                                       hiring.apply { post }      -> create application for the event, via the post
-an organizer of the concert                application.accept         -> update application
-                                                                      -> update event: Lena a confirmed performer;
-                                                                         one open position whose skill lies above viola filled
+Aurora's admin,     post.create { postKind: hiring, hiring: { target:
+as @aurora.orch       the Winter Concert, tag: viola, count: 2 } }
+                      check: the actor manages the target
+Lena                hiring.apply { post }
+                      -> create application for the event, via the post
+an organizer        application.accept
+                      -> update application
+                      -> update event: Lena a confirmed performer; one open
+                         position whose skill lies above viola filled
 ```
 
 ## Rules the actions keep
@@ -77,17 +85,20 @@ an organizer of the concert                application.accept         -> update 
 - **One application waits at a time** per person and target; accepting or declining is final, the applicant may withdraw while it waits.
 - An event is made as a **draft**, seen by its organizers, until it is published; one that is over cannot be cancelled. Its account is made with it and **expires 30 days after it**: posting as an expired event account is refused.
 - A rehearsal is added to an event by its organizers, is seen only by those taking part, and has no account.
+- **Availability is said, not computed when written**: `availability.declare` keeps a declaration as it was said (a new one, or one replaced by its id), and the merging into parts of days happens when it is read ([Availability](zene-availability.md)). Only the person declares for themselves; for a group, its owners and admins.
+- **The tags are one item**: `tag.create` updates the taxonomy item of the community (making it when there is none), so every tag is added the same way and the DAG is checked across all of them.
 
 ## Where the actions run
 
+<!--renderComp=DiagramText-->
 ```text
-the demonstration     the screens ──► ZeneBackendLocal ──► the catalog, in the page
-                                      the effects applied to a session kept in the browser,
-                                      over the partition; written into its items in edit mode
+the demonstration   the screens ──► ZeneBackendLocal ──► the catalog
+                    the effects applied to a session kept in the browser,
+                    over the partition; written into its items in edit mode
 
-an MVP                the screens ──► a backend client ──► POST action/run { actionId, input }
-                                                          a server signs the person in (the auth layer),
-                                                          runs the same catalog, writes the items
+an MVP              the screens ──► a backend client ──► POST action/run
+                    a server signs the person in (the auth layer), runs
+                    the same catalog, writes the items
 ```
 
 The catalog is pure (no React, no store, no network): the server imports it as it is, checks every request again whatever the page showed, and applies the effects to its storage in one transaction. Because the effects are whole data items, the storage underneath can be the storage layer of react-doc (a partition at a storage point) or a database whose rows are those items.

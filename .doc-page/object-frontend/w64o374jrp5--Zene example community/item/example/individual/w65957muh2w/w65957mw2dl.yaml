@@ -1,0 +1,27 @@
+name: Takumi Endo
+area: Koenji, Tokyo
+timeCreated: 20231205_20000000+09
+roleList:
+  - role: practitioner
+    timeStart: 20070401_00000000+09
+skillList:
+  - tag: fdok35y3l36
+    level: 5
+    yearStart: 2003
+    isPrimary: true
+  - tag: 9jkztierort
+    level: 4
+    yearStart: 2001
+workTagList:
+  - bvfqae7yhnw
+  - e14beic3ge3
+pricing:
+  isPaidOk: true
+  isFreeOk: true
+  itemList:
+    - label: Gig or concert
+      amount: 12000
+      currency: JPY
+      unit: per day
+account: hlh241u9ws3
+id: 3meizdwrtqu

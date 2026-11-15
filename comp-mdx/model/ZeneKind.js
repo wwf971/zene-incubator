@@ -1,3 +1,5 @@
+import { zeneAvailabilityNormalize } from './ZeneAvailability.js';
+
 // The kinds of data items of a music community (doc/zene-data.md). Each entity is one asset
 // item of the frontend object, of one of these kinds; its data is yaml (a page is Markdown).
 // An entity is found by its kind and id; its asset path is /{partition}/{kind}/{id}, so the
@@ -16,11 +18,15 @@ export const ZENE_KIND_LIST = [
 	{ id: 'post', label: 'Post', lang: 'yaml' },
 	{ id: 'application', label: 'Application', lang: 'yaml' },
 	{ id: 'follow', label: 'Follow', lang: 'yaml' },
-	{ id: 'tag', label: 'Tag', lang: 'yaml' },
+	{ id: 'availability', label: 'Availability', lang: 'yaml' },
+	{ id: 'taxonomy', label: 'Taxonomy', lang: 'yaml' },
 	{ id: 'page', label: 'Homepage', lang: 'md' },
 ];
 export const ZENE_KIND_ID_LIST = ZENE_KIND_LIST.map((one) => one.id);
 const KIND_BY_ID = new Map(ZENE_KIND_LIST.map((one) => [one.id, one]));
+// the kinds of the world: the kinds of items, and the tags, which live inside the taxonomy item
+// (one item holds every tag of a community: they are curated together and read together)
+export const ZENE_WORLD_KIND_ID_LIST = [...ZENE_KIND_ID_LIST, 'tag'];
 
 export function zeneKindGet(kind) {
 	return KIND_BY_ID.get(kind);
@@ -75,11 +81,6 @@ export function zeneEntityNormalize(kind, data = {}) {
 				skillList: listOf(data.skillList).map((one) => ({ tag: textOf(one?.tag), level: Math.min(5, Math.max(1, Number(one?.level) || 3)), yearStart: Number(one?.yearStart) || 0, isPrimary: one?.isPrimary === true })),
 				workTagList: listOf(data.workTagList).map(textOf),
 				lookingForList: listOf(data.lookingForList).map(textOf),
-				availability: {
-					zone: textOf(data.availability?.zone, '+09'),
-					slotList: listOf(data.availability?.slotList).map((one) => ({ day: textOf(one?.day), from: textOf(one?.from), to: textOf(one?.to) })),
-					note: textOf(data.availability?.note),
-				},
 				pricing: {
 					isPaidOk: data.pricing?.isPaidOk === true,
 					isFreeOk: data.pricing?.isFreeOk !== false,
@@ -181,6 +182,7 @@ export function zeneEntityNormalize(kind, data = {}) {
 		case 'tag':
 			return {
 				...base,
+				taxonomy: textOf(data.taxonomy),
 				label: textOf(data.label),
 				kindList: listOf(data.kindList).filter((one) => ZENE_TAG_KIND_LIST.includes(one)),
 				parentList: listOf(data.parentList).map(textOf),
@@ -190,6 +192,13 @@ export function zeneEntityNormalize(kind, data = {}) {
 				color: textOf(data.color),
 				note: textOf(data.note),
 			};
+		// every tag of the community in one item; each tag keeps its own id
+		case 'taxonomy':
+			return { ...base, name: textOf(data.name, 'Tags'), tagList: listOf(data.tagList).map((one) => { const { taxonomy: _taxonomy, ...tag } = zeneEntityNormalize('tag', one); return tag; }) };
+		// when a person (or a group) can play: declarations at any scale, and the current state
+		// (model/ZeneAvailability.js, doc/zene-availability.md)
+		case 'availability':
+			return { ...base, ...zeneAvailabilityNormalize(data) };
 		case 'page':
 			return { ...base, account: textOf(data.account), text: textOf(data.text) };
 		default:
@@ -215,6 +224,8 @@ export function zeneEntityNameGet(world, kind, entity) {
 		case 'account': return `@${entity.handle}`;
 		case 'individual': case 'group': case 'subgroup': case 'event': return entity.name;
 		case 'tag': return entity.label;
+		case 'taxonomy': return `${entity.name} (${entity.tagList.length} tags)`;
+		case 'availability': return `Availability of ${world?.labelGet?.(entity.subject.kind, entity.subject.id) ?? entity.subject.id}`;
 		case 'post': return `${world?.accountLabelGet?.(entity.account) ?? entity.account}: ${entity.text.slice(0, 40)}`;
 		case 'application': return `${world?.labelGet?.('individual', entity.applicant) ?? entity.applicant} → ${world?.labelGet?.(entity.target.kind, entity.target.id) ?? entity.target.id}`;
 		case 'membership': return `${world?.labelGet?.('individual', entity.individual) ?? entity.individual} in ${world?.labelGet?.('group', entity.group) ?? entity.group}`;

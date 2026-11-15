@@ -1,0 +1,39 @@
+subject:
+  kind: individual
+  id: cq5w1zkbpa9
+zone: "+09"
+current:
+  timeDeclared: 20261112_23000000+09
+  state: available
+  note: taking arranging commissions for the spring
+declarationList:
+  - id: 1ebwr6qvac6
+    timeDeclared: 20231101_12000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - fri
+    dayPartList:
+      - evening
+      - night
+  - id: fc2d3u00f4q
+    timeDeclared: 20231101_12000000+09
+    state: available
+    span:
+      unit: always
+    weekdayList:
+      - sat
+    dayPartList:
+      - morning
+      - afternoon
+      - evening
+  - id: d9jtkscocx2
+    timeDeclared: 20231101_12000000+09
+    state: unavailable
+    span:
+      unit: week
+      value: 2027-W03
+    note: the last week before Game Music Night
+timeCreated: 20231101_12000000+09
+id: jbj1shbaz3d

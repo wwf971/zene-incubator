@@ -16,7 +16,9 @@ What is left for later, by area. An item done leaves this list; its design moves
 - **Leads of a subgroup** adding members (`joinPolicy: lead`) and handing the lead over.
 - **Messages** between accounts, and comments and likes on posts.
 - **Notifications**: an application decided, an invitation, a rehearsal moved.
-- **Search by place and time**: events near an area, people free on a day.
+- **Search by place and time**: events near an area; people free at a time, read from their [availability](zene-availability.md) (the model answers the state of any part of any day already, the search does not ask it yet).
+- **Availability across zones**: a declaration is read in the zone of its availability; comparing two people in different zones, or an event elsewhere, needs the conversion of a part of a day into another zone.
+- **A group's availability from its members**: when most of the members can rehearse, merged from their availabilities.
 - **Checking the data of a kind** when an item is read (a schema per kind), beyond the defaults the model fills in.
 
 ## The backend

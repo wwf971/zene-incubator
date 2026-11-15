@@ -7,15 +7,19 @@ A music community is **one frontend object** of the type `zene.community` (react
 
 ## The object and its partitions
 
+<!--renderComp=DiagramText-->
 ```text
 .doc-page/object-frontend/{id}--Zene example community/
-  object.yaml
-  item/
-    {entry}/                 the entry: name, type zene.community
-    example/                 a partition: one complete community
-      item-list.yaml         the records: key, kind, name, path of each item
-      account/ individual/ group/ membership/ subgroup/ event/ post/ application/ follow/ tag/ page/
-    playground/              another community, kept out of git
+├── object.yaml
+└── item/
+    ├── {entry}/             the entry: name, type zene.community
+    ├── example/             a partition: one complete community
+    │   ├── item-list.yaml   the records: key, kind, name, path of each item
+    │   ├── account/  individual/  group/  membership/  subgroup/  event/
+    │   ├── post/  application/  follow/  page/
+    │   ├── availability/    one item per person or group
+    │   └── taxonomy/        one item: every tag of the community
+    └── playground/          another community, kept out of git
 ```
 
 - **A partition is one community.** It holds everything its entities refer to, and the app shows one partition at a time (the block's `partition`). `example` is the made-up community of the demonstration, tracked by git; `playground` is for trying things out and git keeps it out.
@@ -44,8 +48,8 @@ roleList: [{ role: practitioner | organizer, timeStart, timeEnd }]
 skillList: [{ tag: {skill tag}, level: 1..5, yearStart: 2001, isPrimary: true }]
 workTagList: [{work or composer tag}]
 lookingForList: [extra player for concerts, students]
-availability: { zone: '+09', slotList: [{ day: sat, from: '13:00', to: '18:00' }], note }
 pricing: { isPaidOk, isFreeOk, itemList: [{ label, amount, currency: JPY, unit }], note }
+# when they can play is an item of its own: availability (below)
 
 # account: the face of an individual, a group or an event
 handle: mika.violin                   # unique in the community
@@ -106,19 +110,30 @@ timeDecided, decidedBy: {account id}
 # follow
 from: {account id}, to: {account id}
 
-# tag
-label, kindList: [skill | role | genre | work | composer]
-parentList: [{tag ids}]               # above it: the DAG
-composerList: [{composer tags}]       # a work: by whom
-originList: [{work tags}]             # a work: the work it comes from (a game, a film)
-icon, color, note
+# availability: when a person or a group can play (zene-availability.md)
+subject: { kind: individual | group, id }
+zone: '+09'
+current: { state, note, until, timeDeclared }     # how they are now
+declarationList: [{ id, state, span, weekdayList, dayPartList | hourFrom + hourTo, note, timeDeclared }]
+
+# taxonomy: every tag of the community, in one item
+name: Tags of the community
+tagList:
+  - id: {id}                          # a tag keeps an id of its own: what everything else names
+    label, kindList: [skill | role | genre | work | composer]
+    parentList: [{tag ids}]           # above it: the DAG
+    composerList: [{composer tags}]   # a work: by whom
+    originList: [{work tags}]         # a work: the work it comes from (a game, a film)
+    icon, color, note
 ```
+
+**Why the tags are one item.** A taxonomy is curated as a whole and read as a whole: no screen shows one tag without the tags around it, and the DAG is checked across all of them. One item keeps them together, is read in one request, and saves a file per tag. Adding a tag is an update of that item (`tag.create`); each tag still has its own id, which is all that the people, groups and events tagged with it write. A person's availability is the other way round: one item each, since only that person writes it, and only their homepage reads it whole.
 
 A **page** (a homepage) is Markdown, a document of the object: its frontmatter names its account, its text is rendered by the page as any document.
 
 ## Tags
 
-The tags form a DAG: a tag may lie below several (`parentList`), and a work lies below the work it comes from (`originList`) and links its composers (`composerList`). An edge that would close a cycle is left out and reported.
+The tags form a DAG, kept in the one taxonomy item: a tag may lie below several (`parentList`), and a work lies below the work it comes from (`originList`) and links its composers (`composerList`). An edge that would close a cycle is left out and reported.
 
 **A tag stands for itself and everything below it.** An entity is found by a tag when one of its tags lies at it or below it, along every edge: *strings* finds a violist, *Dvořák* finds an orchestra playing his ninth symphony, *Final Fantasy VII* finds a concert playing One-Winged Angel. The tags of an entity are: what a person plays and loves; what a group plays and looks for; an event's tags, program and open positions; a post's tags and what it hires.
 

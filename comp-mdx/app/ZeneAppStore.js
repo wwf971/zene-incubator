@@ -32,6 +32,10 @@ export class ZeneAppStore {
 	search = { text: '', tagIdList: [], kind: '' };
 	activitySegment = 'decide';
 	viewByAccount = {};
+	// the homepage in its edit mode (an account id), edited where it is shown
+	editAccountId = '';
+	// the calendar of an availability: { weekOffset, selection: { unit: day | part | week | month, day, dayPart? } }
+	availabilityViewByKey = {};
 	draftByKey = {};
 	logSeqFocused = 0;
 	storageKey = '';
@@ -48,6 +52,8 @@ export class ZeneAppStore {
 			search: observable,
 			activitySegment: observable,
 			viewByAccount: observable,
+			editAccountId: observable,
+			availabilityViewByKey: observable,
 			draftByKey: observable,
 			logSeqFocused: observable,
 			signIn: action,
@@ -68,6 +74,8 @@ export class ZeneAppStore {
 			searchTagToggle: action,
 			activitySegmentSet: action,
 			viewSet: action,
+			editToggle: action,
+			availabilityViewSet: action,
 			draftSet: action,
 			draftClear: action,
 			logFocus: action,
@@ -91,12 +99,14 @@ export class ZeneAppStore {
 		const account = world.accountOfSubject('individual', personId);
 		this.device = { personId, accountId: account?.id ?? '' };
 		this.menu = '';
+		this.editAccountId = '';
 		this.deviceSave();
 	}
 
 	signOut() {
 		this.device = { personId: '', accountId: '' };
 		this.menu = '';
+		this.editAccountId = '';
 		for (const tab of Object.keys(this.stackByTab)) this.stackByTab[tab] = [];
 		this.deviceSave();
 	}
@@ -195,6 +205,24 @@ export class ZeneAppStore {
 
 	viewSet(accountId, view) {
 		this.viewByAccount[accountId] = view;
+	}
+
+	isEditing(accountId) {
+		return this.editAccountId === accountId;
+	}
+
+	editToggle(accountId) {
+		this.editAccountId = this.editAccountId === accountId ? '' : accountId;
+	}
+
+	availabilityViewGet(key) {
+		return this.availabilityViewByKey[key] ?? { weekOffset: 0, selection: null };
+	}
+
+	availabilityViewSet(key, change) {
+		const view = this.availabilityViewGet(key);
+		const selection = change.selection !== undefined && JSON.stringify(change.selection) === JSON.stringify(view.selection) ? null : change.selection ?? view.selection;
+		this.availabilityViewByKey[key] = { ...view, ...change, selection };
 	}
 
 	// the draft of a form, kept while the sheet is closed and opened again

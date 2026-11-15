@@ -5,6 +5,10 @@ import { zeneActionGet } from '../../model/ZeneAction.js';
 import { ZENE_ROLE_MANAGE_LIST } from '../../model/ZeneKind.js';
 import { zeneAccountManageList, zeneEventManageIs, zeneGroupManageIs, zeneMembershipRoleList } from '../../model/ZeneRole.js';
 import { zeneTimeFromLocalInput, zeneTimeZoneOf } from '../../model/ZeneTime.js';
+import {
+	ZENE_AVAILABILITY_STATE_LIST, ZENE_DAY_PART_LIST, ZENE_SEASON_LIST, ZENE_SPAN_UNIT_LIST, ZENE_WEEKDAY_LIST, zeneAvailabilityNormalize, zeneAvailabilityReport,
+	zeneDayOf, zeneDayOfTime, zeneDayText, zeneDeclarationCheck, zeneDeclarationText, zeneMonthLabel, zeneSpanDayRange, zeneSpanOfDay, zeneSpanText,
+} from '../../model/ZeneAvailability.js';
 import { ZeneAvatar } from '../part/ZeneAvatar.jsx';
 import { ZeneField, ZeneSegment, ZeneTagPicker, ZeneToggle } from '../part/ZeneForm.jsx';
 import { ZeneIcon } from '../part/ZeneIcon.jsx';
@@ -143,27 +147,6 @@ const FORM_BY_KIND = {
 			</>
 		),
 	},
-	groupEdit: {
-		title: 'Edit the group',
-		actionGet: () => 'group.update',
-		draftInitial: (app, param) => {
-			const group = app.world.get('group', param.group);
-			return { description: group?.description ?? '', area: group?.area ?? '', joinPolicy: group?.joinPolicy, tagList: group?.tagList ?? [], recruitList: (group?.recruitList ?? []).map((one) => one.tag) };
-		},
-		inputGet: (draft, param, app) => {
-			const before = new Map((app.world.get('group', param.group)?.recruitList ?? []).map((one) => [one.tag, one]));
-			return { group: param.group, description: draft.description, area: draft.area, joinPolicy: draft.joinPolicy, tagList: draft.tagList, recruitList: (draft.recruitList ?? []).map((tag) => before.get(tag) ?? { tag, count: 1 }) };
-		},
-		Body: ({ app, draft, onChange }) => (
-			<>
-				<ZeneField label="About the group" draft={draft} field="description" onChange={onChange} isMultiLine rowCount={3} />
-				<ZeneField label="Area" draft={draft} field="area" onChange={onChange} />
-				<ZeneSegment label="Joining" draft={draft} field="joinPolicy" onChange={onChange} optionList={[{ id: 'apply', label: 'by application' }, { id: 'open', label: 'open' }, { id: 'invite', label: 'by invitation' }]} />
-				<ZeneTagPicker world={app.world} label="Looking for" draft={draft} field="recruitList" onChange={onChange} kindList={['skill']} />
-				<ZeneTagPicker world={app.world} label="What it plays" draft={draft} field="tagList" onChange={onChange} kindList={['genre', 'work', 'skill']} />
-			</>
-		),
-	},
 	subgroupCreate: {
 		title: 'New subgroup',
 		actionGet: () => 'subgroup.create',
@@ -178,43 +161,134 @@ const FORM_BY_KIND = {
 			</>
 		),
 	},
-	profileEdit: {
-		title: 'Edit profile',
-		actionGet: () => 'individual.update',
-		draftInitial: (app, param) => {
-			const person = app.world.get('individual', param.individual);
-			return {
-				area: person?.area ?? '', skillList: (person?.skillList ?? []).map((one) => one.tag), workTagList: person?.workTagList ?? [],
-				lookingFor: (person?.lookingForList ?? []).join(', '),
-				slot: (person?.availability.slotList ?? []).map((one) => `${one.day} ${one.from}-${one.to}`).join(', '),
-				isPaidOk: person?.pricing.isPaidOk === true, isFreeOk: person?.pricing.isFreeOk !== false,
-				price: (person?.pricing.itemList ?? []).map((one) => `${one.label} | ${one.amount} | ${one.unit}`).join('\n'),
-			};
-		},
+	// tags added to a list of a homepage, from its edit mode: what a person plays, the works they
+	// love; what a group looks for, what it plays
+	tagAdd: {
+		title: (param) => ({ skill: 'What you play', work: 'Works you love', recruit: 'Who the group looks for', groupTag: 'What the group plays' }[param.purpose] ?? 'Add'),
+		actionGet: (param) => (param.individual ? 'individual.update' : 'group.update'),
 		inputGet: (draft, param, app) => {
-			const person = app.world.get('individual', param.individual);
-			const levelBefore = new Map((person?.skillList ?? []).map((one) => [one.tag, one]));
+			const chosenList = draft.tagList ?? [];
+			if (param.individual) {
+				const person = app.world.get('individual', param.individual);
+				if (param.purpose === 'skill') {
+					const known = new Set((person?.skillList ?? []).map((one) => one.tag));
+					return { individual: param.individual, skillList: [...(person?.skillList ?? []), ...chosenList.filter((tag) => !known.has(tag)).map((tag) => ({ tag, level: 3, isPrimary: (person?.skillList ?? []).length === 0 }))] };
+				}
+				return { individual: param.individual, workTagList: [...new Set([...(person?.workTagList ?? []), ...chosenList])] };
+			}
+			const group = app.world.get('group', param.group);
+			if (param.purpose === 'recruit') {
+				const known = new Set((group?.recruitList ?? []).map((one) => one.tag));
+				return { group: param.group, recruitList: [...(group?.recruitList ?? []), ...chosenList.filter((tag) => !known.has(tag)).map((tag) => ({ tag, count: 1 }))] };
+			}
+			return { group: param.group, tagList: [...new Set([...(group?.tagList ?? []), ...chosenList])] };
+		},
+		Body: ({ app, draft, onChange, param }) => {
+			const kindList = { skill: ['skill'], work: ['work', 'composer'], recruit: ['skill'], groupTag: ['genre', 'work', 'skill'] }[param.purpose];
+			const label = { skill: 'What you play', work: 'Works and composers you love', recruit: 'Who the group looks for', groupTag: 'What the group plays' }[param.purpose];
+			return <ZeneTagPicker world={app.world} label={label} draft={draft} field="tagList" onChange={onChange} kindList={kindList} hint="a tag missing? the + tab adds one" />;
+		},
+	},
+	// a declaration of when one can play (doc/zene-availability.md), new or changed
+	availabilityDeclare: {
+		title: 'When you can play',
+		actionGet: () => 'availability.declare',
+		draftInitial: (app, param) => {
+			const declaration = param.declarationId ? app.world.availabilityOfSubject(param.subject.kind, param.subject.id)?.declarationList.find((one) => one.id === param.declarationId) : undefined;
+			const thisYear = String(app.time).slice(0, 4);
+			// a new declaration starts at now: this month, this season
+			const seasonNow = zeneSpanOfDay('season', zeneDayOfTime(app.time)).value;
+			if (!declaration) return { state: 'available', unit: 'always', year: thisYear, season: seasonNow.slice(5), month: String(app.time).slice(4, 6), weekdayList: [], timeMode: 'all', dayPartList: [], hourFrom: '19:00', hourTo: '22:00' };
+			const { span } = declaration;
 			return {
-				individual: param.individual, area: draft.area,
-				skillList: (draft.skillList ?? []).map((tag, index) => levelBefore.get(tag) ?? { tag, level: 3, isPrimary: index === 0 }),
-				workTagList: draft.workTagList ?? [],
-				lookingForList: String(draft.lookingFor ?? '').split(',').map((one) => one.trim()).filter(Boolean),
-				availability: { ...(person?.availability ?? {}), slotList: slotListParse(draft.slot) },
-				pricing: { ...(person?.pricing ?? {}), isPaidOk: draft.isPaidOk === true, isFreeOk: draft.isFreeOk === true, itemList: priceListParse(draft.price) },
+				state: declaration.state, unit: span.unit, note: declaration.note, weekdayList: declaration.weekdayList, dayPartList: declaration.dayPartList,
+				timeMode: declaration.hourFrom ? 'hour' : declaration.dayPartList.length ? 'part' : 'all', hourFrom: declaration.hourFrom || '19:00', hourTo: declaration.hourTo || '22:00',
+				year: span.value.slice(0, 4) || thisYear, season: span.unit === 'season' ? span.value.slice(5) : 'spring', month: span.unit === 'month' ? span.value.slice(5, 7) : '01',
+				day: span.unit === 'day' ? span.value : '', dayFrom: span.from, dayTo: span.to, weekOf: span.unit === 'week' ? zeneDayText(zeneSpanDayRange(span)?.dayFrom ?? 0) : '',
 			};
 		},
-		Body: ({ app, draft, onChange }) => (
-			<>
-				<ZeneField label="Where you play" draft={draft} field="area" onChange={onChange} />
-				<ZeneTagPicker world={app.world} label="What you play" draft={draft} field="skillList" onChange={onChange} kindList={['skill']} />
-				<ZeneTagPicker world={app.world} label="Works you love" draft={draft} field="workTagList" onChange={onChange} kindList={['work', 'composer']} />
-				<ZeneField label="Looking for" draft={draft} field="lookingFor" onChange={onChange} placeholder="an orchestra, students, ..." hint="separated by commas" />
-				<ZeneField label="When you are free" draft={draft} field="slot" onChange={onChange} placeholder="sat 13:00-18:00, wed 19:30-22:00" hint="day, then from-to, in the zone of your profile" />
-				<ZeneToggle label="Takes paid work" draft={draft} field="isPaidOk" onChange={onChange} />
-				<ZeneToggle label="Plays for free too" draft={draft} field="isFreeOk" onChange={onChange} />
-				<ZeneField label="Prices" draft={draft} field="price" onChange={onChange} isMultiLine rowCount={3} placeholder="Rehearsal | 6000 | per rehearsal" hint="one per line: what | amount in JPY | per what" />
-			</>
-		),
+		inputGet: (draft, param) => {
+			const unit = draft.unit ?? 'always';
+			const span = unit === 'year' ? { unit, value: draft.year }
+				: unit === 'season' ? { unit, value: `${draft.year}-${draft.season}` }
+					: unit === 'month' ? { unit, value: `${draft.year}-${draft.month}` }
+						: unit === 'week' ? (draft.weekOf ? zeneSpanOfDay('week', zeneDayOf(draft.weekOf)) : { unit, value: '' })
+							: unit === 'day' ? { unit, value: draft.day ?? '' }
+								: unit === 'range' ? { unit, from: draft.dayFrom ?? '', to: draft.dayTo ?? '' } : { unit: 'always' };
+			return {
+				subject: param.subject,
+				declaration: {
+					...(param.declarationId ? { id: param.declarationId } : {}),
+					state: draft.state ?? 'available', span, weekdayList: draft.weekdayList ?? [], note: draft.note ?? '',
+					dayPartList: draft.timeMode === 'part' ? draft.dayPartList ?? [] : [],
+					...(draft.timeMode === 'hour' ? { hourFrom: draft.hourFrom ?? '', hourTo: draft.hourTo ?? '' } : {}),
+				},
+			};
+		},
+		Body: observer(({ app, draft, onChange, param }) => {
+			const unit = draft.unit ?? 'always';
+			const yearNow = Number(String(app.time).slice(0, 4));
+			const yearList = [yearNow, yearNow + 1, yearNow + 2].map((one) => ({ id: String(one), label: String(one) }));
+			const weekdaySet = new Set(draft.weekdayList ?? []);
+			const weekdayToggle = (id) => onChange({ weekdayList: ZENE_WEEKDAY_LIST.map((one) => one.id).filter((one) => (one === id ? !weekdaySet.has(one) : weekdaySet.has(one))) });
+			const partSet = new Set(draft.dayPartList ?? []);
+			const partToggle = (id) => onChange({ dayPartList: ZENE_DAY_PART_LIST.map((one) => one.id).filter((one) => (one === id ? !partSet.has(one) : partSet.has(one))) });
+			// what it would decide: the next eight weeks, with it declared
+			const input = FORM_BY_KIND.availabilityDeclare.inputGet(draft, param);
+			const held = app.world.availabilityOfSubject(param.subject.kind, param.subject.id);
+			const availability = zeneAvailabilityNormalize({ ...(held ?? { subject: param.subject }), declarationList: [...(held?.declarationList ?? []).filter((one) => one.id !== param.declarationId), { ...input.declaration, id: 'preview', timeDeclared: app.time }] });
+			const preview = zeneDeclarationCheck(availability.declarationList.at(-1)) ? null : zeneAvailabilityReport(availability, { time: app.time, weekCount: 8 }).declarationList.find((one) => one.declaration.id === 'preview');
+			return (
+				<>
+					<ZeneSegment label="State" draft={draft} field="state" onChange={onChange} optionList={ZENE_AVAILABILITY_STATE_LIST.map((one) => ({ id: one.id, label: one.label }))} />
+					<div className="zene-field">
+						<span className="zene-field-label">When</span>
+						<div className="zene-chip-choice-row">
+							{ZENE_SPAN_UNIT_LIST.map((one) => <button key={one.id} type="button" className={`zene-chip-choice${unit === one.id ? ' is-on' : ''}`} aria-pressed={unit === one.id} title={one.description} onClick={() => onChange({ unit: one.id })}>{one.label}</button>)}
+						</div>
+						{['year', 'season', 'month'].includes(unit) ? <div className="zene-chip-choice-row">{yearList.map((one) => <button key={one.id} type="button" className={`zene-chip-choice${draft.year === one.id ? ' is-on' : ''}`} onClick={() => onChange({ year: one.id })}>{one.label}</button>)}</div> : null}
+						{unit === 'season' ? <div className="zene-chip-choice-row">{ZENE_SEASON_LIST.map((one) => <button key={one.id} type="button" className={`zene-chip-choice${draft.season === one.id ? ' is-on' : ''}`} onClick={() => onChange({ season: one.id })}>{one.label}</button>)}</div> : null}
+						{unit === 'month' ? (
+							<div className="zene-month-grid">
+								{['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map((month) => <button key={month} type="button" className={`zene-chip-choice${draft.month === month ? ' is-on' : ''}`} onClick={() => onChange({ month })}>{zeneMonthLabel(zeneDayOf(`2027-${month}-01`))}</button>)}
+							</div>
+						) : null}
+						{unit === 'week' ? <ZeneField label="A day of the week" draft={draft} field="weekOf" onChange={onChange} type="date" /> : null}
+						{unit === 'day' ? <ZeneField label="The day" draft={draft} field="day" onChange={onChange} type="date" /> : null}
+						{unit === 'range' ? <><ZeneField label="From" draft={draft} field="dayFrom" onChange={onChange} type="date" /><ZeneField label="To" draft={draft} field="dayTo" onChange={onChange} type="date" /></> : null}
+						<span className="zene-field-hint">{zeneSpanText(input.declaration.span, held?.zone ?? '+09')}</span>
+					</div>
+					<div className="zene-field">
+						<span className="zene-field-label">Days of the week</span>
+						<div className="zene-chip-choice-row">
+							{ZENE_WEEKDAY_LIST.map((one) => <button key={one.id} type="button" className={`zene-chip-choice is-day${weekdaySet.has(one.id) ? ' is-on' : ''}`} aria-pressed={weekdaySet.has(one.id)} onClick={() => weekdayToggle(one.id)}>{one.label}</button>)}
+						</div>
+						<div className="zene-chip-choice-row">
+							<button type="button" className="zene-link is-small" onClick={() => onChange({ weekdayList: ['mon', 'tue', 'wed', 'thu', 'fri'] })}>weekdays</button>
+							<button type="button" className="zene-link is-small" onClick={() => onChange({ weekdayList: ['sat', 'sun'] })}>weekends</button>
+							<button type="button" className="zene-link is-small" onClick={() => onChange({ weekdayList: [] })}>every day</button>
+						</div>
+					</div>
+					<ZeneSegment label="Time of the day" draft={{ timeMode: draft.timeMode ?? 'all' }} field="timeMode" onChange={onChange} optionList={[{ id: 'all', label: 'Whole day' }, { id: 'part', label: 'Parts' }, { id: 'hour', label: 'Hours' }]} />
+					{draft.timeMode === 'part' ? (
+						<div className="zene-chip-choice-row is-field">
+							{ZENE_DAY_PART_LIST.map((one) => <button key={one.id} type="button" className={`zene-chip-choice${partSet.has(one.id) ? ' is-on' : ''}`} aria-pressed={partSet.has(one.id)} title={`${String(one.hourFrom).padStart(2, '0')}:00–${String(one.hourTo).padStart(2, '0')}:00`} onClick={() => partToggle(one.id)}>{one.label}</button>)}
+						</div>
+					) : null}
+					{draft.timeMode === 'hour' ? (
+						<div className="zene-field-pair">
+							<ZeneField label="From" draft={draft} field="hourFrom" onChange={onChange} type="time" suffix={held?.zone ?? '+09'} />
+							<ZeneField label="To" draft={draft} field="hourTo" onChange={onChange} type="time" suffix={held?.zone ?? '+09'} />
+						</div>
+					) : null}
+					<ZeneField label="Note" draft={draft} field="note" onChange={onChange} placeholder="why, or what for (optional)" />
+					<p className="zene-sheet-lead is-preview">
+						{zeneDeclarationText(zeneAvailabilityNormalize({ declarationList: [input.declaration] }).declarationList[0], held?.zone ?? '+09')}
+						{preview ? <em>{preview.coverCount === 0 ? ' · covers nothing in the next eight weeks' : ` · decides ${preview.winCount} of the ${preview.coverCount} parts of days it covers in the next eight weeks`}</em> : null}
+					</p>
+				</>
+			);
+		}),
 	},
 	homepageEdit: {
 		title: 'Homepage',
@@ -281,18 +355,6 @@ function zoneText() {
 	return `${zone < 0 ? '-' : '+'}${String(Math.abs(zone)).padStart(2, '0')}`;
 }
 
-// "sat 13:00-18:00, wed 19:30-22:00" -> [{ day, from, to }]
-function slotListParse(text) {
-	return String(text ?? '').split(',').map((one) => /^\s*(mon|tue|wed|thu|fri|sat|sun)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$/i.exec(one)).filter(Boolean)
-		.map((match) => ({ day: match[1].toLowerCase(), from: match[2].padStart(5, '0'), to: match[3].padStart(5, '0') }));
-}
-
-// "Rehearsal | 6000 | per rehearsal" per line -> [{ label, amount, currency, unit }]
-function priceListParse(text) {
-	return String(text ?? '').split('\n').map((line) => line.split('|').map((one) => one.trim())).filter((part) => part[0])
-		.map(([label, amount, unit]) => ({ label, amount: Number(amount) || 0, currency: 'JPY', unit: unit ?? '' }));
-}
-
 // one of a list, chosen by a tap
 const ZeneChoiceList = observer(function ZeneChoiceList({ label, draft, field, onChange, optionList, emptyText }) {
 	return (
@@ -353,7 +415,7 @@ const ZeneFormSheet = observer(function ZeneFormSheet({ app, kind, form, param }
 	};
 	const { Body } = form;
 	return (
-		<ZeneSheetFrame app={app} title={form.title} right={<button type="button" className="zene-sheet-done" disabled={Boolean(reason)} title={reason || undefined} onClick={submit}>Done</button>}>
+		<ZeneSheetFrame app={app} title={typeof form.title === 'function' ? form.title(param) : form.title} right={<button type="button" className="zene-sheet-done" disabled={Boolean(reason)} title={reason || undefined} onClick={submit}>Done</button>}>
 			<Body app={app} draft={draft} onChange={onChange} param={param} />
 			{reason ? <p className="zene-sheet-reason">{reason}</p> : null}
 			<p className="zene-sheet-semantic">

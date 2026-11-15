@@ -1,4 +1,4 @@
-import { ZENE_KIND_ID_LIST, zeneEntityNormalize } from './ZeneKind.js';
+import { ZENE_WORLD_KIND_ID_LIST, zeneEntityNormalize } from './ZeneKind.js';
 
 // The world: every entity of one partition, read together, with the indexes the queries and
 // the actions need (doc/zene-data.md#the-world). It is a value: built from a list of entities,
@@ -7,7 +7,7 @@ import { ZENE_KIND_ID_LIST, zeneEntityNormalize } from './ZeneKind.js';
 //
 //   entryList   [{ kind, data }]: the entities, data as written in their items
 export function zeneWorldBuild(entryList) {
-	const byKind = new Map(ZENE_KIND_ID_LIST.map((kind) => [kind, new Map()]));
+	const byKind = new Map(ZENE_WORLD_KIND_ID_LIST.map((kind) => [kind, new Map()]));
 	const problemList = [];
 	for (const entry of entryList) {
 		const map = byKind.get(entry.kind);
@@ -16,6 +16,15 @@ export function zeneWorldBuild(entryList) {
 		if (!entity.id) { problemList.push(`an item of kind ${entry.kind} without an id`); continue; }
 		if (map.has(entity.id)) { problemList.push(`${entry.kind} ${entity.id} is written twice: the first is kept`); continue; }
 		map.set(entity.id, entity);
+	}
+	// the tags live in the taxonomy item: each is an entity of the world all the same, which knows
+	// the item holding it
+	for (const taxonomy of byKind.get('taxonomy').values()) {
+		for (const tag of taxonomy.tagList) {
+			if (!tag.id) { problemList.push(`a tag of ${taxonomy.name} without an id`); continue; }
+			if (byKind.get('tag').has(tag.id)) { problemList.push(`the tag ${tag.label || tag.id} is written twice: the first is kept`); continue; }
+			byKind.get('tag').set(tag.id, { ...tag, taxonomy: taxonomy.id });
+		}
 	}
 	const get = (kind, id) => byKind.get(kind)?.get(id);
 	const list = (kind) => [...(byKind.get(kind)?.values() ?? [])];
@@ -42,6 +51,12 @@ export function zeneWorldBuild(entryList) {
 		}
 	}
 	const tag = tagGraphBuild(list('tag'), problemList);
+	const availabilityBySubject = new Map();
+	for (const availability of list('availability')) {
+		const key = `${availability.subject.kind}:${availability.subject.id}`;
+		if (availabilityBySubject.has(key)) problemList.push(`two availabilities speak for ${key}: the first is kept`);
+		else availabilityBySubject.set(key, availability);
+	}
 	const world = {
 		byKind,
 		problemList,
@@ -60,6 +75,7 @@ export function zeneWorldBuild(entryList) {
 		applicationByApplicant: groupBy('application', (one) => one.applicant),
 		eventByPrincipal: groupBy('event', (one) => one.principalList.map((principal) => `${principal.kind}:${principal.id}`)),
 		eventByParent: groupBy('event', (one) => one.parent),
+		availabilityOfSubject: (kind, id) => availabilityBySubject.get(`${kind}:${id}`),
 		tag,
 	};
 	// what a person reads an entity as: its name, its handle, its label
