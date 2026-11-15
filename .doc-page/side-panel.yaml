@@ -12,6 +12,7 @@ sidePanelById:
           - doc: ~zene/doc/zene-demo.md
           - doc: ~zene/doc/zene-data.md
           - doc: ~zene/doc/zene-availability.md
+          - doc: ~zene/doc/zene-timeline.md
           - doc: ~zene/doc/zene-action.md
           - doc: ~zene/doc/zene-ui.md
           - doc: ~zene/doc/zene-todo.md

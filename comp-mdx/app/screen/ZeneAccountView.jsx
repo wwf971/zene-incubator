@@ -1,17 +1,20 @@
 import { observer } from 'mobx-react-lite';
 import { MdxRenderer } from '@wwf971/react-doc';
-import { CalendarDays, Check, Grid3x3, Info, MoreHorizontal, Pencil, UserPlus, Users } from 'lucide-react';
+import { CalendarDays, ChartNoAxesGantt, Check, Grid3x3, Info, List, MoreHorizontal, Pencil, UserPlus, Users } from 'lucide-react';
 import { ZENE_EVENT_ACCOUNT_KEEP_DAY } from '../../model/ZeneKind.js';
-import { zeneAccountStat, zeneAccountStateText, zeneEventListOfSubject, zeneGroupListOfPerson, zeneMemberListOfGroup } from '../../model/ZeneQuery.js';
-import { zeneEventManageIs, zeneEventParticipantIs, zeneGroupManageIs, zeneMembershipActiveGet, zeneMembershipRoleList } from '../../model/ZeneRole.js';
+import { zeneAccountStat, zeneAccountStateText, zeneEventListOfSubject, zeneGroupListOfPerson, zeneMemberListOfGroup, zeneTimelineOfGroup, zeneTimelineOfPerson } from '../../model/ZeneQuery.js';
+import { zeneEventManageIs, zeneEventParticipantIs, zeneGroupManageIs, zeneMembershipActiveGet, zeneMembershipRoleList, zeneSubgroupMemberList } from '../../model/ZeneRole.js';
+import { zenePeriodAt, zenePeriodText, zenePointText } from '../../model/ZeneTimeline.js';
 import { zeneAvailabilityReport } from '../../model/ZeneAvailability.js';
 import { ZenePager } from '../ZeneSwipe.jsx';
-import { ZeneAddButton, ZeneInlineText, ZeneRemoveButton } from '../part/ZeneInline.jsx';
+import { ZeneAddButton, ZeneInlineText, ZenePeriodField, ZeneRemoveButton } from '../part/ZeneInline.jsx';
+import { ZeneEventCalendar } from '../part/ZeneEventCalendar.jsx';
+import { ZeneTimelineChart } from '../part/ZeneTimelineChart.jsx';
 import { ZeneAvailabilitySection } from './ZeneAvailabilityView.jsx';
 import { ZeneAvatar } from '../part/ZeneAvatar.jsx';
 import { ZeneIcon } from '../part/ZeneIcon.jsx';
 import {
-	amountText, ZeneActionButton, ZeneEmpty, ZeneEventRow, ZeneMediaCover, ZeneRow, ZeneSection, ZeneStat, ZeneSubjectRow, ZeneTagChip, ZeneTagRow, ZeneTime,
+	amountText, ZeneActionButton, ZeneEmpty, ZeneEventRow, ZeneMediaCover, ZeneRow, ZeneSection, ZeneStat, ZeneSubjectRow, ZeneTagChip, ZeneTagRow,
 	ZeneTimeSpan, ZeneVenue,
 } from '../part/ZenePart.jsx';
 
@@ -31,7 +34,7 @@ const VIEW_BY_ID = {
 export const ZeneAccountView = observer(function ZeneAccountView({ app, account }) {
 	const world = app.world;
 	const subject = world.get(account.subject.kind, account.subject.id);
-	const stat = zeneAccountStat(world, account);
+	const stat = zeneAccountStat(world, account, app.time);
 	const viewList = (account.viewList.length > 0 ? account.viewList : ['about', 'post', 'event', 'group'])
 		.filter((view) => view !== 'group' || account.subject.kind !== 'event');
 	const view = app.store.viewGet(account.id, viewList);
@@ -131,7 +134,7 @@ const ZeneProfileButtonRow = observer(function ZeneProfileButtonRow({ app, accou
 		buttonList.push(<button key="homepage" type="button" className="zene-button" onClick={() => app.store.sheetOpen('homepageEdit', { account: account.id })}>Homepage</button>);
 	}
 	if (kind === 'group' && subject) {
-		const membership = zeneMembershipActiveGet(world, personId, subject.id);
+		const membership = zeneMembershipActiveGet(world, personId, subject.id, app.time);
 		if (membership) buttonList.push(<ZeneActionButton key="leave" app={app} actionId="group.leave" input={{ group: subject.id }} label="Leave" />);
 		else if (subject.joinPolicy === 'open') buttonList.push(<ZeneActionButton key="join" app={app} actionId="group.join" input={{ group: subject.id }} label="Join" tone="primary" />);
 		else if (subject.joinPolicy === 'apply') buttonList.push(<button key="apply" type="button" className="zene-button is-primary" disabled={Boolean(app.backend.actionReasonGet('group.apply', app.store.actor, { group: subject.id }, { isInputChecked: true }))} title={app.backend.actionReasonGet('group.apply', app.store.actor, { group: subject.id }, { isInputChecked: true }) || undefined} onClick={() => app.store.sheetOpen('apply', { kind: 'group', id: subject.id })}>Apply</button>);
@@ -174,20 +177,22 @@ const ZeneAboutPerson = observer(function ZeneAboutPerson({ app, account, person
 	const update = (change) => app.actionRun('individual.update', { individual: person.id, ...change });
 	const skillListSet = (skillList) => update({ skillList });
 	const priceListSet = (itemList) => update({ pricing: { ...pricing, itemList } });
-	const roleOn = (role) => person.roleList.find((one) => one.role === role && !one.timeEnd);
+	const roleOn = (role) => person.roleList.find((one) => one.role === role && zenePeriodAt(one, app.time) !== 'no');
 	return (
 		<div className="zene-about">
 			<ZeneSection title="Plays" detail={person.skillList.length ? '' : 'nothing yet'}>
 				<div className="zene-skill-list">
 					{person.skillList.map((skill, index) => (
-						<div key={skill.tag} className="zene-skill">
+						<div key={skill.tag} className={`zene-skill${isEditing ? ' is-editing' : ''}`}>
 							<ZeneTagChip world={world} tagId={skill.tag} onClick={(id) => app.tagOpen(id)} />
 							<span className={`zene-level${isEditing ? ' is-editing' : ''}`} title={`level ${skill.level} of 5`}>
 								{[1, 2, 3, 4, 5].map((n) => (isEditing
 									? <button key={n} type="button" className={n <= skill.level ? 'is-on' : ''} aria-label={`level ${n}`} onClick={() => skillListSet(person.skillList.map((one, at) => (at === index ? { ...one, level: n } : one)))} />
 									: <i key={n} className={n <= skill.level ? 'is-on' : ''} />))}
 							</span>
-							{skill.yearStart ? <span className="zene-skill-year">since {skill.yearStart}</span> : null}
+							<span className="zene-skill-year">
+								{isEditing ? <>since <ZeneInlineText app={app} inputKey={`skill-from:${person.id}:${index}`} value={skill.from} isEditing placeholder="2001" className="is-point" onCommit={(from) => skillListSet(person.skillList.map((one, at) => (at === index ? { ...one, from: from.trim() } : one)))} /></> : skill.from ? `since ${zenePointText(skill.from)}` : ''}
+							</span>
 							{isEditing ? <ZeneRemoveButton title={`Take ${world.tag.get(skill.tag)?.label} out`} onClick={() => skillListSet(person.skillList.filter((_, at) => at !== index))} /> : null}
 						</div>
 					))}
@@ -197,18 +202,18 @@ const ZeneAboutPerson = observer(function ZeneAboutPerson({ app, account, person
 			<ZeneSection title="Roles">
 				<ul className="zene-plain-list">
 					{person.roleList.map((role, index) => (
-						<li key={index} className={role.timeEnd ? 'is-muted' : ''}>
-							<strong>{role.role === 'organizer' ? 'Organizer' : 'Practitioner'}</strong>
-							{role.timeStart ? <> since <ZeneTime time={role.timeStart} part="date" /></> : null}
-							{role.timeEnd ? <> until <ZeneTime time={role.timeEnd} part="date" /></> : null}
-							{isEditing && !role.timeEnd ? <button type="button" className="zene-link is-small" onClick={() => update({ roleList: person.roleList.map((one, at) => (at === index ? { ...one, timeEnd: app.time } : one)) })}>end it now</button> : null}
+						<li key={index} className={zenePeriodAt(role, app.time) === 'no' ? 'is-muted' : ''}>
+							<strong>{role.role === 'organizer' ? 'Organizer' : 'Practitioner'}</strong>{' '}
+							<ZenePeriodField app={app} inputKey={`role:${person.id}:${index}`} period={role} isEditing={isEditing} isSince onCommit={(period) => update({ roleList: person.roleList.map((one, at) => (at === index ? { ...one, ...period } : one)) })} />
+							{isEditing && !role.to ? <button type="button" className="zene-link is-small" onClick={() => update({ roleList: person.roleList.map((one, at) => (at === index ? { ...one, to: app.time } : one)) })}>end it now</button> : null}
+							{isEditing ? <ZeneRemoveButton title="Take this period out" onClick={() => update({ roleList: person.roleList.filter((_, at) => at !== index) })} /> : null}
 						</li>
 					))}
 				</ul>
 				{isEditing ? (
 					<div className="zene-button-row is-inline">
 						{['practitioner', 'organizer'].filter((role) => !roleOn(role)).map((role) => (
-							<ZeneAddButton key={role} label={role === 'organizer' ? 'Organizer from now' : 'Practitioner from now'} onClick={() => update({ roleList: [...person.roleList, { role, timeStart: app.time }] })} />
+							<ZeneAddButton key={role} label={role === 'organizer' ? 'Organizer from now' : 'Practitioner from now'} onClick={() => update({ roleList: [...person.roleList, { role, from: app.time }] })} />
 						))}
 					</div>
 				) : null}
@@ -303,7 +308,12 @@ const ZeneAboutGroup = observer(function ZeneAboutGroup({ app, account, group })
 			<ZeneSection title="The group">
 				<ul className="zene-plain-list">
 					{group.area || isEditing ? <li><strong>Where</strong> <ZeneInlineText app={app} inputKey={`group-area:${group.id}`} value={group.area} isEditing={isEditing} placeholder="where it plays" onCommit={(area) => update({ area })} /></li> : null}
-					{group.timeFounded ? <li><strong>Founded</strong> <ZeneTime time={group.timeFounded} part="date" /></li> : null}
+					{group.period.from || isEditing ? (
+						<li>
+							<strong>{group.period.to ? 'Lived' : 'Founded'}</strong>{' '}
+							<ZenePeriodField app={app} inputKey={`group-period:${group.id}`} period={group.period} isEditing={isEditing} isSince onCommit={(period) => update({ period })} />
+						</li>
+					) : null}
 					<li>
 						<strong>Joining</strong>{' '}
 						{isEditing ? (
@@ -451,13 +461,43 @@ const ZenePostGrid = observer(function ZenePostGrid({ app, account }) {
 	);
 });
 
+// a switch between the ways one view is shown (list, calendar, timeline), kept by the app store
+const ZeneViewSwitch = observer(function ZeneViewSwitch({ app, uiKey, optionList, label }) {
+	const mode = app.store.uiGet(uiKey, { mode: optionList[0].id }).mode;
+	return (
+		<div className="zene-view-switch" data-zene-noswipe="">
+			<div className="zene-segment is-small" role="radiogroup" aria-label={label}>
+				{optionList.map((one) => (
+					<button key={one.id} type="button" role="radio" aria-checked={mode === one.id} className={`zene-segment-item${mode === one.id ? ' is-on' : ''}`} onClick={() => app.store.uiSet(uiKey, { mode: one.id })}>
+						<one.Icon size={13} />{one.label}
+					</button>
+				))}
+			</div>
+		</div>
+	);
+});
+
+const EVENT_VIEW_LIST = [{ id: 'list', label: 'List', Icon: List }, { id: 'calendar', label: 'Calendar', Icon: CalendarDays }];
+const GROUP_VIEW_LIST = [{ id: 'list', label: 'List', Icon: List }, { id: 'timeline', label: 'Timeline', Icon: ChartNoAxesGantt }];
+
 const ZeneEventList = observer(function ZeneEventList({ app, subject }) {
 	const { comingList, pastList } = zeneEventListOfSubject(app.world, subject, { personId: app.store.actor.personId, time: app.time });
+	const uiKey = `events:${subject.kind}:${subject.id}`;
+	const mode = app.store.uiGet(uiKey, { mode: 'list' }).mode;
 	if (comingList.length + pastList.length === 0) return <ZeneEmpty icon="concert" text="No events." />;
 	return (
 		<div className="zene-about">
-			{comingList.length > 0 ? <ZeneSection title="Coming"><div className="zene-row-list">{comingList.map((one) => <ZeneEventRow key={one.id} app={app} world={app.world} event={one} />)}</div></ZeneSection> : null}
-			{pastList.length > 0 ? <ZeneSection title="Past"><div className="zene-row-list">{pastList.map((one) => <ZeneEventRow key={one.id} app={app} world={app.world} event={one} />)}</div></ZeneSection> : null}
+			<ZeneViewSwitch app={app} uiKey={uiKey} optionList={EVENT_VIEW_LIST} label="How the events are shown" />
+			{mode === 'calendar' ? (
+				<ZeneSection title="Calendar">
+					<ZeneEventCalendar app={app} eventList={[...comingList, ...pastList]} calendarKey={`${uiKey}:calendar`} />
+				</ZeneSection>
+			) : (
+				<>
+					{comingList.length > 0 ? <ZeneSection title="Coming"><div className="zene-row-list">{comingList.map((one) => <ZeneEventRow key={one.id} app={app} world={app.world} event={one} />)}</div></ZeneSection> : null}
+					{pastList.length > 0 ? <ZeneSection title="Past"><div className="zene-row-list">{pastList.map((one) => <ZeneEventRow key={one.id} app={app} world={app.world} event={one} />)}</div></ZeneSection> : null}
+				</>
+			)}
 		</div>
 	);
 });
@@ -466,60 +506,83 @@ export function roleTextOf(world, roleList) {
 	return roleList.map((role) => (role === 'owner' || role === 'admin' ? role : world.tag.get(role)?.label ?? role)).join(', ');
 }
 
-// the groups of a person, with the roles held in each, now and before
+// the groups of a person, as a list (the roles held in each, now and before) or on a timeline
 const ZenePersonGroupList = observer(function ZenePersonGroupList({ app, person }) {
 	const world = app.world;
-	const list = zeneGroupListOfPerson(world, person.id);
+	const list = zeneGroupListOfPerson(world, person.id, app.time);
+	const uiKey = `groups:${person.id}`;
+	const mode = app.store.uiGet(uiKey, { mode: 'list' }).mode;
 	if (list.length === 0) return <ZeneEmpty icon="group" text="In no group yet." />;
 	return (
-		<div className="zene-row-list">
-			{list.map(({ membership, group }) => {
-				const roleNow = roleTextOf(world, zeneMembershipRoleList(membership, app.time));
-				const roleBefore = membership.roleList.filter((one) => one.timeEnd).map((one) => roleTextOf(world, [one.role])).join(', ');
-				const isActive = membership.status === 'active';
-				return (
-					<ZeneSubjectRow key={membership.id} app={app} world={world} kind="group" id={group.id}
-						detail={<>
-							{isActive ? <>member since <ZeneTime time={membership.timeJoined} part="date" /></> : <>{membership.status}, <ZeneTime time={membership.timeJoined} part="date" /> – <ZeneTime time={membership.timeEnded} part="date" /></>}
-							{roleNow ? <span className="zene-role-line">{roleNow}</span> : null}
-							{roleBefore ? <span className="zene-role-line is-muted">before: {roleBefore}</span> : null}
-						</>}
-					/>
-				);
-			})}
+		<div className="zene-about">
+			<ZeneViewSwitch app={app} uiKey={uiKey} optionList={GROUP_VIEW_LIST} label="How the groups are shown" />
+			{mode === 'timeline' ? (
+				<ZeneSection title="In groups over time">
+					<ZeneTimelineChart app={app} chartKey={`${uiKey}:timeline`} rowList={zeneTimelineOfPerson(world, person.id).map((row) => ({ ...row, onOpen: () => app.subjectOpen('group', row.id) }))} />
+				</ZeneSection>
+			) : (
+				<div className="zene-row-list">
+					{list.map(({ membership, group, isActive }) => {
+						const roleNow = roleTextOf(world, zeneMembershipRoleList(membership, app.time, { isMaybeHeld: true }));
+						const roleBefore = [...new Set(membership.roleList.filter((one) => zenePeriodAt(one, app.time) === 'no').map((one) => roleTextOf(world, [one.role])))].join(', ');
+						return (
+							<ZeneSubjectRow key={membership.id} app={app} world={world} kind="group" id={group.id}
+								detail={<>
+									<span>{isActive ? `member ${zenePeriodText(membership.period, { isSince: true })}` : `${membership.endReason || 'ended'}: ${zenePeriodText(membership.period)}`}</span>
+									{roleNow ? <span className="zene-role-line">{roleNow}</span> : null}
+									{roleBefore ? <span className="zene-role-line is-muted">before: {roleBefore}</span> : null}
+								</>}
+							/>
+						);
+					})}
+				</div>
+			)}
 		</div>
 	);
 });
 
-// the members of a group, its subgroups; a manager opens a member to give roles
+// the members of a group (now as a list, or everyone who ever was on a timeline), its subgroups; a
+// manager opens a member to give roles and tell the history of the membership
 const ZeneGroupMemberList = observer(function ZeneGroupMemberList({ app, group }) {
 	const world = app.world;
 	const memberList = zeneMemberListOfGroup(world, group.id, app.time);
 	const subgroupList = world.subgroupByGroup.get(group.id) ?? [];
 	const isManaged = zeneGroupManageIs(world, app.store.actor.personId, group.id, app.time);
-	const isMember = Boolean(zeneMembershipActiveGet(world, app.store.actor.personId, group.id));
+	const isMember = Boolean(zeneMembershipActiveGet(world, app.store.actor.personId, group.id, app.time));
+	const uiKey = `members:${group.id}`;
+	const mode = app.store.uiGet(uiKey, { mode: 'list' }).mode;
 	return (
 		<div className="zene-about">
-			<ZeneSection title="Members" detail={String(memberList.length)}>
-				<div className="zene-row-list">
-					{memberList.map(({ membership, individual }) => (
-						<ZeneSubjectRow key={membership.id} app={app} world={world} kind="individual" id={individual.id}
-							detail={[roleTextOf(world, zeneMembershipRoleList(membership, app.time)), membership.skillList.map((id) => world.tag.get(id)?.label).filter(Boolean).join(', ')].filter(Boolean).join(' · ') || 'member'}
-							right={isManaged ? <button type="button" className="zene-icon-button" title="Roles of this member" onClick={(event) => { event.stopPropagation(); app.store.sheetOpen('member', { membership: membership.id }); }}><MoreHorizontal size={16} /></button> : undefined}
-						/>
-					))}
-				</div>
-			</ZeneSection>
+			<ZeneViewSwitch app={app} uiKey={uiKey} optionList={GROUP_VIEW_LIST} label="How the members are shown" />
+			{mode === 'timeline' ? (
+				<ZeneSection title="Members over time" detail="everyone who ever was">
+					<ZeneTimelineChart app={app} chartKey={`${uiKey}:timeline`} rowList={zeneTimelineOfGroup(world, group.id).map((row) => ({ ...row, onOpen: row.kind === 'individual' ? () => app.subjectOpen('individual', row.id) : undefined }))} />
+				</ZeneSection>
+			) : (
+				<ZeneSection title="Members" detail={String(memberList.length)}>
+					<div className="zene-row-list">
+						{memberList.map(({ membership, individual }) => (
+							<ZeneSubjectRow key={membership.id} app={app} world={world} kind="individual" id={individual.id}
+								detail={[roleTextOf(world, zeneMembershipRoleList(membership, app.time, { isMaybeHeld: true })), membership.skillList.map((id) => world.tag.get(id)?.label).filter(Boolean).join(', '), zenePeriodText(membership.period, { isSince: true })].filter(Boolean).join(' · ')}
+								right={isManaged ? <button type="button" className="zene-icon-button" title="Roles and history of this member" onClick={(event) => { event.stopPropagation(); app.store.sheetOpen('member', { membership: membership.id }); }}><MoreHorizontal size={16} /></button> : undefined}
+							/>
+						))}
+					</div>
+				</ZeneSection>
+			)}
 			<ZeneSection title="Subgroups" detail={String(subgroupList.length)}>
 				<div className="zene-row-list">
-					{subgroupList.map((subgroup) => (
-						<ZeneRow key={subgroup.id}
-							picture={<ZeneIcon name={world.tag.iconOf(subgroup.tagList[0]) || 'group'} color={world.tag.colorOf(subgroup.tagList[0])} size={38} isSticker />}
-							title={subgroup.name}
-							detail={`${subgroup.memberList.length} ${subgroup.memberList.length === 1 ? 'member' : 'members'} · ${subgroup.joinPolicy === 'open' ? 'open to members' : 'by its leads'}`}
-							onOpen={() => app.push('subgroup', { id: subgroup.id })}
-						/>
-					))}
+					{subgroupList.map((subgroup) => {
+						const count = zeneSubgroupMemberList(subgroup, app.time).length;
+						return (
+							<ZeneRow key={subgroup.id}
+								picture={<ZeneIcon name={world.tag.iconOf(subgroup.tagList[0]) || 'group'} color={world.tag.colorOf(subgroup.tagList[0])} size={38} isSticker />}
+								title={subgroup.name}
+								detail={`${count} ${count === 1 ? 'member' : 'members'} · ${subgroup.joinPolicy === 'open' ? 'open to members' : 'by its leads'}`}
+								onOpen={() => app.push('subgroup', { id: subgroup.id })}
+							/>
+						);
+					})}
 				</div>
 				{isMember ? <button type="button" className="zene-button is-ghost" onClick={() => app.store.sheetOpen('subgroupCreate', { group: group.id })}>Form a subgroup</button> : null}
 			</ZeneSection>

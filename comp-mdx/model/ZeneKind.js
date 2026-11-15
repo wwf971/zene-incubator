@@ -35,7 +35,8 @@ export function zeneKindGet(kind) {
 // the value sets of the enumerated fields
 export const ZENE_ACCOUNT_SUBJECT_KIND_LIST = ['individual', 'group', 'event'];
 export const ZENE_JOIN_POLICY_LIST = ['open', 'apply', 'invite'];
-export const ZENE_MEMBERSHIP_STATUS_LIST = ['active', 'left', 'removed'];
+// how a membership ended ('' while it goes on)
+export const ZENE_MEMBERSHIP_END_LIST = ['', 'left', 'removed'];
 // the roles that manage a group; every other role of a membership is a tag of the kind role
 export const ZENE_ROLE_MANAGE_LIST = ['owner', 'admin'];
 export const ZENE_EVENT_KIND_LIST = ['concert', 'rehearsal', 'session', 'workshop', 'audition', 'meetup'];
@@ -53,6 +54,10 @@ const listOf = (value) => (Array.isArray(value) ? value : []);
 const textOf = (value, fallback = '') => (value === undefined || value === null ? fallback : String(value));
 const oneOf = (value, list, fallback) => (list.includes(value) ? value : fallback);
 const refOf = (value) => ({ kind: textOf(value?.kind), id: textOf(value?.id) });
+// a period of the timeline (model/ZeneTimeline.js): from a point to a point, to '' while it goes on.
+// the names before periods (timeStart, timeEnd, timeJoined ...) are still read: a session kept in a
+// browser may hold them
+const periodOf = (value, from, to) => ({ from: textOf(value?.from ?? from), to: textOf(value?.to ?? to) });
 
 // an entity as the model reads it: every field there, of its type. `data` is what an item holds
 export function zeneEntityNormalize(kind, data = {}) {
@@ -77,8 +82,9 @@ export function zeneEntityNormalize(kind, data = {}) {
 				name: textOf(data.name),
 				account: textOf(data.account),
 				area: textOf(data.area),
-				roleList: listOf(data.roleList).map((one) => ({ role: oneOf(one?.role, ['practitioner', 'organizer'], 'practitioner'), timeStart: textOf(one?.timeStart), timeEnd: textOf(one?.timeEnd) })),
-				skillList: listOf(data.skillList).map((one) => ({ tag: textOf(one?.tag), level: Math.min(5, Math.max(1, Number(one?.level) || 3)), yearStart: Number(one?.yearStart) || 0, isPrimary: one?.isPrimary === true })),
+				roleList: listOf(data.roleList).map((one) => ({ role: oneOf(one?.role, ['practitioner', 'organizer'], 'practitioner'), ...periodOf(one, one?.timeStart, one?.timeEnd) })),
+				// a skill is held since a point (2001, 2016-04): a period that goes on
+				skillList: listOf(data.skillList).map((one) => ({ tag: textOf(one?.tag), level: Math.min(5, Math.max(1, Number(one?.level) || 3)), from: textOf(one?.from ?? (one?.yearStart ? String(one.yearStart) : '')), isPrimary: one?.isPrimary === true })),
 				workTagList: listOf(data.workTagList).map(textOf),
 				lookingForList: listOf(data.lookingForList).map(textOf),
 				pricing: {
@@ -98,18 +104,20 @@ export function zeneEntityNormalize(kind, data = {}) {
 				tagList: listOf(data.tagList).map(textOf),
 				joinPolicy: oneOf(data.joinPolicy, ZENE_JOIN_POLICY_LIST, 'apply'),
 				recruitList: listOf(data.recruitList).map((one) => ({ tag: textOf(one?.tag), count: Number(one?.count) || 1, note: textOf(one?.note) })),
-				timeFounded: textOf(data.timeFounded),
+				// the life of the group: founded, and dissolved when it ends
+				period: periodOf(data.period, data.timeFounded),
 			};
 		case 'membership':
 			return {
 				...base,
 				group: textOf(data.group),
 				individual: textOf(data.individual),
-				status: oneOf(data.status, ZENE_MEMBERSHIP_STATUS_LIST, 'active'),
-				roleList: listOf(data.roleList).map((one) => ({ role: textOf(one?.role), timeStart: textOf(one?.timeStart), timeEnd: textOf(one?.timeEnd) })),
+				// one stretch of being a member, and how it ended; a member is one while it holds
+				period: periodOf(data.period, data.timeJoined, data.timeEnded),
+				endReason: oneOf(data.endReason ?? (['left', 'removed'].includes(data.status) ? data.status : ''), ZENE_MEMBERSHIP_END_LIST, ''),
+				// each role held for a period of its own; periods of one role may overlap
+				roleList: listOf(data.roleList).map((one) => ({ role: textOf(one?.role), ...periodOf(one, one?.timeStart, one?.timeEnd) })),
 				skillList: listOf(data.skillList).map(textOf),
-				timeJoined: textOf(data.timeJoined),
-				timeEnded: textOf(data.timeEnded),
 				via: textOf(data.via),
 			};
 		case 'subgroup':
@@ -120,7 +128,7 @@ export function zeneEntityNormalize(kind, data = {}) {
 				description: textOf(data.description),
 				tagList: listOf(data.tagList).map(textOf),
 				joinPolicy: oneOf(data.joinPolicy, ['open', 'lead'], 'open'),
-				memberList: listOf(data.memberList).map((one) => ({ individual: textOf(one?.individual), role: oneOf(one?.role, ['lead', 'member'], 'member'), timeJoined: textOf(one?.timeJoined) })),
+				memberList: listOf(data.memberList).map((one) => ({ individual: textOf(one?.individual), role: oneOf(one?.role, ['lead', 'member'], 'member'), ...periodOf(one, one?.timeJoined) })),
 			};
 		case 'event':
 			return {
@@ -226,7 +234,7 @@ export function zeneEntityNameGet(world, kind, entity) {
 		case 'tag': return entity.label;
 		case 'taxonomy': return `${entity.name} (${entity.tagList.length} tags)`;
 		case 'availability': return `Availability of ${world?.labelGet?.(entity.subject.kind, entity.subject.id) ?? entity.subject.id}`;
-		case 'post': return `${world?.accountLabelGet?.(entity.account) ?? entity.account}: ${entity.text.slice(0, 40)}`;
+		case 'post': return `${world?.accountLabelGet?.(entity.account) ?? entity.account}: ${entity.text.length > 40 ? `${entity.text.slice(0, 40).trim()}…` : entity.text}`;
 		case 'application': return `${world?.labelGet?.('individual', entity.applicant) ?? entity.applicant} → ${world?.labelGet?.(entity.target.kind, entity.target.id) ?? entity.target.id}`;
 		case 'membership': return `${world?.labelGet?.('individual', entity.individual) ?? entity.individual} in ${world?.labelGet?.('group', entity.group) ?? entity.group}`;
 		case 'follow': return `${world?.accountLabelGet?.(entity.from) ?? entity.from} → ${world?.accountLabelGet?.(entity.to) ?? entity.to}`;

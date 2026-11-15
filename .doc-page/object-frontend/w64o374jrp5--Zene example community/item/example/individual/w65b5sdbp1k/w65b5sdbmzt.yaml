@@ -1,0 +1,40 @@
+name: Mika Tanaka
+area: Setagaya, Tokyo
+timeCreated: 20240402_21130000+09
+roleList:
+  - role: practitioner
+    from: 2009-04
+skillList:
+  - tag: de87qtndl8y
+    level: 5
+    from: "2001"
+    isPrimary: true
+  - tag: b870sp6mv2a
+    level: 3
+    from: "2016"
+workTagList:
+  - e14beic3ge3
+  - j7bc1lv2dsj
+  - 8x39daednqn
+lookingForList:
+  - extra player for concerts
+  - students
+pricing:
+  isPaidOk: true
+  isFreeOk: true
+  itemList:
+    - label: One rehearsal (3 h)
+      amount: 6000
+      currency: JPY
+      unit: per rehearsal
+    - label: Concert with its dress rehearsal
+      amount: 25000
+      currency: JPY
+      unit: per concert
+    - label: Violin lesson (60 min)
+      amount: 5000
+      currency: JPY
+      unit: per lesson
+  note: no fee for the amateur orchestras I belong to
+account: av45ncr1jf5
+id: 0om7mlfwcx6

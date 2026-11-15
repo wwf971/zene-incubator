@@ -83,10 +83,10 @@ individual:
     name: Mika Tanaka
     area: Setagaya, Tokyo
     timeCreated: '20240402_21130000+09'
-    roleList: [{ role: practitioner, timeStart: '20090401_00000000+09' }]
+    roleList: [{ role: practitioner, from: '2009-04' }]
     skillList:
-      - { tag: $violin, level: 5, yearStart: 2001, isPrimary: true }
-      - { tag: $viola, level: 3, yearStart: 2016 }
+      - { tag: $violin, level: 5, from: '2001', isPrimary: true }
+      - { tag: $viola, level: 3, from: '2016' }
     workTagList: [$dvorak9, $hungarian5, $onewinged]
     lookingForList: [extra player for concerts, students]
     # when she can play: declarations at several scales; the narrowest one decides each part of a day
@@ -140,10 +140,10 @@ individual:
     name: Kenji Mori
     area: Meguro, Tokyo
     timeCreated: '20230510_09000000+09'
-    roleList: [{ role: practitioner, timeStart: '19980401_00000000+09' }, { role: organizer, timeStart: '20150401_00000000+09' }]
+    roleList: [{ role: practitioner, from: '1998-04' }, { role: organizer, from: '2015-04' }]
     skillList:
-      - { tag: $cello, level: 5, yearStart: 1990, isPrimary: true }
-      - { tag: $conducting, level: 4, yearStart: 2012 }
+      - { tag: $cello, level: 5, from: '1990', isPrimary: true }
+      - { tag: $conducting, level: 4, from: '2012' }
     workTagList: [$dvorak9, $bachsuite1]
     lookingForList: [players for Aurora]
     availability:
@@ -169,12 +169,12 @@ individual:
     name: Sora Ito
     area: Shibuya, Tokyo
     timeCreated: '20231101_12000000+09'
-    roleList: [{ role: practitioner, timeStart: '20100401_00000000+09' }, { role: organizer, timeStart: '20200601_00000000+09' }]
+    roleList: [{ role: practitioner, from: '2010-04' }, { role: organizer, from: '2020-06' }]
     skillList:
-      - { tag: $piano, level: 5, yearStart: 2000, isPrimary: true }
-      - { tag: $synth, level: 4, yearStart: 2012 }
-      - { tag: $arranging, level: 5, yearStart: 2014 }
-      - { tag: $composing, level: 3, yearStart: 2018 }
+      - { tag: $piano, level: 5, from: '2000', isPrimary: true }
+      - { tag: $synth, level: 4, from: '2012' }
+      - { tag: $arranging, level: 5, from: '2014' }
+      - { tag: $composing, level: 3, from: '2018' }
     workTagList: [$onewinged, $zeldatheme, $summerday, $atrain]
     lookingForList: [arranging commissions, jazz gigs]
     availability:
@@ -205,8 +205,8 @@ individual:
     name: Haruka Sato
     area: Kichijoji, Tokyo
     timeCreated: '20240115_19000000+09'
-    roleList: [{ role: practitioner, timeStart: '20120401_00000000+09' }]
-    skillList: [{ tag: $flute, level: 4, yearStart: 2006, isPrimary: true }]
+    roleList: [{ role: practitioner, from: '2012-04' }]
+    skillList: [{ tag: $flute, level: 4, from: '2006', isPrimary: true }]
     workTagList: [$dvorak9, $summerday]
     availability:
       declarationList:
@@ -221,8 +221,8 @@ individual:
     name: Daniel Weber
     area: Minato, Tokyo
     timeCreated: '20250108_08000000+09'
-    roleList: [{ role: practitioner, timeStart: '20050901_00000000+09' }]
-    skillList: [{ tag: $horn, level: 5, yearStart: 1999, isPrimary: true }]
+    roleList: [{ role: practitioner, from: '2005-09' }]
+    skillList: [{ tag: $horn, level: 5, from: '1999', isPrimary: true }]
     workTagList: [$dvorak9]
     lookingForList: [a second orchestra]
     availability:
@@ -238,11 +238,11 @@ individual:
     name: Yui Nakamura
     area: Nakano, Tokyo
     timeCreated: '20240305_10000000+09'
-    roleList: [{ role: practitioner, timeStart: '20110401_00000000+09' }, { role: organizer, timeStart: '20190401_00000000+09' }]
+    roleList: [{ role: practitioner, from: '2011-04' }, { role: organizer, from: '2019-04' }]
     skillList:
-      - { tag: $soprano, level: 5, yearStart: 2004, isPrimary: true }
-      - { tag: $choirsinging, level: 5, yearStart: 2004 }
-      - { tag: $conducting, level: 2, yearStart: 2020 }
+      - { tag: $soprano, level: 5, from: '2004', isPrimary: true }
+      - { tag: $choirsinging, level: 5, from: '2004' }
+      - { tag: $conducting, level: 2, from: '2020' }
     workTagList: [$silentnight]
     availability:
       declarationList:
@@ -257,11 +257,11 @@ individual:
     name: Ren Kobayashi
     area: Shimokitazawa, Tokyo
     timeCreated: '20240620_23000000+09'
-    roleList: [{ role: practitioner, timeStart: '20130401_00000000+09' }]
+    roleList: [{ role: practitioner, from: '2013-04' }]
     skillList:
-      - { tag: $drumkit, level: 5, yearStart: 2008, isPrimary: true }
-      - { tag: $mallet, level: 3, yearStart: 2017 }
-      - { tag: $timpani, level: 2, yearStart: 2021 }
+      - { tag: $drumkit, level: 5, from: '2008', isPrimary: true }
+      - { tag: $mallet, level: 3, from: '2017' }
+      - { tag: $timpani, level: 2, from: '2021' }
     workTagList: [$onewinged, $atrain]
     availability:
       declarationList:
@@ -277,8 +277,8 @@ individual:
     name: Aiko Fujita
     area: Kichijoji, Tokyo
     timeCreated: '20240901_15000000+09'
-    roleList: [{ role: organizer, timeStart: '20180401_00000000+09' }]
-    skillList: [{ tag: $piano, level: 2, yearStart: 1995 }]
+    roleList: [{ role: organizer, from: '2018-04' }]
+    skillList: [{ tag: $piano, level: 2, from: '1995' }]
     workTagList: [$atrain]
     lookingForList: [bands for Sunday sessions]
     account:
@@ -289,10 +289,10 @@ individual:
     name: Takumi Endo
     area: Koenji, Tokyo
     timeCreated: '20231205_20000000+09'
-    roleList: [{ role: practitioner, timeStart: '20070401_00000000+09' }]
+    roleList: [{ role: practitioner, from: '2007-04' }]
     skillList:
-      - { tag: $doublebass, level: 5, yearStart: 2003, isPrimary: true }
-      - { tag: $bassguitar, level: 4, yearStart: 2001 }
+      - { tag: $doublebass, level: 5, from: '2003', isPrimary: true }
+      - { tag: $bassguitar, level: 4, from: '2001' }
     workTagList: [$atrain, $dvorak9]
     availability:
       declarationList:
@@ -307,10 +307,10 @@ individual:
     name: Lena Park
     area: Kinshicho, Tokyo
     timeCreated: '20261110_22000000+09'
-    roleList: [{ role: practitioner, timeStart: '20140301_00000000+09' }]
+    roleList: [{ role: practitioner, from: '2014-03' }]
     skillList:
-      - { tag: $viola, level: 4, yearStart: 2008, isPrimary: true }
-      - { tag: $violin, level: 3, yearStart: 2005 }
+      - { tag: $viola, level: 4, from: '2008', isPrimary: true }
+      - { tag: $violin, level: 3, from: '2005' }
     workTagList: [$dvorak9, $hungarian5]
     lookingForList: [an orchestra, a string quartet]
     availability:
@@ -336,10 +336,10 @@ individual:
     name: Emi Watanabe
     area: Nakano, Tokyo
     timeCreated: '20230901_18000000+09'
-    roleList: [{ role: practitioner, timeStart: '20100401_00000000+09' }]
+    roleList: [{ role: practitioner, from: '2010-04' }]
     skillList:
-      - { tag: $cello, level: 3, yearStart: 2009, isPrimary: true }
-      - { tag: $alto, level: 3, yearStart: 2024 }
+      - { tag: $cello, level: 3, from: '2009', isPrimary: true }
+      - { tag: $alto, level: 3, from: '2024' }
     availability:
       declarationList:
         - { state: unavailable, span: { unit: always }, weekdayList: [thu], dayPartList: [evening], note: choir night }
@@ -357,7 +357,7 @@ group:
     tagList: [$classical, $dvorak9, $hungarian5]
     joinPolicy: apply
     recruitList: [{ tag: $viola, count: 2, note: violas for the season }, { tag: $horn, count: 1 }]
-    timeFounded: '20150401_00000000+09'
+    period: { from: '2015-04' }
     timeCreated: '20230510_09100000+09'
     account:
       handle: aurora.orch
@@ -382,7 +382,7 @@ group:
     tagList: [$gamemusic, $filmmusic, $onewinged, $zeldatheme]
     joinPolicy: apply
     recruitList: [{ tag: $harp, count: 1 }, { tag: $horn, count: 1 }]
-    timeFounded: '20200601_00000000+09'
+    period: { from: '2020-06' }
     timeCreated: '20231101_12100000+09'
     account:
       handle: sgmo.tokyo
@@ -394,7 +394,7 @@ group:
     description: A choir open to everyone who likes to sing. Thursday nights in Nakano.
     tagList: [$choral, $silentnight]
     joinPolicy: open
-    timeFounded: '20190401_00000000+09'
+    period: { from: '2019-04' }
     timeCreated: '20240305_10100000+09'
     account:
       handle: sakura.voices
@@ -406,7 +406,7 @@ group:
     description: A jazz piano trio. We play standards, and the Sunday sessions at Café Hoshizora.
     tagList: [$jazz, $atrain]
     joinPolicy: invite
-    timeFounded: '20220901_00000000+09'
+    period: { from: '2022-09' }
     timeCreated: '20231101_12200000+09'
     account:
       handle: midnight.steps
@@ -414,28 +414,32 @@ group:
       avatar: { style: badge, icon: sax, color: '#264653' }
 
 membership:
-  - { group: $aurora, individual: $kenji, timeJoined: '20150401_00000000+09', skillList: [$cello], roleList: [{ role: owner, timeStart: '20150401_00000000+09' }, { role: $rconductor, timeStart: '20150401_00000000+09' }] }
-  - { group: $aurora, individual: $mika, timeJoined: '20170604_00000000+09', skillList: [$violin], roleList: [{ role: $rconcertmaster, timeStart: '20190401_00000000+09' }, { role: admin, timeStart: '20210401_00000000+09' }] }
-  - { group: $aurora, individual: $haruka, timeJoined: '20190901_00000000+09', skillList: [$flute], roleList: [{ role: $rsection, timeStart: '20220401_00000000+09' }] }
-  - { group: $aurora, individual: $daniel, timeJoined: '20230115_00000000+09', skillList: [$horn] }
-  - { group: $aurora, individual: $takumi, timeJoined: '20180520_00000000+09', skillList: [$doublebass] }
-  - { group: $aurora, individual: $emi, status: left, timeJoined: '20160401_00000000+09', timeEnded: '20250331_00000000+09', skillList: [$cello], roleList: [{ role: $rsection, timeStart: '20200401_00000000+09', timeEnd: '20250331_00000000+09' }] }
-  - { group: $sgmo, individual: $sora, timeJoined: '20200601_00000000+09', skillList: [$piano, $synth], roleList: [{ role: owner, timeStart: '20200601_00000000+09' }, { role: $rconductor, timeStart: '20200601_00000000+09' }] }
-  - { group: $sgmo, individual: $mika, timeJoined: '20210110_00000000+09', skillList: [$violin] }
-  - { group: $sgmo, individual: $haruka, timeJoined: '20250412_00000000+09', skillList: [$flute], via: $appharuka }
-  - { group: $sgmo, individual: $ren, timeJoined: '20200601_00000000+09', skillList: [$timpani, $mallet], roleList: [{ role: admin, timeStart: '20230101_00000000+09' }, { role: $rsection, timeStart: '20220101_00000000+09' }] }
-  - { group: $sgmo, individual: $takumi, timeJoined: '20220301_00000000+09', skillList: [$doublebass] }
-  - { group: $sakura, individual: $yui, timeJoined: '20190401_00000000+09', skillList: [$soprano], roleList: [{ role: owner, timeStart: '20190401_00000000+09' }, { role: $rconductor, timeStart: '20190401_00000000+09' }] }
-  - { group: $sakura, individual: $emi, timeJoined: '20250501_00000000+09', skillList: [$alto] }
-  - { group: $midnight, individual: $sora, timeJoined: '20220901_00000000+09', skillList: [$piano], roleList: [{ role: owner, timeStart: '20220901_00000000+09' }] }
-  - { group: $midnight, individual: $takumi, timeJoined: '20220901_00000000+09', skillList: [$doublebass] }
-  - { group: $midnight, individual: $ren, timeJoined: '20220901_00000000+09', skillList: [$drumkit] }
+  - { group: $aurora, individual: $kenji, period: { from: '2015-04' }, skillList: [$cello], roleList: [{ role: owner, from: '2015-04' }, { role: $rconductor, from: '2015-04' }] }
+  # section leader of the second violins, then concertmaster: the two overlap from April to June 2019
+  - { group: $aurora, individual: $mika, period: { from: '2017-06-04' }, skillList: [$violin], roleList: [{ role: $rsection, from: '2017-09', to: '2019-06' }, { role: $rconcertmaster, from: '2019-04' }, { role: admin, from: '2021-04' }] }
+  - { group: $aurora, individual: $haruka, period: { from: '2019-09' }, skillList: [$flute], roleList: [{ role: $rsection, from: '2022-04' }] }
+  - { group: $aurora, individual: $daniel, period: { from: '2023-01-15' }, skillList: [$horn] }
+  - { group: $aurora, individual: $takumi, period: { from: '2018-05-20' }, skillList: [$doublebass] }
+  - { group: $aurora, individual: $emi, endReason: left, period: { from: '2016-04', to: '2025-03-31' }, skillList: [$cello], roleList: [{ role: $rsection, from: '2020-04', to: '2025-03-31' }] }
+  - { group: $sgmo, individual: $sora, period: { from: '2020-06' }, skillList: [$piano, $synth], roleList: [{ role: owner, from: '2020-06' }, { role: $rconductor, from: '2020-06' }] }
+  - { group: $sgmo, individual: $mika, period: { from: '2021-01-10' }, skillList: [$violin] }
+  # Haruka played in SGMO, left, and came back through an application: two memberships of one group
+  - { group: $sgmo, individual: $haruka, period: { from: '2021-01', to: '2022-08' }, endReason: left, skillList: [$flute] }
+  - { group: $sgmo, individual: $haruka, period: { from: '2025-04-12' }, skillList: [$flute], via: $appharuka }
+  # section leader of the drums, then of the mallets: one role held twice at once from June to December 2024
+  - { group: $sgmo, individual: $ren, period: { from: '2020-06' }, skillList: [$timpani, $mallet], roleList: [{ role: admin, from: '2023-01' }, { role: $rsection, from: '2022-01', to: '2024-12' }, { role: $rsection, from: '2024-06' }] }
+  - { group: $sgmo, individual: $takumi, period: { from: '2022-03' }, skillList: [$doublebass] }
+  - { group: $sakura, individual: $yui, period: { from: '2019-04' }, skillList: [$soprano], roleList: [{ role: owner, from: '2019-04' }, { role: $rconductor, from: '2019-04' }] }
+  - { group: $sakura, individual: $emi, period: { from: '2025-05' }, skillList: [$alto] }
+  - { group: $midnight, individual: $sora, period: { from: '2022-09' }, skillList: [$piano], roleList: [{ role: owner, from: '2022-09' }] }
+  - { group: $midnight, individual: $takumi, period: { from: '2022-09' }, skillList: [$doublebass] }
+  - { group: $midnight, individual: $ren, period: { from: '2022-09' }, skillList: [$drumkit] }
 
 subgroup:
-  - { $: quartet, group: $aurora, name: Aurora String Quartet, description: "Four of the strings, for the foyer before concerts and for weddings.", tagList: [$bowed], joinPolicy: lead, memberList: [{ individual: $mika, role: lead, timeJoined: '20200105_00000000+09' }, { individual: $kenji, timeJoined: '20200105_00000000+09' }] }
-  - { $: winds, group: $aurora, name: Winds and brass, description: Sectionals of the winds and the brass, the Saturday before each concert., tagList: [$woodwind, $brass], joinPolicy: open, memberList: [{ individual: $haruka, role: lead, timeJoined: '20220410_00000000+09' }, { individual: $daniel, timeJoined: '20230120_00000000+09' }] }
-  - { $: ffteam, group: $sgmo, name: Final Fantasy medley team, description: Those preparing the Final Fantasy medley of Game Music Night., tagList: [$ff7], joinPolicy: open, memberList: [{ individual: $sora, role: lead, timeJoined: '20260901_00000000+09' }, { individual: $mika, timeJoined: '20260905_00000000+09' }, { individual: $ren, timeJoined: '20260905_00000000+09' }] }
-  - { $: percussioncorps, group: $sgmo, name: Percussion corps, description: Everyone who hits things., tagList: [$percussion], joinPolicy: open, memberList: [{ individual: $ren, role: lead, timeJoined: '20220101_00000000+09' }] }
+  - { $: quartet, group: $aurora, name: Aurora String Quartet, description: "Four of the strings, for the foyer before concerts and for weddings.", tagList: [$bowed], joinPolicy: lead, memberList: [{ individual: $mika, role: lead, from: '2020-01-05' }, { individual: $kenji, from: '2020-01-05' }] }
+  - { $: winds, group: $aurora, name: Winds and brass, description: Sectionals of the winds and the brass, the Saturday before each concert., tagList: [$woodwind, $brass], joinPolicy: open, memberList: [{ individual: $haruka, role: lead, from: '2022-04-10' }, { individual: $daniel, from: '2023-01-20' }] }
+  - { $: ffteam, group: $sgmo, name: Final Fantasy medley team, description: Those preparing the Final Fantasy medley of Game Music Night., tagList: [$ff7], joinPolicy: open, memberList: [{ individual: $sora, role: lead, from: '2026-09' }, { individual: $mika, from: '2026-09-05' }, { individual: $ren, from: '2026-09-05' }] }
+  - { $: percussioncorps, group: $sgmo, name: Percussion corps, description: Everyone who hits things., tagList: [$percussion], joinPolicy: open, memberList: [{ individual: $ren, role: lead, from: '2022-01' }] }
 
 event:
   - $: winter

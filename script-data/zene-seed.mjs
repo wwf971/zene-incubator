@@ -40,9 +40,18 @@ const idOf = (local) => {
 };
 const entryList = [];
 const localSet = new Set();
-let countAuto = 0;
+// an entity written without a local name is named by what identifies it, never by its place in the
+// file: numbered by place, one entity inserted renamed every one after it, and a run again rewrote
+// items with the content of their neighbours and left the last ones behind
+const IDENTITY_BY_KIND = {
+	membership: (raw) => [raw.group, raw.individual, raw.period?.from],
+	application: (raw) => [raw.applicant, raw.target?.kind, raw.target?.id, raw.timeCreated],
+	follow: (raw) => [raw.from, raw.to],
+};
 const localOf = (raw, kind) => {
-	const local = raw?.$ ? String(raw.$) : `${kind}-${++countAuto}`;
+	const identity = IDENTITY_BY_KIND[kind]?.(raw ?? {});
+	if (!raw?.$ && !identity) throw new Error(`a ${kind} needs a local name ($: …)`);
+	const local = raw?.$ ? String(raw.$) : `${kind}:${identity.join(':')}`;
 	if (localSet.has(local)) throw new Error(`the local name $${local} is written twice`);
 	localSet.add(local);
 	return local;
@@ -137,7 +146,24 @@ if (isDry) process.exit(0);
 let config = await api('/object-frontend/config');
 const docPage = config.docPageList[0];
 if (!docPage) throw new Error('the server has no doc page that can hold frontend objects');
-let object = docPage.objectList.find((one) => (argGet('object') ? one.id === argGet('object') : one.typeId === TYPE_ID));
+// the object to write into: the one named, else the one community the doc page has. What an object is
+// lies in its entry item, not in the list of objects, so each entry is read for its type; with
+// several communities the script stops and asks which (writing into a new object every run is how
+// duplicates were made)
+const typeOf = async (one) => {
+	const answer = await api(`/item/get?store=local&itemId=${encodeURIComponent(one.entry)}`).catch(() => undefined);
+	return answer?.version?.text ? YAML.parse(answer.version.text)?.type ?? '' : '';
+};
+let object;
+if (argGet('object')) {
+	object = docPage.objectList.find((one) => one.id === argGet('object'));
+	if (!object) throw new Error(`the doc page has no object ${argGet('object')}`);
+} else {
+	const communityList = [];
+	for (const one of docPage.objectList) if (await typeOf(one) === TYPE_ID) communityList.push(one);
+	if (communityList.length > 1) throw new Error(`the doc page has ${communityList.length} objects of ${TYPE_ID} (${communityList.map((one) => one.id).join(', ')}): name one with --object`);
+	object = communityList[0];
+}
 if (!object) {
 	await api('/object-frontend/create', { docPageAlias: docPage.alias, typeId: TYPE_ID, name: 'Zene example community', description: 'the made-up music community of the demonstration' });
 	config = await api('/object-frontend/config');
@@ -163,6 +189,7 @@ for (const entry of entryList) {
 		const item = itemById.get(asset.itemId);
 		const head = item?.versionList?.find((version) => version.versionId === item.versionIdHead);
 		if (head?.hash === hashOf(text) && asset.name === name) { count.same += 1; continue; }
+		if (argList.includes('--verbose')) console.log(`update ${entry.kind} $${entry.local}:${head?.hash !== hashOf(text) ? ' its data' : ''}${asset.name !== name ? ` its name ${JSON.stringify(asset.name)} -> ${JSON.stringify(name)}` : ''}`);
 		if (head?.hash !== hashOf(text)) await api('/item/update', { store: 'local', itemId: asset.itemId, hashBase: head?.hash, text, mode: 'inPlace', note: 'seeded from script-data/zene-example.yaml' });
 		if (asset.name !== name) await api('/object-frontend/asset/meta/set', { id: object.id, key: asset.key, name });
 		count.updated += 1;

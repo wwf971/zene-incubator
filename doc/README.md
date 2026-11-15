@@ -38,6 +38,7 @@ items         one item per entity, a partition per community
 | [The app](zene-demo.md) | the app on the example community, with the session beside it |
 | [Data items](zene-data.md) | the kinds of items, their fields, ids, paths, partitions, the tag DAG |
 | [Availability](zene-availability.md) | when people can play: declarations at any scale, merged by specificity |
+| [Timeline](zene-timeline.md) | every relation holds for a period, each end as precise as it is known |
 | [Actions](zene-action.md) | who may do what, and what it changes: the catalog, and where it runs |
 | [The app on a phone](zene-ui.md) | the screens, gestures, forms, icons, and the backend of the demonstration |
 | [Later](zene-todo.md) | what is left for later |

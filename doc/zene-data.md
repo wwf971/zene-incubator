@@ -33,7 +33,9 @@ A music community is **one frontend object** of the type `zene.community` (react
 
 ## Times
 
-A time is written in the project's format with its zone: `20261213_14000000+09` (2026-12-13 14:00 at +09). It is compared as a moment and shown in its own zone, so a concert in Tokyo reads 14:00 +09 wherever the page is read. A **period** is `{ timeStart, timeEnd }`, `timeEnd` empty while it goes on.
+A time is written in the project's format with its zone: `20261213_14000000+09` (2026-12-13 14:00 at +09). It is compared as a moment and shown in its own zone, so a concert in Tokyo reads 14:00 +09 wherever the page is read.
+
+A relation that lasts (a membership, a role, a skill, a group's life) holds for a **period** `{ from, to }`, `to` empty while it goes on, each end a point as precise as it is known: a year `2017`, a month `2017-06`, a day `2017-06-04`, or a moment the app recorded. A month is some instant of that month, never widened to its first or last day: reading a period at a moment answers yes, maybe or no ([Timeline](zene-timeline.md)).
 
 ## The kinds of data items
 
@@ -44,8 +46,8 @@ Every item has `id`, `timeCreated`, and `createdBy` (the account acting when it 
 name: Mika Tanaka
 account: {account id}
 area: Setagaya, Tokyo
-roleList: [{ role: practitioner | organizer, timeStart, timeEnd }]
-skillList: [{ tag: {skill tag}, level: 1..5, yearStart: 2001, isPrimary: true }]
+roleList: [{ role: practitioner | organizer, from: '2009-04', to: '' }]   # each role for a period
+skillList: [{ tag: {skill tag}, level: 1..5, from: '2001', isPrimary: true }]   # played since a point
 workTagList: [{work or composer tag}]
 lookingForList: [extra player for concerts, students]
 pricing: { isPaidOk, isFreeOk, itemList: [{ label, amount, currency: JPY, unit }], note }
@@ -67,19 +69,20 @@ name, account, area, description
 tagList: [{genre, work tags}]
 joinPolicy: open | apply | invite
 recruitList: [{ tag: {skill tag}, count, note }]
-timeFounded
+period: { from: '2015-04', to: '' }  # founded, and dissolved when it ends
 
-# membership: one person in one group, for one stretch of time
+# membership: one person in one group, for one stretch of time (who left and came back has two)
 group, individual
-status: active | left | removed
-roleList: [{ role: owner | admin | {role tag}, timeStart, timeEnd }]   # each role for a period
+period: { from: '2017-06-04', to: '' }   # a member while it holds
+endReason: '' | left | removed           # how it ended
+roleList: [{ role: owner | admin | {role tag}, from, to }]   # each role for a period; periods may overlap
 skillList: [{what they play in the group}]
-timeJoined, timeEnded, via: {application id}
+via: {application id}
 
 # subgroup: members of a group, formed by them
 group, name, description, tagList
 joinPolicy: open | lead               # members join it, or its leads add them
-memberList: [{ individual, role: lead | member, timeJoined }]
+memberList: [{ individual, role: lead | member, from, to }]   # leaving ends the period
 
 # event
 name, account (absent for most rehearsals)

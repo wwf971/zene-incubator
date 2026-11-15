@@ -36,6 +36,9 @@ export class ZeneAppStore {
 	editAccountId = '';
 	// the calendar of an availability: { weekOffset, selection: { unit: day | part | week | month, day, dayPart? } }
 	availabilityViewByKey = {};
+	// the state of one view of a screen, by a key of its own: how it is shown (list, calendar,
+	// timeline), the month a calendar shows, what is selected in it
+	uiByKey = {};
 	draftByKey = {};
 	logSeqFocused = 0;
 	storageKey = '';
@@ -54,6 +57,7 @@ export class ZeneAppStore {
 			viewByAccount: observable,
 			editAccountId: observable,
 			availabilityViewByKey: observable,
+			uiByKey: observable,
 			draftByKey: observable,
 			logSeqFocused: observable,
 			signIn: action,
@@ -76,6 +80,7 @@ export class ZeneAppStore {
 			viewSet: action,
 			editToggle: action,
 			availabilityViewSet: action,
+			uiSet: action,
 			draftSet: action,
 			draftClear: action,
 			logFocus: action,
@@ -223,6 +228,14 @@ export class ZeneAppStore {
 		const view = this.availabilityViewGet(key);
 		const selection = change.selection !== undefined && JSON.stringify(change.selection) === JSON.stringify(view.selection) ? null : change.selection ?? view.selection;
 		this.availabilityViewByKey[key] = { ...view, ...change, selection };
+	}
+
+	uiGet(key, initial = {}) {
+		return { ...initial, ...(this.uiByKey[key] ?? {}) };
+	}
+
+	uiSet(key, change) {
+		this.uiByKey[key] = { ...(this.uiByKey[key] ?? {}), ...change };
 	}
 
 	// the draft of a form, kept while the sheet is closed and opened again

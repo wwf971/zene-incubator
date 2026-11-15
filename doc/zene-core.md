@@ -25,6 +25,8 @@ A person in music. Two roles, each held for a period: a **practitioner** plays o
 
 An orchestra, a band, a choir. Individuals **join** a group (openly, by application, or by invitation, as the group decides) and hold **roles** in it for periods: owner and admin manage the group; conductor, concertmaster, section leader are musical roles. A person may be in many groups.
 
+Everything that lasts has a **timeline**: a membership, a role, a skill, a group's life each hold from a time to a time (or until now), each end as precise as it is known: a year, a month, a day ([Timeline](zene-timeline.md)).
+
 Members of a group form **subgroups** (a string quartet inside an orchestra, a medley team); a member may be in several.
 
 ## Music events

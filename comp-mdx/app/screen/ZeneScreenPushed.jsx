@@ -1,7 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { Filter } from 'lucide-react';
 import { zeneSearch } from '../../model/ZeneQuery.js';
-import { zeneGroupManageIs, zeneMembershipActiveGet } from '../../model/ZeneRole.js';
+import { zeneGroupManageIs, zeneMembershipActiveGet, zeneSubgroupMemberList } from '../../model/ZeneRole.js';
+import { zenePeriodText } from '../../model/ZeneTimeline.js';
 import { ZeneIcon } from '../part/ZeneIcon.jsx';
 import { ZeneActionButton, ZeneEmpty, ZeneEventRow, ZeneHeader, ZeneSection, ZeneSubjectRow, ZeneTagChip, ZeneTagRow } from '../part/ZenePart.jsx';
 import { ZenePostCard } from '../part/ZenePostCard.jsx';
@@ -123,8 +124,10 @@ const ZeneScreenSubgroup = observer(function ZeneScreenSubgroup({ app, subgroupI
 	if (!subgroup) return <div className="zene-screen"><ZeneHeader title="Subgroup" onBack={onBack} /><ZeneEmpty text="This subgroup is gone." /></div>;
 	const group = world.get('group', subgroup.group);
 	const { personId } = app.store.actor;
-	const isIn = subgroup.memberList.some((one) => one.individual === personId);
-	const isGroupMember = Boolean(zeneMembershipActiveGet(world, personId, subgroup.group));
+	const memberNowList = zeneSubgroupMemberList(subgroup, app.time);
+	const memberBeforeList = subgroup.memberList.filter((one) => !memberNowList.includes(one));
+	const isIn = memberNowList.some((one) => one.individual === personId);
+	const isGroupMember = Boolean(zeneMembershipActiveGet(world, personId, subgroup.group, app.time));
 	return (
 		<div className="zene-screen">
 			<ZeneHeader title={subgroup.name} subtitle={group?.name} onBack={onBack} />
@@ -138,11 +141,18 @@ const ZeneScreenSubgroup = observer(function ZeneScreenSubgroup({ app, subgroupI
 						{!isIn && isGroupMember ? <ZeneActionButton app={app} actionId="subgroup.join" input={{ subgroup: subgroup.id }} label="Join the subgroup" tone="primary" /> : null}
 						{!isGroupMember && !zeneGroupManageIs(world, personId, subgroup.group, app.time) ? <span className="zene-pill is-muted">for members of the group</span> : null}
 					</div>
-					<ZeneSection title="Members" detail={String(subgroup.memberList.length)}>
+					<ZeneSection title="Members" detail={String(memberNowList.length)}>
 						<div className="zene-row-list">
-							{subgroup.memberList.map((one) => <ZeneSubjectRow key={one.individual} app={app} world={world} kind="individual" id={one.individual} detail={one.role} />)}
+							{memberNowList.map((one, index) => <ZeneSubjectRow key={`${one.individual}:${index}`} app={app} world={world} kind="individual" id={one.individual} detail={`${one.role} · ${zenePeriodText(one, { isSince: true })}`} />)}
 						</div>
 					</ZeneSection>
+					{memberBeforeList.length > 0 ? (
+						<ZeneSection title="Before" detail={String(memberBeforeList.length)}>
+							<div className="zene-row-list">
+								{memberBeforeList.map((one, index) => <ZeneSubjectRow key={`${one.individual}:before:${index}`} app={app} world={world} kind="individual" id={one.individual} detail={`${one.role} · ${zenePeriodText(one)}`} />)}
+							</div>
+						</ZeneSection>
+					) : null}
 				</div>
 			</div>
 		</div>

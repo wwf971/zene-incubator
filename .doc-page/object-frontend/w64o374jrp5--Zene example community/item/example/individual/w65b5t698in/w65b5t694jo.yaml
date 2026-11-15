@@ -1,0 +1,30 @@
+name: Ren Kobayashi
+area: Shimokitazawa, Tokyo
+timeCreated: 20240620_23000000+09
+roleList:
+  - role: practitioner
+    from: 2013-04
+skillList:
+  - tag: 8fwsgmwqla0
+    level: 5
+    from: "2008"
+    isPrimary: true
+  - tag: j00el9dy4wn
+    level: 3
+    from: "2017"
+  - tag: 9cr4jkf22hh
+    level: 2
+    from: "2021"
+workTagList:
+  - 8x39daednqn
+  - bvfqae7yhnw
+pricing:
+  isPaidOk: true
+  isFreeOk: true
+  itemList:
+    - label: Gig
+      amount: 12000
+      currency: JPY
+      unit: per gig
+account: ckh644k9ur7
+id: i8c3r1cxelw

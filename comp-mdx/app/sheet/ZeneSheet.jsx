@@ -13,6 +13,8 @@ import { ZeneAvatar } from '../part/ZeneAvatar.jsx';
 import { ZeneField, ZeneSegment, ZeneTagPicker, ZeneToggle } from '../part/ZeneForm.jsx';
 import { ZeneIcon } from '../part/ZeneIcon.jsx';
 import { ZeneActionButton, ZeneRow } from '../part/ZenePart.jsx';
+import { ZenePeriodField, ZeneRemoveButton } from '../part/ZeneInline.jsx';
+import { zenePeriodAt, zenePointOfTime } from '../../model/ZeneTimeline.js';
 import { roleTextOf } from '../screen/ZeneAccountView.jsx';
 
 // The sheets of the app (doc/zene-ui.md#forms): a form slides up over the screens, as on a phone.
@@ -431,7 +433,7 @@ const ZeneMemberSheet = observer(function ZeneMemberSheet({ app, param }) {
 	const membership = world.get('membership', param.membership);
 	if (!membership) return <p className="zene-note">This membership is gone.</p>;
 	const individual = world.get('individual', membership.individual);
-	const roleNow = zeneMembershipRoleList(membership, app.time);
+	const roleNow = zeneMembershipRoleList(membership, app.time, { isMaybeHeld: true });
 	const roleList = [...ZENE_ROLE_MANAGE_LIST, ...world.list('tag').filter((tag) => tag.kindList.includes('role')).map((tag) => tag.id)];
 	return (
 		<>
@@ -444,10 +446,45 @@ const ZeneMemberSheet = observer(function ZeneMemberSheet({ app, param }) {
 				})}
 			</div>
 			<p className="zene-field-hint">A role is held for a period: giving it starts one, ending it closes it. Owner and admin are given by an owner.</p>
+			<ZeneMembershipHistory app={app} membership={membership} roleList={roleList} />
 			<div className="zene-button-row">
 				<ZeneActionButton app={app} actionId="membership.remove" input={{ membership: membership.id }} label="Remove from the group" tone="danger" onDone={() => app.store.sheetClose()} />
 			</div>
 		</>
+	);
+});
+
+// the history of a membership, as its managers tell it (membership.historySet): the period of the
+// membership and of each role, each end at the precision it is known (2017, 2017-06, 2017-06-04),
+// periods of roles overlapping as they did; a role of the past added, then its dates typed
+const ZeneMembershipHistory = observer(function ZeneMembershipHistory({ app, membership, roleList }) {
+	const world = app.world;
+	const historySet = (change) => app.actionRun('membership.historySet', { membership: membership.id, ...change });
+	const periodListSet = (next) => historySet({ roleList: next });
+	return (
+		<div className="zene-history">
+			<p className="zene-field-label">History</p>
+			<div className="zene-history-row is-main">
+				<span className="zene-history-what">member</span>
+				<ZenePeriodField app={app} inputKey={`membership:${membership.id}`} period={membership.period} isEditing onCommit={(period) => historySet({ period })} />
+			</div>
+			{membership.roleList.map((one, index) => (
+				<div key={index} className={`zene-history-row${zenePeriodAt(one, app.time) === 'no' ? ' is-past' : ''}`}>
+					<span className="zene-history-what">{roleTextOf(world, [one.role])}</span>
+					<ZenePeriodField app={app} inputKey={`membership-role:${membership.id}:${index}`} period={one} isEditing onCommit={(period) => periodListSet(membership.roleList.map((item, at) => (at === index ? { ...item, ...period } : item)))} />
+					<ZeneRemoveButton title="Take this period out of the history" onClick={() => periodListSet(membership.roleList.filter((_, at) => at !== index))} />
+				</div>
+			))}
+			<div className="zene-history-add">
+				<span className="zene-field-hint">A role of the past:</span>
+				{roleList.map((role) => (
+					<button key={role} type="button" className="zene-chip-choice" onClick={() => periodListSet([...membership.roleList, { role, from: membership.period.from, to: membership.period.to || zenePointOfTime(app.time) }])}>
+						+ {roleTextOf(world, [role])}
+					</button>
+				))}
+			</div>
+			<p className="zene-field-hint">Each end is a year, a month or a day, as precisely as it is known; an end left empty goes on. Two periods may overlap.</p>
+		</div>
 	);
 });
 

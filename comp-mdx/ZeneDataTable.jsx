@@ -2,6 +2,7 @@ import { useLayoutEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useCompState } from '@wwf971/react-doc';
 import { ZENE_KIND_LIST, zeneEntityNameGet, zeneEntityPathBuild } from './model/ZeneKind.js';
+import { zenePeriodText } from './model/ZeneTimeline.js';
 import { zeneBackendEnsure } from './backend/ZeneBackendLocal.js';
 
 // The mode Data items (doc/zene-data.md): the entities of one partition by kind, as the app sees
@@ -78,8 +79,8 @@ function entitySayText(world, kind, entity) {
 		case 'account': return `${entity.subject.kind} ${world.labelGet(entity.subject.kind, entity.subject.id)}${entity.isTemporary ? ', temporary' : ''}`;
 		case 'individual': return entity.skillList.map((one) => `${label(one.tag)} ${one.level}`).join(', ');
 		case 'group': return `${entity.joinPolicy}; ${entity.tagList.map(label).join(', ')}`;
-		case 'membership': return [entity.status, entity.roleList.map((one) => `${one.role === 'owner' || one.role === 'admin' ? one.role : label(one.role)}${one.timeEnd ? ' (ended)' : ''}`).join(', ')].filter(Boolean).join('; ');
-		case 'subgroup': return `${world.labelGet('group', entity.group)}; ${entity.memberList.length} members`;
+		case 'membership': return [zenePeriodText(entity.period), entity.endReason, entity.roleList.map((one) => `${one.role === 'owner' || one.role === 'admin' ? one.role : label(one.role)} ${zenePeriodText(one)}`).join(', ')].filter(Boolean).join('; ');
+		case 'subgroup': return `${world.labelGet('group', entity.group)}; ${entity.memberList.filter((one) => !one.to).length} members now, ${entity.memberList.length} ever`;
 		case 'event': return `${entity.eventKind}, ${entity.status}, ${entity.isCommercial ? 'commercial' : 'non-commercial'}; ${entity.principalList.map((one) => `${world.labelGet(one.kind, one.id)} (${one.role}${one.status !== 'confirmed' ? `, ${one.status}` : ''})`).join(', ')}`;
 		case 'post': return `${entity.postKind}${entity.hiring ? `: ${label(entity.hiring.tag)} for ${world.labelGet(entity.hiring.target.kind, entity.hiring.target.id)}${entity.hiring.isOpen ? '' : ' (closed)'}` : ''}`;
 		case 'application': return `${entity.status}; ${entity.skillList.map(label).join(', ')}`;

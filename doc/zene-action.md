@@ -81,7 +81,8 @@ an organizer        application.accept
 ## Rules the actions keep
 
 - A group keeps **one owner at least**: the last owner neither leaves nor loses the role; owner and admin are given and ended by an owner only; an owner is never removed by another member.
-- Leaving a group or being removed **ends the open role periods** and keeps the membership as history (`left`, `removed`). Joining again is a new membership.
+- Leaving a group or being removed **ends the open role periods** and keeps the membership as history (its period ended, `endReason` left or removed). Joining again is a new membership.
+- **History is told, not only recorded**: what the app does is written to the moment; earlier history, or a correction, is told by the owners and admins with `membership.historySet`, each end at the precision it is known, roles inside their membership, one owner kept ([Timeline](zene-timeline.md#telling-the-history)).
 - **One application waits at a time** per person and target; accepting or declining is final, the applicant may withdraw while it waits.
 - An event is made as a **draft**, seen by its organizers, until it is published; one that is over cannot be cancelled. Its account is made with it and **expires 30 days after it**: posting as an expired event account is refused.
 - A rehearsal is added to an event by its organizers, is seen only by those taking part, and has no account.

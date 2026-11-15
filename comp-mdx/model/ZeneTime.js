@@ -45,16 +45,6 @@ export function zeneTimeAdd(text, ms) {
 	return zeneTimeText(zeneTimeMs(text) + ms, zeneTimeZoneOf(text));
 }
 
-// whether a period { timeStart, timeEnd } holds the moment `time` (an end left empty: still on)
-export function zenePeriodHas(period, time) {
-	const at = zeneTimeMs(time);
-	const start = zeneTimeMs(period?.timeStart);
-	const end = zeneTimeMs(period?.timeEnd);
-	if (Number.isFinite(start) && at < start) return false;
-	if (Number.isFinite(end) && at >= end) return false;
-	return true;
-}
-
 // the value of an <input type="datetime-local"> (2026-12-13T14:00) as a time text in a zone, and back
 export function zeneTimeFromLocalInput(value, zoneHour = zeneTimeZoneOf('')) {
 	const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(value ?? ''));

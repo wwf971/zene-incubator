@@ -38,7 +38,7 @@ Pushed on a tab: an **account's homepage**, an **event** without an account (a r
 A homepage is the header of a social app (picture, counts, name, bio, the buttons of what the person may do here) and **views** below it, swiped through:
 
 - **About** (the first, by default): what the data says, laid out to read. For a person: what they play with levels, their roles since when, what they look for, when they can play ([Availability](zene-availability.md): the status, a calendar of the parts of each day, the declarations), their prices, the works they love. For a group: how one joins, what it looks for, what it plays. For an event: when and where, commercial or not, the program with its composers, who takes part (with Accept / Decline for an invitation), open positions, rehearsals. Then the **homepage** the account writes in Markdown, rendered as any document of the page.
-- **Posts**: a grid. **Events**: coming and past. **Groups**: a person's groups with the roles held now and before; a group's members with their roles (a manager opens one to give or end a role) and its subgroups.
+- **Posts**: a grid. **Events**: coming and past as a list, or a **calendar** of a month (the events of each day, a tap on a day listing them). **Groups**: a person's groups with the roles held now and before, as a list or on a **timeline**; a group's members with their roles (a manager opens one to give or end a role, and to tell the history of the membership: its period and the periods of its roles), on a timeline everyone who ever was a member, and its subgroups. How the timeline is drawn: [Timeline](zene-timeline.md#on-a-timeline).
 
 ### Editing a homepage in place
 
@@ -72,6 +72,7 @@ A form is a sheet sliding up, and **the input of one action**: it builds the inp
 - A mouse drags as a finger does; two fingers sideways on a trackpad swipe too.
 - **The wheel stays in the phone**: it scrolls the screen under it and never the page behind.
 - The click ending a drag is not a tap.
+- **No scroll bar stands beside a list.** A phone draws its scroll indicator over the content while one scrolls, and it is gone after; the simulation draws none, and takes no room for one, so nothing shifts when a list starts to scroll.
 
 ## Icons
 

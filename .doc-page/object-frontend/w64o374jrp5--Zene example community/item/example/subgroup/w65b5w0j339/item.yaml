@@ -1,0 +1,24 @@
+itemId: w65b5w0j339
+name: ""
+lang: yaml
+contentType: text/yaml
+fileExt: yaml
+owner:
+  ref: frontend:w64o374jrp5
+versionIdHead: w65b5w0lk90
+isDeleted: false
+isLocked: false
+timeCreated: 20261116_01312743+09
+versionList:
+  - versionId: w65b5w0lk90
+    versionIdPrevList: []
+    time: 20261116_01312743+09
+    note: seeded from script-data/zene-example.yaml
+    size: 325
+    hash: 59af2345d615777b52fe244ce4b1a94a9515bf34
+    isLocked: false
+    dependencyList: []
+eventList:
+  - eventType: create
+    time: 20261116_01312743+09
+    versionId: w65b5w0lk90

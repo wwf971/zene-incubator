@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Plus, X } from 'lucide-react';
+import { zenePeriodText } from '../../model/ZeneTimeline.js';
 
 // Editing a homepage where it is shown (doc/zene-ui.md#editing-a-homepage-in-place): in the edit mode
 // of a homepage, a text becomes a field with the same size and look, a list item gets a button taking
@@ -31,6 +32,20 @@ export const ZeneInlineText = observer(function ZeneInlineText({ app, inputKey, 
 		'data-zene-noswipe': '',
 	};
 	return isMultiLine ? <textarea rows={1} {...props} /> : <input type={type} {...props} />;
+});
+
+// A period of the timeline where it is shown (model/ZeneTimeline.js): read, "Jun 2017 – now"; in edit
+// mode, its two ends typed at the precision one knows them (2017, 2017-06, 2017-06-04), the end left
+// empty while it goes on. What is typed is handed whole to onCommit({ from, to }); the action checks it
+export const ZenePeriodField = observer(function ZenePeriodField({ app, inputKey, period, isEditing, onCommit, isSince = false, zone = '+09' }) {
+	if (!isEditing) return <span className="zene-period">{zenePeriodText(period, { zone, isSince })}</span>;
+	return (
+		<span className="zene-period is-editing" data-zene-noswipe="">
+			<ZeneInlineText app={app} inputKey={`${inputKey}:from`} value={period.from} isEditing placeholder="2017-06" className="is-point" onCommit={(from) => onCommit({ ...period, from: from.trim() })} />
+			<span>–</span>
+			<ZeneInlineText app={app} inputKey={`${inputKey}:to`} value={period.to} isEditing placeholder="now" className="is-point" onCommit={(to) => onCommit({ ...period, to: to.trim() })} />
+		</span>
+	);
 });
 
 // the button taking one item out of a list, beside the item, in edit mode

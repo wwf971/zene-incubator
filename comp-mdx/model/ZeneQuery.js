@@ -1,9 +1,13 @@
 import { zeneEntityTagIdList } from './ZeneWorld.js';
 import {
 	zeneAccountExpiredIs, zeneAccountManageList, zeneApplicationDecideIs, zeneEventParticipantIs, zeneEventPrincipalListOf, zeneEventVisibleIs,
-	zeneGroupManageIs, zeneMembershipActiveGet,
+	zeneGroupManageIs, zeneMembershipActiveGet, zeneMembershipHolds, zeneMembershipRoleList,
 } from './ZeneRole.js';
 import { zeneTimeMs } from './ZeneTime.js';
+import { zenePointParse } from './ZeneTimeline.js';
+
+// when a period starts, for sorting: the earliest instant its start may be
+const fromMsOf = (period) => zenePointParse(period?.from)?.msFrom ?? 0;
 
 // What the screens read (doc/zene-ui.md#what-the-screens-read): every list a screen shows is a
 // query over the world, for the person looking at it, at a moment. A query never changes data.
@@ -100,7 +104,7 @@ export function zeneFeed(world, { personId = '', accountId = '', time } = {}) {
 	for (const account of zeneAccountManageList(world, personId, time)) accountSet.add(account.id);
 	for (const follow of world.followByFrom.get(accountId) ?? []) accountSet.add(follow.to);
 	for (const membership of world.membershipByIndividual.get(personId) ?? []) {
-		if (membership.status !== 'active') continue;
+		if (!zeneMembershipHolds(membership, time)) continue;
 		const account = world.accountOfSubject('group', membership.group);
 		if (account) accountSet.add(account.id);
 	}
@@ -139,22 +143,23 @@ export function zeneInbox(world, { personId = '', time } = {}) {
 
 // --- what a homepage shows ----------------------------------------------------------------------
 
-// the groups of a person: active ones first, with the roles held now and before
-export function zeneGroupListOfPerson(world, personId) {
+// the memberships of a person: those holding now first, the latest started first; each with
+// whether it holds now
+export function zeneGroupListOfPerson(world, personId, time) {
 	return [...(world.membershipByIndividual.get(personId) ?? [])]
-		.map((membership) => ({ membership, group: world.get('group', membership.group) }))
+		.map((membership) => ({ membership, group: world.get('group', membership.group), isActive: zeneMembershipHolds(membership, time) }))
 		.filter((one) => one.group)
-		.sort((a, b) => (a.membership.status === 'active' ? 0 : 1) - (b.membership.status === 'active' ? 0 : 1) || zeneTimeMs(b.membership.timeJoined) - zeneTimeMs(a.membership.timeJoined));
+		.sort((a, b) => Number(b.isActive) - Number(a.isActive) || fromMsOf(b.membership.period) - fromMsOf(a.membership.period));
 }
 
 // the members of a group now, owners and admins first
 export function zeneMemberListOfGroup(world, groupId, time) {
 	const rank = (membership) => {
-		const roleList = membership.roleList.filter((one) => !one.timeEnd).map((one) => one.role);
+		const roleList = zeneMembershipRoleList(membership, time, { isMaybeHeld: true });
 		return roleList.includes('owner') ? 0 : roleList.includes('admin') ? 1 : 2;
 	};
 	return [...(world.membershipByGroup.get(groupId) ?? [])]
-		.filter((one) => one.status === 'active')
+		.filter((one) => zeneMembershipHolds(one, time))
 		.map((membership) => ({ membership, individual: world.get('individual', membership.individual) }))
 		.filter((one) => one.individual)
 		.sort((a, b) => rank(a.membership) - rank(b.membership) || a.individual.name.localeCompare(b.individual.name));
@@ -170,7 +175,7 @@ export function zeneEventListOfSubject(world, subject, { personId = '', time } =
 		// a person also takes part through the groups they are in
 		if (subject.kind === 'individual') {
 			for (const membership of world.membershipByIndividual.get(subject.id) ?? []) {
-				if (membership.status !== 'active') continue;
+				if (!zeneMembershipHolds(membership, time)) continue;
 				for (const event of world.eventByPrincipal.get(`group:${membership.group}`) ?? []) if (!eventList.includes(event)) eventList.push(event);
 			}
 		}
@@ -190,10 +195,10 @@ export function zeneEventSplit(world, eventList, time) {
 }
 
 // the counts under a homepage's header
-export function zeneAccountStat(world, account) {
+export function zeneAccountStat(world, account, time) {
 	const { kind, id } = account.subject;
-	const groupCount = kind === 'individual' ? (world.membershipByIndividual.get(id) ?? []).filter((one) => one.status === 'active').length : 0;
-	const memberCount = kind === 'group' ? (world.membershipByGroup.get(id) ?? []).filter((one) => one.status === 'active').length : 0;
+	const groupCount = kind === 'individual' ? (world.membershipByIndividual.get(id) ?? []).filter((one) => zeneMembershipHolds(one, time)).length : 0;
+	const memberCount = kind === 'group' ? (world.membershipByGroup.get(id) ?? []).filter((one) => zeneMembershipHolds(one, time)).length : 0;
 	const event = kind === 'event' ? world.get('event', id) : undefined;
 	return {
 		postCount: (world.postByAccount.get(account.id) ?? []).length,
@@ -221,6 +226,47 @@ export function zeneAccountStateText(account, time) {
 }
 
 // the membership of the person in a group, for the buttons of its homepage
-export function zeneMembershipOf(world, personId, groupId) {
-	return zeneMembershipActiveGet(world, personId, groupId);
+export function zeneMembershipOf(world, personId, groupId, time) {
+	return zeneMembershipActiveGet(world, personId, groupId, time);
+}
+
+// --- timelines (doc/zene-timeline.md) -------------------------------------------------------------
+
+const roleLabelOf = (world, role) => (role === 'owner' || role === 'admin' ? role : world.tag.get(role)?.label ?? role);
+
+// the bars of one membership: the membership itself, then each period of each of its roles
+function membershipBarList(world, membership) {
+	return [
+		{ id: membership.id, period: membership.period, label: 'member', tone: 'member', endReason: membership.endReason },
+		...membership.roleList.map((one, index) => ({
+			id: `${membership.id}:${index}`, period: one, label: roleLabelOf(world, one.role), tone: one.role === 'owner' || one.role === 'admin' ? 'manage' : 'role',
+		})),
+	];
+}
+
+// a person's groups on a timeline: a row per group, every membership in it and every role period
+// (a person who left and came back has two memberships in one row)
+export function zeneTimelineOfPerson(world, personId) {
+	const rowByGroup = new Map();
+	for (const membership of world.membershipByIndividual.get(personId) ?? []) {
+		const group = world.get('group', membership.group);
+		if (!group) continue;
+		if (!rowByGroup.has(group.id)) rowByGroup.set(group.id, { id: group.id, kind: 'group', label: group.name, barList: [] });
+		rowByGroup.get(group.id).barList.push(...membershipBarList(world, membership));
+	}
+	return [...rowByGroup.values()].sort((a, b) => Math.min(...a.barList.map((bar) => fromMsOf(bar.period))) - Math.min(...b.barList.map((bar) => fromMsOf(bar.period))));
+}
+
+// a group on a timeline: its own life, then a row per person who was ever a member
+export function zeneTimelineOfGroup(world, groupId) {
+	const group = world.get('group', groupId);
+	const rowByPerson = new Map();
+	for (const membership of world.membershipByGroup.get(groupId) ?? []) {
+		const individual = world.get('individual', membership.individual);
+		if (!individual) continue;
+		if (!rowByPerson.has(individual.id)) rowByPerson.set(individual.id, { id: individual.id, kind: 'individual', label: individual.name, barList: [] });
+		rowByPerson.get(individual.id).barList.push(...membershipBarList(world, membership));
+	}
+	const rowList = [...rowByPerson.values()].sort((a, b) => Math.min(...a.barList.map((bar) => fromMsOf(bar.period))) - Math.min(...b.barList.map((bar) => fromMsOf(bar.period))));
+	return group?.period.from ? [{ id: group.id, kind: 'group', label: group.name, barList: [{ id: `${group.id}:life`, period: group.period, label: 'the group', tone: 'life' }] }, ...rowList] : rowList;
 }

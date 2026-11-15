@@ -1,5 +1,6 @@
 import { ZENE_EVENT_ACCOUNT_KEEP_DAY, ZENE_ROLE_MANAGE_LIST } from './ZeneKind.js';
-import { DAY_MS, zenePeriodHas, zeneTimeMs } from './ZeneTime.js';
+import { zenePeriodHolds } from './ZeneTimeline.js';
+import { DAY_MS, zeneTimeMs } from './ZeneTime.js';
 
 // Who a person is to the things of a community (doc/zene-action.md#who-may): every permission of
 // an action is a question asked here, answered from the data alone, at a moment. Nothing is
@@ -8,20 +9,36 @@ import { DAY_MS, zenePeriodHas, zeneTimeMs } from './ZeneTime.js';
 // The actor of an action is { personId, accountId }: the individual signed in, and the account
 // they act as (their own, or the account of a group or an event they manage).
 
-// the membership of a person in a group that is active now
-export function zeneMembershipActiveGet(world, personId, groupId) {
-	return (world.membershipByGroup.get(groupId) ?? []).find((one) => one.individual === personId && one.status === 'active');
+// whether a membership holds at a moment (model/ZeneTimeline.js): being a member holds through the
+// uncertain edge of its period (it ended sometime in March: still a member in March); without a
+// moment, whether it goes on
+export function zeneMembershipHolds(membership, time) {
+	if (!membership) return false;
+	if (time === undefined) return !membership.period.to;
+	return zenePeriodHolds(membership.period, time, { isMaybeHeld: true });
 }
 
-// the roles a membership holds at a moment
-export function zeneMembershipRoleList(membership, time) {
+// the membership of a person in a group holding at a moment (going on, without one)
+export function zeneMembershipActiveGet(world, personId, groupId, time) {
+	return (world.membershipByGroup.get(groupId) ?? []).find((one) => one.individual === personId && zeneMembershipHolds(one, time));
+}
+
+// the roles a membership holds at a moment, each once though its periods may overlap. a role is held
+// for sure (what manages a group is never granted on a maybe), or, with isMaybeHeld, also where the
+// moment falls in the uncertain edge of a period
+export function zeneMembershipRoleList(membership, time, { isMaybeHeld = false } = {}) {
 	if (!membership) return [];
-	return membership.roleList.filter((one) => zenePeriodHas(one, time)).map((one) => one.role);
+	return [...new Set(membership.roleList.filter((one) => zenePeriodHolds(one, time, { isMaybeHeld })).map((one) => one.role))];
+}
+
+// the members of a subgroup at a moment (going on, without one)
+export function zeneSubgroupMemberList(subgroup, time) {
+	return subgroup.memberList.filter((one) => (time === undefined ? !one.to : zenePeriodHolds(one, time, { isMaybeHeld: true })));
 }
 
 // 'owner' | 'admin' | 'member' | '': the highest standing of a person in a group now
 export function zeneGroupStandingOf(world, personId, groupId, time) {
-	const membership = zeneMembershipActiveGet(world, personId, groupId);
+	const membership = zeneMembershipActiveGet(world, personId, groupId, time);
 	if (!membership) return '';
 	const roleList = zeneMembershipRoleList(membership, time);
 	if (roleList.includes('owner')) return 'owner';
@@ -39,7 +56,7 @@ export function zeneRoleManageIs(role) {
 
 // the owners of a group now
 export function zeneGroupOwnerList(world, groupId, time) {
-	return (world.membershipByGroup.get(groupId) ?? []).filter((one) => one.status === 'active' && zeneMembershipRoleList(one, time).includes('owner'));
+	return (world.membershipByGroup.get(groupId) ?? []).filter((one) => zeneMembershipHolds(one, time) && zeneMembershipRoleList(one, time).includes('owner'));
 }
 
 // the principal of an event a person is, or speaks for: themselves, or a group they manage
@@ -69,7 +86,7 @@ export function zeneEventManageIs(world, personId, eventId, time) {
 export function zeneEventParticipantIs(world, personId, event, time) {
 	return event.principalList.some((principal) => principal.status === 'confirmed' && (principal.kind === 'individual'
 		? principal.id === personId
-		: Boolean(zeneMembershipActiveGet(world, personId, principal.id))));
+		: Boolean(zeneMembershipActiveGet(world, personId, principal.id, time))));
 }
 
 // whether a person may see an event: a public event is seen by everyone once published; one
@@ -114,7 +131,7 @@ export function zeneAccountManageList(world, personId, time) {
 	const own = world.accountOfSubject('individual', personId);
 	const list = own ? [own] : [];
 	for (const membership of world.membershipByIndividual.get(personId) ?? []) {
-		if (membership.status !== 'active' || !zeneGroupManageIs(world, personId, membership.group, time)) continue;
+		if (!zeneMembershipHolds(membership, time) || !zeneGroupManageIs(world, personId, membership.group, time)) continue;
 		const account = world.accountOfSubject('group', membership.group);
 		if (account && !list.includes(account)) list.push(account);
 	}
@@ -140,7 +157,7 @@ export function zeneApplicationDecideIs(world, personId, application, time) {
 	if (kind === 'subgroup') {
 		const subgroup = world.get('subgroup', id);
 		return Boolean(subgroup) && (zeneGroupManageIs(world, personId, subgroup.group, time)
-			|| subgroup.memberList.some((one) => one.individual === personId && one.role === 'lead'));
+			|| zeneSubgroupMemberList(subgroup, time).some((one) => one.individual === personId && one.role === 'lead'));
 	}
 	return false;
 }

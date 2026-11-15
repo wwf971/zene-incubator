@@ -34,8 +34,8 @@ function entryListBase() {
 		{ kind: 'account', data: { id: 'al', handle: 'lena', name: 'Lena Park', subject: { kind: 'individual', id: 'pl' } } },
 		{ kind: 'group', data: { id: 'ga', name: 'Aurora', account: 'aa', joinPolicy: 'apply', tagList: ['t6'] } },
 		{ kind: 'account', data: { id: 'aa', handle: 'aurora', name: 'Aurora', subject: { kind: 'group', id: 'ga' } } },
-		{ kind: 'membership', data: { id: 'mk', group: 'ga', individual: 'pk', status: 'active', roleList: [{ role: 'owner', timeStart: '20200101_00000000+09' }] } },
-		{ kind: 'membership', data: { id: 'mm', group: 'ga', individual: 'pm', status: 'active', roleList: [{ role: 't7', timeStart: '20220101_00000000+09' }] } },
+		{ kind: 'membership', data: { id: 'mk', group: 'ga', individual: 'pk', period: { from: '2015-04' }, roleList: [{ role: 'owner', from: '2015-04' }] } },
+		{ kind: 'membership', data: { id: 'mm', group: 'ga', individual: 'pm', period: { from: '2017-06' }, roleList: [{ role: 't7', from: '2022-01' }] } },
 	];
 }
 
@@ -100,8 +100,8 @@ test('roles have periods; the last owner does not leave; admin is given by an ow
 	assert.equal(community.run('membership.roleSet', KENJI, { membership: 'mm', role: 'owner', isOn: true }).code, 0);
 	assert.equal(community.run('group.leave', KENJI, { group: 'ga' }).code, 0);
 	const left = community.world.get('membership', 'mk');
-	assert.equal(left.status, 'left');
-	assert.ok(left.roleList.every((one) => one.timeEnd), 'the roles of who left are ended');
+	assert.deepEqual([left.endReason, left.period.to], ['left', community.time]);
+	assert.ok(left.roleList.every((one) => one.to), 'the roles of who left are ended');
 });
 
 test('an event organized by a group: its account is temporary, a rehearsal is seen by its participants', () => {

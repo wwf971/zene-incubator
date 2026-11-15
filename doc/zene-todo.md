@@ -30,5 +30,7 @@ What is left for later, by area. An item done leaves this list; its design moves
 ## The app
 
 - Pull to refresh, and a long press menu on a post.
+- A scroll indicator drawn over a list while it scrolls, as phones show one (there is none now).
+- A person telling their own past memberships (an orchestra before they joined the community), confirmed or not by the group.
 - An onboarding after registering: what you play, when you are free, the first groups to follow.
 - The phone in dark mode.

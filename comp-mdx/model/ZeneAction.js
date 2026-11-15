@@ -1,11 +1,13 @@
 import { ZENE_EVENT_KIND_LIST, ZENE_JOIN_POLICY_LIST, ZENE_POST_KIND_LIST, ZENE_TAG_KIND_LIST, zeneEntityNormalize } from './ZeneKind.js';
 import {
 	zeneAccountExpiredIs, zeneAccountManageIs, zeneApplicationDecideIs, zeneEventAccountExpireOf, zeneEventManageIs, zeneEventOrganizerIs,
-	zeneEventParticipantIs, zeneEventPrincipalListOf, zeneGroupManageIs, zeneGroupOwnerList, zeneGroupStandingOf, zeneMembershipActiveGet,
+	zeneEventParticipantIs, zeneEventPrincipalListOf, zeneGroupManageIs, zeneGroupOwnerList, zeneGroupStandingOf, zeneMembershipActiveGet, zeneMembershipHolds,
+	zeneSubgroupMemberList,
 	zeneMembershipRoleList, zeneRoleManageIs,
 } from './ZeneRole.js';
 import { zeneTimeMs, zeneTimeText, zeneTimeZoneOf } from './ZeneTime.js';
 import { ZENE_AVAILABILITY_STATE_LIST, zeneDayOf, zeneDeclarationCheck } from './ZeneAvailability.js';
+import { zenePeriodCheck, zenePeriodHolds, zenePeriodWithin, zenePointCheck } from './ZeneTimeline.js';
 
 // The actions of a community (doc/zene-action.md): everything a person can do that changes
 // data. An action is the unit the user interface asks for and, later, what a backend answers:
@@ -47,7 +49,9 @@ const timeAfter = (start, end) => (!Number.isFinite(zeneTimeMs(start)) ? 'give t
 const pendingOf = (ctx, personId, target) => (ctx.world.applicationByApplicant.get(personId) ?? [])
 	.find((one) => one.status === 'pending' && one.target.kind === target.kind && one.target.id === target.id);
 const eventEndedIs = (ctx, event) => zeneTimeMs(event.timeEnd || event.timeStart) <= zeneTimeMs(ctx.time);
-const roleListEnded = (roleList, time) => roleList.map((one) => (one.timeEnd ? one : { ...one, timeEnd: time }));
+// what the app records happens at a moment: a period it starts or ends is written to the moment
+// (model/ZeneTimeline.js); only history told by people is written as a year, a month or a day
+const roleListEnded = (roleList, time) => roleList.map((one) => (one.to ? one : { ...one, to: time }));
 const pick = (input, keyList) => Object.fromEntries(keyList.filter((key) => input[key] !== undefined).map((key) => [key, input[key]]));
 
 // the actions, in the order they are listed (doc/zene-action.md#the-catalog)
@@ -65,7 +69,7 @@ export const ZENE_ACTION_LIST = [
 			const accountId = ctx.idNew();
 			fx.create('individual', {
 				id: personId, name: ctx.input.name.trim(), account: accountId, area: ctx.input.area ?? '',
-				roleList: [{ role: 'practitioner', timeStart: ctx.time }],
+				roleList: [{ role: 'practitioner', from: ctx.time }],
 				skillList: (ctx.input.skillList ?? []).map((tag, index) => ({ tag, level: 3, isPrimary: index === 0 })),
 			}, { createdBy: accountId });
 			fx.create('account', {
@@ -91,10 +95,13 @@ export const ZENE_ACTION_LIST = [
 	{
 		id: 'individual.update', group: 'account', label: 'Edit a profile',
 		whoText: 'the individual themselves',
-		inputText: 'area, roles, skills, works, what they look for, availability, pricing',
+		inputText: 'area, roles (each for a period), skills (each since a point), works, what they look for, pricing',
 		effectText: ['update individual'],
 		who: (ctx) => signedIn(ctx) || (ctx.input.individual === ctx.actor.personId ? '' : 'only the person edits their profile'),
-		check: (ctx) => found(ctx, 'individual', ctx.input.individual, 'person'),
+		// the periods of the timeline as told: a year, a month, a day or a moment (model/ZeneTimeline.js)
+		check: (ctx) => first(found(ctx, 'individual', ctx.input.individual, 'person'),
+			...(ctx.input.roleList ?? []).map((one) => periodReason(`the ${one.role}`, one)),
+			...(ctx.input.skillList ?? []).map((one) => (one.from ? pointReason('a skill', one.from) : ''))),
 		plan: (ctx, fx) => fx.update('individual', ctx.input.individual, pick(ctx.input, ['name', 'area', 'roleList', 'skillList', 'workTagList', 'lookingForList', 'pricing'])),
 	},
 	{
@@ -148,21 +155,22 @@ export const ZENE_ACTION_LIST = [
 			const accountId = ctx.idNew();
 			fx.create('group', {
 				id: groupId, name: ctx.input.name.trim(), account: accountId, area: ctx.input.area ?? '', description: ctx.input.description ?? '',
-				tagList: ctx.input.tagList ?? [], joinPolicy: ctx.input.joinPolicy ?? 'apply', recruitList: ctx.input.recruitList ?? [], timeFounded: ctx.time,
+				tagList: ctx.input.tagList ?? [], joinPolicy: ctx.input.joinPolicy ?? 'apply', recruitList: ctx.input.recruitList ?? [], period: { from: ctx.time },
 			});
 			fx.create('account', { id: accountId, handle: handleClean(ctx.input.handle), name: ctx.input.name.trim(), subject: { kind: 'group', id: groupId }, bio: ctx.input.description ?? '', avatar: { seed: accountId }, viewList: ['about', 'post', 'event', 'group'] });
-			fx.create('membership', { group: groupId, individual: ctx.actor.personId, status: 'active', roleList: [{ role: 'owner', timeStart: ctx.time }], timeJoined: ctx.time });
+			fx.create('membership', { group: groupId, individual: ctx.actor.personId, period: { from: ctx.time }, roleList: [{ role: 'owner', from: ctx.time }] });
 			return { groupId, accountId };
 		},
 	},
 	{
 		id: 'group.update', group: 'group', label: 'Edit a group',
 		whoText: 'an owner or admin of the group',
-		inputText: 'group; name, area, description, tags, how members join, who it looks for',
+		inputText: 'group; name, area, description, tags, how members join, who it looks for, its life (founded, dissolved)',
 		effectText: ['update group'],
 		who: (ctx) => signedIn(ctx) || (zeneGroupManageIs(ctx.world, ctx.actor.personId, ctx.input.group, ctx.time) ? '' : 'only its owners and admins edit a group'),
-		check: (ctx) => first(found(ctx, 'group', ctx.input.group), ctx.input.joinPolicy !== undefined ? joinPolicyCheck(ctx.input.joinPolicy) : ''),
-		plan: (ctx, fx) => fx.update('group', ctx.input.group, pick(ctx.input, ['name', 'area', 'description', 'tagList', 'joinPolicy', 'recruitList'])),
+		check: (ctx) => first(found(ctx, 'group', ctx.input.group), ctx.input.joinPolicy !== undefined ? joinPolicyCheck(ctx.input.joinPolicy) : '',
+			ctx.input.period ? periodReason('the life of the group', ctx.input.period) : ''),
+		plan: (ctx, fx) => fx.update('group', ctx.input.group, pick(ctx.input, ['name', 'area', 'description', 'tagList', 'joinPolicy', 'recruitList', 'period'])),
 	},
 	{
 		id: 'group.join', group: 'group', label: 'Join',
@@ -172,7 +180,7 @@ export const ZENE_ACTION_LIST = [
 		who: signedIn,
 		check: (ctx) => first(found(ctx, 'group', ctx.input.group), memberNot(ctx),
 			ctx.world.get('group', ctx.input.group).joinPolicy === 'open' ? '' : 'this group does not take members without asking: apply'),
-		plan: (ctx, fx) => ({ membershipId: fx.create('membership', { group: ctx.input.group, individual: ctx.actor.personId, status: 'active', roleList: [], skillList: ctx.input.skillList ?? [], timeJoined: ctx.time }) }),
+		plan: (ctx, fx) => ({ membershipId: fx.create('membership', { group: ctx.input.group, individual: ctx.actor.personId, period: { from: ctx.time }, roleList: [], skillList: ctx.input.skillList ?? [] }) }),
 	},
 	{
 		id: 'group.apply', group: 'group', label: 'Apply to join',
@@ -194,11 +202,11 @@ export const ZENE_ACTION_LIST = [
 		whoText: 'a member; the last owner hands the group over first',
 		inputText: 'group',
 		effectText: ['update membership (left, its roles ended)'],
-		who: (ctx) => signedIn(ctx) || (zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group) ? '' : 'you are not a member'),
+		who: (ctx) => signedIn(ctx) || (zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group, ctx.time) ? '' : 'you are not a member'),
 		check: (ctx) => (lastOwnerIs(ctx, ctx.actor.personId, ctx.input.group) ? 'you are its last owner: make another member an owner first' : ''),
 		plan: (ctx, fx) => {
-			const membership = zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group);
-			fx.update('membership', membership.id, { status: 'left', timeEnded: ctx.time, roleList: roleListEnded(membership.roleList, ctx.time) });
+			const membership = zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group, ctx.time);
+			fx.update('membership', membership.id, { period: { ...membership.period, to: ctx.time }, endReason: 'left', roleList: roleListEnded(membership.roleList, ctx.time) });
 		},
 	},
 	{
@@ -215,7 +223,7 @@ export const ZENE_ACTION_LIST = [
 		},
 		check: (ctx) => {
 			const membership = ctx.world.get('membership', ctx.input.membership);
-			if (!membership || membership.status !== 'active') return 'there is no such membership';
+			if (!membership || !zeneMembershipHolds(membership, ctx.time)) return 'there is no such membership';
 			if (!zeneRoleManageIs(ctx.input.role) && !ctx.world.get('tag', ctx.input.role)?.kindList.includes('role')) return 'a role is owner, admin, or a tag of the kind role';
 			const hasRole = zeneMembershipRoleList(membership, ctx.time).includes(ctx.input.role);
 			if (ctx.input.isOn && hasRole) return 'the member has this role already';
@@ -225,8 +233,8 @@ export const ZENE_ACTION_LIST = [
 		plan: (ctx, fx) => {
 			const membership = ctx.world.get('membership', ctx.input.membership);
 			const roleList = ctx.input.isOn
-				? [...membership.roleList, { role: ctx.input.role, timeStart: ctx.time }]
-				: membership.roleList.map((one) => (one.role === ctx.input.role && !one.timeEnd ? { ...one, timeEnd: ctx.time } : one));
+				? [...membership.roleList, { role: ctx.input.role, from: ctx.time }]
+				: membership.roleList.map((one) => (one.role === ctx.input.role && zenePeriodHolds(one, ctx.time, { isMaybeHeld: true }) ? { ...one, to: ctx.time } : one));
 			fx.update('membership', membership.id, { roleList });
 		},
 	},
@@ -241,13 +249,56 @@ export const ZENE_ACTION_LIST = [
 		},
 		check: (ctx) => {
 			const membership = ctx.world.get('membership', ctx.input.membership);
-			if (membership.status !== 'active') return 'not a member now';
+			if (!zeneMembershipHolds(membership, ctx.time)) return 'not a member now';
 			if (membership.individual === ctx.actor.personId) return 'leave the group instead';
 			return zeneMembershipRoleList(membership, ctx.time).includes('owner') ? 'an owner is not removed: they leave' : '';
 		},
 		plan: (ctx, fx) => {
 			const membership = ctx.world.get('membership', ctx.input.membership);
-			fx.update('membership', membership.id, { status: 'removed', timeEnded: ctx.time, roleList: roleListEnded(membership.roleList, ctx.time) });
+			fx.update('membership', membership.id, { period: { ...membership.period, to: ctx.time }, endReason: 'removed', roleList: roleListEnded(membership.roleList, ctx.time) });
+		},
+	},
+	{
+		id: 'membership.historySet', group: 'group', label: 'Tell the history of a membership',
+		whoText: 'an owner or admin of the group; the periods of owner and admin, an owner',
+		inputText: 'membership; its period, and the periods of its roles: each end a year, a month, a day or a moment, the end left open while it goes on',
+		effectText: ['update membership (its period, the periods of its roles)'],
+		who: (ctx) => {
+			const membership = ctx.world.get('membership', ctx.input.membership);
+			if (!membership) return signedIn(ctx) || 'there is no such membership';
+			const standing = zeneGroupStandingOf(ctx.world, ctx.actor.personId, membership.group, ctx.time);
+			if (!['owner', 'admin'].includes(standing)) return signedIn(ctx) || 'only its owners and admins tell the history of the group';
+			const manageText = (roleList) => JSON.stringify(roleList.filter((one) => zeneRoleManageIs(one.role)));
+			return ctx.input.roleList && standing !== 'owner' && manageText(ctx.input.roleList) !== manageText(membership.roleList) ? 'only an owner tells when owners and admins were' : '';
+		},
+		check: (ctx) => {
+			const membership = ctx.world.get('membership', ctx.input.membership);
+			const { period, roleList } = historyAfter(ctx, membership);
+			const reason = zenePeriodCheck(period);
+			if (reason) return `the membership: ${reason}`;
+			for (const one of roleList) {
+				if (!zeneRoleManageIs(one.role) && !ctx.world.get('tag', one.role)?.kindList.includes('role')) return 'a role is owner, admin, or a tag of the kind role';
+				const roleReason = zenePeriodCheck(one);
+				if (roleReason) return `the role ${roleLabel(ctx, one.role)}: ${roleReason}`;
+				if (zenePeriodWithin(one, period, ctx.time) === 'no') return `the role ${roleLabel(ctx, one.role)} lies outside the membership`;
+			}
+			// a group keeps one owner at least, now
+			const after = { ...membership, period, roleList };
+			const ownerList = (ctx.world.membershipByGroup.get(membership.group) ?? []).map((one) => (one.id === membership.id ? after : one))
+				.filter((one) => zeneMembershipHolds(one, ctx.time) && one.roleList.some((role) => role.role === 'owner' && zenePeriodHolds(role, ctx.time)));
+			return ownerList.length === 0 ? 'a group keeps one owner at least' : '';
+		},
+		plan: (ctx, fx) => {
+			const membership = ctx.world.get('membership', ctx.input.membership);
+			const after = historyAfter(ctx, membership);
+			const change = {};
+			if (ctx.input.period) {
+				change.period = after.period;
+				// an end told for the membership is how it ended; opened again, it goes on
+				change.endReason = after.period.to ? membership.endReason || 'left' : '';
+			}
+			if (JSON.stringify(after.roleList) !== JSON.stringify(membership.roleList)) change.roleList = after.roleList;
+			fx.update('membership', membership.id, change);
 		},
 	},
 	// --- subgroups ------------------------------------------------------------------------------
@@ -256,12 +307,12 @@ export const ZENE_ACTION_LIST = [
 		whoText: 'a member of the group',
 		inputText: 'group, name, description, tags, open or by its leads',
 		effectText: ['create subgroup (the creator its lead)'],
-		who: (ctx) => signedIn(ctx) || (zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group) ? '' : 'only members form subgroups'),
+		who: (ctx) => signedIn(ctx) || (zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group, ctx.time) ? '' : 'only members form subgroups'),
 		check: (ctx) => named(ctx.input.name),
 		plan: (ctx, fx) => ({
 			subgroupId: fx.create('subgroup', {
 				group: ctx.input.group, name: ctx.input.name.trim(), description: ctx.input.description ?? '', tagList: ctx.input.tagList ?? [],
-				joinPolicy: ctx.input.joinPolicy ?? 'open', memberList: [{ individual: ctx.actor.personId, role: 'lead', timeJoined: ctx.time }],
+				joinPolicy: ctx.input.joinPolicy ?? 'open', memberList: [{ individual: ctx.actor.personId, role: 'lead', from: ctx.time }],
 			}),
 		}),
 	},
@@ -272,27 +323,30 @@ export const ZENE_ACTION_LIST = [
 		effectText: ['update subgroup (a member added)'],
 		who: (ctx) => {
 			const subgroup = ctx.world.get('subgroup', ctx.input.subgroup);
-			return signedIn(ctx) || (subgroup && zeneMembershipActiveGet(ctx.world, ctx.actor.personId, subgroup.group) ? '' : 'only members of the group join its subgroups');
+			return signedIn(ctx) || (subgroup && zeneMembershipActiveGet(ctx.world, ctx.actor.personId, subgroup.group, ctx.time) ? '' : 'only members of the group join its subgroups');
 		},
 		check: (ctx) => {
 			const subgroup = ctx.world.get('subgroup', ctx.input.subgroup);
-			if (subgroup.memberList.some((one) => one.individual === ctx.actor.personId)) return 'you are in it already';
+			if (zeneSubgroupMemberList(subgroup, ctx.time).some((one) => one.individual === ctx.actor.personId)) return 'you are in it already';
 			return subgroup.joinPolicy === 'open' ? '' : 'its leads add its members';
 		},
 		plan: (ctx, fx) => {
 			const subgroup = ctx.world.get('subgroup', ctx.input.subgroup);
-			fx.update('subgroup', subgroup.id, { memberList: [...subgroup.memberList, { individual: ctx.actor.personId, role: 'member', timeJoined: ctx.time }] });
+			fx.update('subgroup', subgroup.id, { memberList: [...subgroup.memberList, { individual: ctx.actor.personId, role: 'member', from: ctx.time }] });
 		},
 	},
 	{
 		id: 'subgroup.leave', group: 'subgroup', label: 'Leave a subgroup',
 		whoText: 'a member of the subgroup',
 		inputText: 'subgroup',
-		effectText: ['update subgroup (a member taken out)'],
-		who: (ctx) => signedIn(ctx) || (ctx.world.get('subgroup', ctx.input.subgroup)?.memberList.some((one) => one.individual === ctx.actor.personId) ? '' : 'you are not in this subgroup'),
+		effectText: ['update subgroup (the period of the member ended)'],
+		who: (ctx) => {
+			const subgroup = ctx.world.get('subgroup', ctx.input.subgroup);
+			return signedIn(ctx) || (subgroup && zeneSubgroupMemberList(subgroup, ctx.time).some((one) => one.individual === ctx.actor.personId) ? '' : 'you are not in this subgroup');
+		},
 		plan: (ctx, fx) => {
 			const subgroup = ctx.world.get('subgroup', ctx.input.subgroup);
-			fx.update('subgroup', subgroup.id, { memberList: subgroup.memberList.filter((one) => one.individual !== ctx.actor.personId) });
+			fx.update('subgroup', subgroup.id, { memberList: subgroup.memberList.map((one) => (one.individual === ctx.actor.personId && !one.to ? { ...one, to: ctx.time } : one)) });
 		},
 	},
 	// --- applications ---------------------------------------------------------------------------
@@ -307,8 +361,8 @@ export const ZENE_ACTION_LIST = [
 			const application = ctx.world.get('application', ctx.input.application);
 			fx.update('application', application.id, { status: 'accepted', timeDecided: ctx.time, decidedBy: ctx.actor.accountId });
 			const { kind, id } = application.target;
-			if (kind === 'group' && !zeneMembershipActiveGet(ctx.world, application.applicant, id)) {
-				return { membershipId: fx.create('membership', { group: id, individual: application.applicant, status: 'active', roleList: [], skillList: application.skillList, timeJoined: ctx.time, via: application.id }) };
+			if (kind === 'group' && !zeneMembershipActiveGet(ctx.world, application.applicant, id, ctx.time)) {
+				return { membershipId: fx.create('membership', { group: id, individual: application.applicant, period: { from: ctx.time }, roleList: [], skillList: application.skillList, via: application.id }) };
 			}
 			if (kind === 'event') {
 				const event = fx.current('event', id);
@@ -319,7 +373,7 @@ export const ZENE_ACTION_LIST = [
 			}
 			if (kind === 'subgroup') {
 				const subgroup = fx.current('subgroup', id);
-				if (!subgroup.memberList.some((one) => one.individual === application.applicant)) fx.update('subgroup', id, { memberList: [...subgroup.memberList, { individual: application.applicant, role: 'member', timeJoined: ctx.time }] });
+				if (!zeneSubgroupMemberList(subgroup, ctx.time).some((one) => one.individual === application.applicant)) fx.update('subgroup', id, { memberList: [...subgroup.memberList, { individual: application.applicant, role: 'member', from: ctx.time }] });
 			}
 			return {};
 		},
@@ -530,7 +584,7 @@ export const ZENE_ACTION_LIST = [
 			const { kind, id } = post.hiring.target;
 			const target = ctx.world.get(kind, id);
 			if (!target) return 'what it hires for is gone';
-			if (kind === 'group' && zeneMembershipActiveGet(ctx.world, ctx.actor.personId, id)) return 'you are a member already';
+			if (kind === 'group' && zeneMembershipActiveGet(ctx.world, ctx.actor.personId, id, ctx.time)) return 'you are a member already';
 			if (kind === 'event' && zeneEventParticipantIs(ctx.world, ctx.actor.personId, target, ctx.time)) return 'you take part already';
 			return pendingOf(ctx, ctx.actor.personId, post.hiring.target) ? 'your application is waiting already' : '';
 		},
@@ -775,7 +829,29 @@ function joinPolicyCheck(policy) {
 }
 
 function memberNot(ctx) {
-	return zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group) ? 'you are a member already' : '';
+	return zeneMembershipActiveGet(ctx.world, ctx.actor.personId, ctx.input.group, ctx.time) ? 'you are a member already' : '';
+}
+
+// the history of a membership after it is told: its period, and its roles; an end told for the
+// membership, without its roles told again, ends the roles still open with it
+function historyAfter(ctx, membership) {
+	const period = ctx.input.period ?? membership.period;
+	const roleList = ctx.input.roleList ?? (ctx.input.period?.to ? membership.roleList.map((one) => (one.to ? one : { ...one, to: period.to })) : membership.roleList);
+	return { period, roleList };
+}
+
+function periodReason(what, period) {
+	const reason = zenePeriodCheck(period);
+	return reason ? `${what}: ${reason}` : '';
+}
+
+function pointReason(what, point) {
+	const reason = zenePointCheck(point);
+	return reason ? `${what}: ${reason}` : '';
+}
+
+function roleLabel(ctx, role) {
+	return zeneRoleManageIs(role) ? role : ctx.world.get('tag', role)?.label ?? role;
 }
 
 function lastOwnerIs(ctx, personId, groupId) {
