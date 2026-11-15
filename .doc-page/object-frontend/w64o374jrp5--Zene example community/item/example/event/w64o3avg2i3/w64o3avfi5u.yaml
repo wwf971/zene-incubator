@@ -1,0 +1,35 @@
+name: 'Aurora Winter Concert 2026: Dvořák "From the New World"'
+eventKind: concert
+isCommercial: true
+status: published
+timeStart: 20261213_14000000+09
+timeEnd: 20261213_16300000+09
+venue:
+  name: Kinuta Park Hall
+  area: Setagaya
+description: Dvořák's ninth symphony, with Brahms before it. Doors open at 13:30.
+principalList:
+  - kind: group
+    id: 4y8crqhgglo
+    role: organizer
+    status: confirmed
+  - kind: individual
+    id: hfu59lp0pke
+    role: host
+    status: confirmed
+tagList:
+  - 8395x0sliqt
+programList:
+  - tag: j7bc1lv2dsj
+  - tag: e14beic3ge3
+openList:
+  - tag: b870sp6mv2a
+    count: 2
+    note: extra players for the symphony
+ticket:
+  price: 2000
+  currency: JPY
+  note: free under 18
+timeCreated: 20261001_20000000+09
+account: cdnn5uk9kkb
+id: 2p6fnziamnm

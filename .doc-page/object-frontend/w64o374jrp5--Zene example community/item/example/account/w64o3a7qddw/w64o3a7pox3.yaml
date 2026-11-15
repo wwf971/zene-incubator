@@ -1,0 +1,17 @@
+handle: emi.cello
+name: Emi Watanabe
+subject:
+  kind: individual
+  id: axui4f4jvhh
+bio: Cello, and since 2025 alto in Sakura Voices.
+avatar:
+  style: face
+  seed: e11
+  color: "#ffeedd"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20230901_18000000+09
+id: ang11ebi733

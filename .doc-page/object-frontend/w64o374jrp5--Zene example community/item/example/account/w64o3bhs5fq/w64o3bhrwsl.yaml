@@ -1,0 +1,17 @@
+handle: mika.workshop
+name: Bowing workshop for orchestra strings
+subject:
+  kind: event
+  id: demnhu8vxoi
+bio: A bowing workshop by Mika Tanaka.
+avatar:
+  style: badge
+  icon: violin
+  color: "#ffd6e0"
+viewList:
+  - about
+  - post
+timeCreated: 20261112_22000000+09
+isTemporary: true
+timeExpire: 20270104_12000000+09
+id: ggedxb3cf0y

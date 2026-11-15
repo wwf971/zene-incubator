@@ -1,0 +1,17 @@
+handle: sakura.voices
+name: Sakura Voices
+subject:
+  kind: group
+  id: g379z6u03oe
+bio: Everyone sings. Thursdays 19:00 in Nakano.
+avatar:
+  style: badge
+  icon: choir
+  color: "#cdb4db"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20240305_10100000+09
+id: 5h4riny441u

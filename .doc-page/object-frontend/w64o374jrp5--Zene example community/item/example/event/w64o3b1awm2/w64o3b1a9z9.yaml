@@ -1,0 +1,17 @@
+name: Dress rehearsal
+eventKind: rehearsal
+parent: 2p6fnziamnm
+status: published
+visibility: member
+timeStart: 20261212_18000000+09
+timeEnd: 20261212_21000000+09
+venue:
+  name: Kinuta Park Hall
+  area: Setagaya
+principalList:
+  - kind: group
+    id: 4y8crqhgglo
+    role: organizer
+    status: confirmed
+timeCreated: 20261001_20120000+09
+id: 0vmcrf7gyom

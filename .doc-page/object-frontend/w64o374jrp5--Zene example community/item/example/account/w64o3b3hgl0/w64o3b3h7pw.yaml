@@ -1,0 +1,17 @@
+handle: aurora.autumn2026
+name: Aurora Autumn Concert 2026
+subject:
+  kind: event
+  id: 3cfg77702y5
+bio: The Autumn Concert of Aurora, Oct 18.
+avatar:
+  style: badge
+  icon: concert
+  color: "#ffd6a5"
+viewList:
+  - about
+  - post
+timeCreated: 20260801_20000000+09
+isTemporary: true
+timeExpire: 20261117_16000000+09
+id: 2romxl0ljxm

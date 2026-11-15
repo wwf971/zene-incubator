@@ -1,0 +1,17 @@
+handle: gamemusicnight3
+name: Game Music Night vol. 3
+subject:
+  kind: event
+  id: 1abzpasv120
+bio: Game Music Night vol. 3 by SGMO, Jan 24, Shibuya.
+avatar:
+  style: badge
+  icon: gamepad
+  color: "#caffbf"
+viewList:
+  - about
+  - post
+timeCreated: 20261020_21000000+09
+isTemporary: true
+timeExpire: 20270223_20300000+09
+id: a2b0x25j67y

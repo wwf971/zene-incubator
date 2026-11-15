@@ -1,0 +1,27 @@
+name: Bowing workshop for orchestra strings
+eventKind: workshop
+isCommercial: true
+status: draft
+timeStart: 20261205_10000000+09
+timeEnd: 20261205_12000000+09
+venue:
+  name: Studio Kinuta
+  area: Setagaya
+description: Two hours on bow distribution in Dvořák and Brahms, for amateur
+  orchestra strings.
+principalList:
+  - kind: individual
+    id: 0om7mlfwcx6
+    role: organizer
+    status: confirmed
+tagList:
+  - a6pmqmvy5ik
+  - 8395x0sliqt
+programList:
+  - tag: e14beic3ge3
+ticket:
+  price: 3000
+  currency: JPY
+timeCreated: 20261112_22000000+09
+account: ggedxb3cf0y
+id: demnhu8vxoi

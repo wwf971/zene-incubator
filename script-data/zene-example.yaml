@@ -1,0 +1,551 @@
+# The made-up community of the demonstration, as the seed script reads it (script-data/zene-seed.mjs).
+# A word starting with $ is a local name: the script gives it an id (stable, made from the name) and
+# writes the id wherever the name is used. An individual, a group or an event written with
+# `account:` gets its account (and its homepage, with `homepage:`) as items of their own.
+# Everyone and everything here is invented; the works and composers are real.
+
+tag:
+  # skills: what a person plays or does. A tag lies below its parents; a DAG, not a tree: the double
+  # bass is a bowed and a plucked string instrument, and part of a rhythm section
+  - { $: instrument, label: Instrument, kindList: [skill], icon: note, color: '#ffd166' }
+  - { $: strings, label: Strings, kindList: [skill], parentList: [$instrument], icon: violin, color: '#f4a261' }
+  - { $: bowed, label: Bowed strings, kindList: [skill], parentList: [$strings], icon: violin }
+  - { $: violin, label: Violin, kindList: [skill], parentList: [$bowed], icon: violin }
+  - { $: viola, label: Viola, kindList: [skill], parentList: [$bowed], icon: viola }
+  - { $: cello, label: Cello, kindList: [skill], parentList: [$bowed], icon: cello }
+  - { $: doublebass, label: Double bass, kindList: [skill], parentList: [$bowed, $plucked, $rhythm], icon: doublebass }
+  - { $: plucked, label: Plucked strings, kindList: [skill], parentList: [$strings], icon: guitar }
+  - { $: guitar, label: Guitar, kindList: [skill], parentList: [$plucked, $rhythm], icon: guitar }
+  - { $: bassguitar, label: Bass guitar, kindList: [skill], parentList: [$plucked, $rhythm], icon: bassguitar }
+  - { $: harp, label: Harp, kindList: [skill], parentList: [$plucked], icon: harp }
+  - { $: keyboard, label: Keyboards, kindList: [skill], parentList: [$instrument], icon: piano, color: '#8ecae6' }
+  - { $: piano, label: Piano, kindList: [skill], parentList: [$keyboard, $rhythm], icon: piano }
+  - { $: synth, label: Synthesizer, kindList: [skill], parentList: [$keyboard], icon: synth }
+  - { $: woodwind, label: Woodwinds, kindList: [skill], parentList: [$instrument], icon: flute, color: '#95d5b2' }
+  - { $: flute, label: Flute, kindList: [skill], parentList: [$woodwind], icon: flute }
+  - { $: clarinet, label: Clarinet, kindList: [skill], parentList: [$woodwind], icon: clarinet }
+  - { $: oboe, label: Oboe, kindList: [skill], parentList: [$woodwind], icon: clarinet }
+  - { $: sax, label: Saxophone, kindList: [skill], parentList: [$woodwind], icon: sax }
+  - { $: brass, label: Brass, kindList: [skill], parentList: [$instrument], icon: trumpet, color: '#ffb703' }
+  - { $: trumpet, label: Trumpet, kindList: [skill], parentList: [$brass], icon: trumpet }
+  - { $: horn, label: French horn, kindList: [skill], parentList: [$brass], icon: horn }
+  - { $: trombone, label: Trombone, kindList: [skill], parentList: [$brass], icon: trombone }
+  - { $: tuba, label: Tuba, kindList: [skill], parentList: [$brass], icon: tuba }
+  - { $: percussion, label: Percussion, kindList: [skill], parentList: [$instrument], icon: drum, color: '#e5989b' }
+  - { $: drumkit, label: Drum kit, kindList: [skill], parentList: [$percussion, $rhythm], icon: drum }
+  - { $: timpani, label: Timpani, kindList: [skill], parentList: [$percussion], icon: timpani }
+  - { $: mallet, label: Mallet percussion, kindList: [skill], parentList: [$percussion], icon: xylophone }
+  - { $: rhythm, label: Rhythm section, kindList: [skill], parentList: [$instrument], icon: metronome, note: "what keeps a band's time: drums, bass, piano, guitar" }
+  - { $: voice, label: Voice, kindList: [skill], icon: mic, color: '#cdb4db' }
+  - { $: soprano, label: Soprano, kindList: [skill], parentList: [$voice], icon: mic }
+  - { $: alto, label: Alto, kindList: [skill], parentList: [$voice], icon: mic }
+  - { $: tenor, label: Tenor, kindList: [skill], parentList: [$voice], icon: mic }
+  - { $: bassvoice, label: Bass (voice), kindList: [skill], parentList: [$voice], icon: mic }
+  - { $: choirsinging, label: Choral singing, kindList: [skill], parentList: [$voice], icon: choir }
+  - { $: making, label: Directing and writing, kindList: [skill], icon: baton, color: '#a2d2ff' }
+  - { $: conducting, label: Conducting, kindList: [skill], parentList: [$making], icon: baton }
+  - { $: arranging, label: Arranging, kindList: [skill], parentList: [$making], icon: score }
+  - { $: composing, label: Composing, kindList: [skill], parentList: [$making], icon: quill }
+  # roles a member holds in a group, beside owner and admin, each for a period
+  - { $: rconductor, label: Conductor, kindList: [role], icon: baton, color: '#a2d2ff' }
+  - { $: rconcertmaster, label: Concertmaster, kindList: [role], icon: violin, color: '#f4a261' }
+  - { $: rsection, label: Section leader, kindList: [role], icon: star, color: '#ffd166' }
+  # genres
+  - { $: classical, label: Classical, kindList: [genre], icon: lyre, color: '#e9c46a' }
+  - { $: jazz, label: Jazz, kindList: [genre], icon: sax, color: '#264653' }
+  - { $: gamemusic, label: Game music, kindList: [genre], icon: gamepad, color: '#90be6d' }
+  - { $: filmmusic, label: Film and anime music, kindList: [genre], icon: film, color: '#f28482' }
+  - { $: choral, label: Choral music, kindList: [genre], icon: choir, color: '#cdb4db' }
+  # composers
+  - { $: dvorak, label: Antonín Dvořák, kindList: [composer], icon: composer, color: '#bde0fe' }
+  - { $: brahms, label: Johannes Brahms, kindList: [composer], icon: composer, color: '#bde0fe' }
+  - { $: bach, label: Johann Sebastian Bach, kindList: [composer], icon: composer, color: '#bde0fe' }
+  - { $: uematsu, label: Nobuo Uematsu, kindList: [composer], icon: composer, color: '#bde0fe' }
+  - { $: kondo, label: Koji Kondo, kindList: [composer], icon: composer, color: '#bde0fe' }
+  - { $: hisaishi, label: Joe Hisaishi, kindList: [composer], icon: composer, color: '#bde0fe' }
+  - { $: strayhorn, label: Billy Strayhorn, kindList: [composer], icon: composer, color: '#bde0fe' }
+  - { $: gruber, label: Franz Xaver Gruber, kindList: [composer], icon: composer, color: '#bde0fe' }
+  # works, and the works they come from: a piece of a game below the game, the game below its genre
+  - { $: dvorak9, label: 'Symphony No. 9 "From the New World"', kindList: [work], parentList: [$classical], composerList: [$dvorak], icon: score }
+  - { $: hungarian5, label: Hungarian Dance No. 5, kindList: [work], parentList: [$classical], composerList: [$brahms], icon: score }
+  - { $: bachsuite1, label: Cello Suite No. 1, kindList: [work], parentList: [$classical], composerList: [$bach], icon: score }
+  - { $: ff7, label: Final Fantasy VII, kindList: [work], parentList: [$gamemusic], icon: gamepad, note: the game the music comes from }
+  - { $: onewinged, label: One-Winged Angel, kindList: [work], originList: [$ff7], composerList: [$uematsu], icon: score }
+  - { $: zelda, label: The Legend of Zelda, kindList: [work], parentList: [$gamemusic], icon: gamepad, note: the game the music comes from }
+  - { $: zeldatheme, label: 'The Legend of Zelda: main theme', kindList: [work], originList: [$zelda], composerList: [$kondo], icon: score }
+  - { $: spirited, label: Spirited Away, kindList: [work], parentList: [$filmmusic], icon: film, note: the film the music comes from }
+  - { $: summerday, label: "One Summer's Day", kindList: [work], originList: [$spirited], composerList: [$hisaishi], icon: score }
+  - { $: atrain, label: 'Take the "A" Train', kindList: [work], parentList: [$jazz], composerList: [$strayhorn], icon: score }
+  - { $: silentnight, label: Silent Night, kindList: [work], parentList: [$choral], composerList: [$gruber], icon: score }
+
+individual:
+  - $: mika
+    name: Mika Tanaka
+    area: Setagaya, Tokyo
+    timeCreated: '20240402_21130000+09'
+    roleList: [{ role: practitioner, timeStart: '20090401_00000000+09' }]
+    skillList:
+      - { tag: $violin, level: 5, yearStart: 2001, isPrimary: true }
+      - { tag: $viola, level: 3, yearStart: 2016 }
+    workTagList: [$dvorak9, $hungarian5, $onewinged]
+    lookingForList: [extra player for concerts, students]
+    availability:
+      zone: '+09'
+      slotList: [{ day: sat, from: '13:00', to: '18:00' }, { day: sun, from: '10:00', to: '17:00' }, { day: wed, from: '19:30', to: '22:00' }]
+      note: weekday daytime is taken by work
+    pricing:
+      isPaidOk: true
+      isFreeOk: true
+      itemList:
+        - { label: One rehearsal (3 h), amount: 6000, currency: JPY, unit: per rehearsal }
+        - { label: Concert with its dress rehearsal, amount: 25000, currency: JPY, unit: per concert }
+        - { label: Violin lesson (60 min), amount: 5000, currency: JPY, unit: per lesson }
+      note: no fee for the amateur orchestras I belong to
+    account:
+      handle: mika.violin
+      bio: Violinist in Setagaya. Concertmaster of Aurora, first violin of SGMO. Extra player and teacher on weekends.
+      avatar: { style: face, seed: m2, color: '#ffd6e0' }
+      homepage: |
+        ## About me
+
+        Violinist based in Setagaya. I started at six, went through a conservatory preparatory course, and now play in two amateur orchestras while teaching on weekends.
+
+        ## What I play
+
+        - **Orchestra**: concertmaster of Aurora Chamber Orchestra since 2019; first violin in the Shibuya Game Music Orchestra.
+        - **Chamber music**: string quartets above all. Dvořák's "American" quartet is my favourite.
+        - **As an extra player**: happy to join an orchestra for one concert when its rehearsal plan is clear.
+
+        ## How I work
+
+        | | |
+        | --- | --- |
+        | Preparation | parts marked with bowings a week before the first rehearsal |
+        | Notice | two weeks for a concert, one week for a rehearsal |
+        | Travel | anywhere along the Den-en-toshi and Odakyu lines |
+
+        ## Teaching
+
+        Lessons for adult beginners and those coming back to the violin, at my place or online. See the prices on the left.
+  - $: kenji
+    name: Kenji Mori
+    area: Meguro, Tokyo
+    timeCreated: '20230510_09000000+09'
+    roleList: [{ role: practitioner, timeStart: '19980401_00000000+09' }, { role: organizer, timeStart: '20150401_00000000+09' }]
+    skillList:
+      - { tag: $cello, level: 5, yearStart: 1990, isPrimary: true }
+      - { tag: $conducting, level: 4, yearStart: 2012 }
+    workTagList: [$dvorak9, $bachsuite1]
+    lookingForList: [players for Aurora]
+    availability: { zone: '+09', slotList: [{ day: sun, from: '09:00', to: '18:00' }], note: Sundays belong to Aurora }
+    pricing: { isPaidOk: false, isFreeOk: true, note: I do not take paid work }
+    account:
+      handle: kenji.mori
+      bio: Founder and conductor of Aurora Chamber Orchestra. Cellist. Bach before breakfast.
+      avatar: { style: face, seed: k1, color: '#d0f4de' }
+      homepage: |
+        ## Aurora and me
+
+        I founded Aurora Chamber Orchestra in 2015 with eight friends from a university orchestra. We now have thirty members and play two concerts a year.
+
+        ## Conducting
+
+        I conduct Aurora and, now and then, a youth orchestra in Meguro. I care about clear rehearsal plans: every rehearsal has its list of bars, sent out a week before.
+  - $: sora
+    name: Sora Ito
+    area: Shibuya, Tokyo
+    timeCreated: '20231101_12000000+09'
+    roleList: [{ role: practitioner, timeStart: '20100401_00000000+09' }, { role: organizer, timeStart: '20200601_00000000+09' }]
+    skillList:
+      - { tag: $piano, level: 5, yearStart: 2000, isPrimary: true }
+      - { tag: $synth, level: 4, yearStart: 2012 }
+      - { tag: $arranging, level: 5, yearStart: 2014 }
+      - { tag: $composing, level: 3, yearStart: 2018 }
+    workTagList: [$onewinged, $zeldatheme, $summerday, $atrain]
+    lookingForList: [arranging commissions, jazz gigs]
+    availability: { zone: '+09', slotList: [{ day: fri, from: '20:00', to: '23:30' }, { day: sat, from: '10:00', to: '22:00' }] }
+    pricing:
+      isPaidOk: true
+      isFreeOk: false
+      itemList:
+        - { label: Arrangement for orchestra, amount: 40000, currency: JPY, unit: per piece }
+        - { label: Piano for a gig (3 sets), amount: 15000, currency: JPY, unit: per gig }
+    account:
+      handle: sora.keys
+      bio: Pianist and arranger. Leads the Shibuya Game Music Orchestra and the trio Midnight Steps.
+      avatar: { style: face, seed: s3, color: '#cde7ff' }
+      homepage: |
+        ## Arranging
+
+        I write arrangements of game and film music for orchestras of any size, from a quintet to sixty players with choir. Every arrangement comes with parts checked by the players who will read them.
+
+        ## Playing
+
+        Jazz piano with Midnight Steps, keyboards and synths with the game music orchestra.
+  - $: haruka
+    name: Haruka Sato
+    area: Kichijoji, Tokyo
+    timeCreated: '20240115_19000000+09'
+    roleList: [{ role: practitioner, timeStart: '20120401_00000000+09' }]
+    skillList: [{ tag: $flute, level: 4, yearStart: 2006, isPrimary: true }]
+    workTagList: [$dvorak9, $summerday]
+    availability: { zone: '+09', slotList: [{ day: sun, from: '10:00', to: '18:00' }] }
+    pricing: { isPaidOk: true, isFreeOk: true, itemList: [{ label: Concert, amount: 15000, currency: JPY, unit: per concert }] }
+    account:
+      handle: haruka.flute
+      bio: Flute. Leads the winds of Aurora, plays in SGMO.
+      avatar: { style: face, seed: h4, color: '#fff1c1' }
+  - $: daniel
+    name: Daniel Weber
+    area: Minato, Tokyo
+    timeCreated: '20250108_08000000+09'
+    roleList: [{ role: practitioner, timeStart: '20050901_00000000+09' }]
+    skillList: [{ tag: $horn, level: 5, yearStart: 1999, isPrimary: true }]
+    workTagList: [$dvorak9]
+    lookingForList: [a second orchestra]
+    availability: { zone: '+09', slotList: [{ day: sat, from: '13:00', to: '21:00' }, { day: sun, from: '13:00', to: '21:00' }] }
+    pricing: { isPaidOk: true, isFreeOk: true }
+    account:
+      handle: daniel.horn
+      bio: Horn player from Munich, in Tokyo since 2022.
+      avatar: { style: face, seed: d5, color: '#e2ece9' }
+  - $: yui
+    name: Yui Nakamura
+    area: Nakano, Tokyo
+    timeCreated: '20240305_10000000+09'
+    roleList: [{ role: practitioner, timeStart: '20110401_00000000+09' }, { role: organizer, timeStart: '20190401_00000000+09' }]
+    skillList:
+      - { tag: $soprano, level: 5, yearStart: 2004, isPrimary: true }
+      - { tag: $choirsinging, level: 5, yearStart: 2004 }
+      - { tag: $conducting, level: 2, yearStart: 2020 }
+    workTagList: [$silentnight]
+    availability: { zone: '+09', slotList: [{ day: thu, from: '19:00', to: '21:30' }] }
+    pricing: { isPaidOk: true, isFreeOk: true, itemList: [{ label: Soprano solo, amount: 20000, currency: JPY, unit: per concert }] }
+    account:
+      handle: yui.sings
+      bio: Soprano, and the one who leads Sakura Voices on Thursday nights.
+      avatar: { style: face, seed: y6, color: '#f1e3ff' }
+  - $: ren
+    name: Ren Kobayashi
+    area: Shimokitazawa, Tokyo
+    timeCreated: '20240620_23000000+09'
+    roleList: [{ role: practitioner, timeStart: '20130401_00000000+09' }]
+    skillList:
+      - { tag: $drumkit, level: 5, yearStart: 2008, isPrimary: true }
+      - { tag: $mallet, level: 3, yearStart: 2017 }
+      - { tag: $timpani, level: 2, yearStart: 2021 }
+    workTagList: [$onewinged, $atrain]
+    availability: { zone: '+09', slotList: [{ day: fri, from: '19:00', to: '24:00' }, { day: sun, from: '12:00', to: '24:00' }] }
+    pricing: { isPaidOk: true, isFreeOk: true, itemList: [{ label: Gig, amount: 12000, currency: JPY, unit: per gig }] }
+    account:
+      handle: ren.beats
+      bio: Drums for Midnight Steps, everything that can be hit for SGMO.
+      avatar: { style: face, seed: r7, color: '#ffe5d9' }
+  - $: aiko
+    name: Aiko Fujita
+    area: Kichijoji, Tokyo
+    timeCreated: '20240901_15000000+09'
+    roleList: [{ role: organizer, timeStart: '20180401_00000000+09' }]
+    skillList: [{ tag: $piano, level: 2, yearStart: 1995 }]
+    workTagList: [$atrain]
+    lookingForList: [bands for Sunday sessions]
+    account:
+      handle: aiko.stage
+      bio: Runs the Sunday sessions at Café Hoshizora and helps orchestras find halls.
+      avatar: { style: face, seed: a8, color: '#d8f3dc' }
+  - $: takumi
+    name: Takumi Endo
+    area: Koenji, Tokyo
+    timeCreated: '20231205_20000000+09'
+    roleList: [{ role: practitioner, timeStart: '20070401_00000000+09' }]
+    skillList:
+      - { tag: $doublebass, level: 5, yearStart: 2003, isPrimary: true }
+      - { tag: $bassguitar, level: 4, yearStart: 2001 }
+    workTagList: [$atrain, $dvorak9]
+    availability: { zone: '+09', slotList: [{ day: sat, from: '12:00', to: '23:00' }, { day: sun, from: '12:00', to: '23:00' }] }
+    pricing: { isPaidOk: true, isFreeOk: true, itemList: [{ label: Gig or concert, amount: 12000, currency: JPY, unit: per day }] }
+    account:
+      handle: takumi.lowend
+      bio: Double bass in three groups, bass guitar when nobody is looking.
+      avatar: { style: face, seed: t9, color: '#e0e1dd' }
+  - $: lena
+    name: Lena Park
+    area: Kinshicho, Tokyo
+    timeCreated: '20261110_22000000+09'
+    roleList: [{ role: practitioner, timeStart: '20140301_00000000+09' }]
+    skillList:
+      - { tag: $viola, level: 4, yearStart: 2008, isPrimary: true }
+      - { tag: $violin, level: 3, yearStart: 2005 }
+    workTagList: [$dvorak9, $hungarian5]
+    lookingForList: [an orchestra, a string quartet]
+    availability: { zone: '+09', slotList: [{ day: sat, from: '09:00', to: '20:00' }, { day: sun, from: '09:00', to: '20:00' }], note: free every weekend for now }
+    pricing: { isPaidOk: true, isFreeOk: true }
+    account:
+      handle: lena.viola
+      bio: Violist, new in Tokyo (from Seoul). Looking for an orchestra and a quartet.
+      avatar: { style: face, seed: l10, color: '#d7e3fc' }
+      homepage: |
+        ## Hello, Tokyo
+
+        I moved here from Seoul in November 2026. I played viola for eight years in the Seoul Amateur Philharmonic and in a string quartet with friends from university.
+
+        ## What I am looking for
+
+        - an orchestra rehearsing on weekends
+        - a string quartet, or a quartet that needs a viola for one concert
+  - $: emi
+    name: Emi Watanabe
+    area: Nakano, Tokyo
+    timeCreated: '20230901_18000000+09'
+    roleList: [{ role: practitioner, timeStart: '20100401_00000000+09' }]
+    skillList:
+      - { tag: $cello, level: 3, yearStart: 2009, isPrimary: true }
+      - { tag: $alto, level: 3, yearStart: 2024 }
+    availability: { zone: '+09', slotList: [{ day: thu, from: '19:00', to: '21:30' }] }
+    account:
+      handle: emi.cello
+      bio: Cello, and since 2025 alto in Sakura Voices.
+      avatar: { style: face, seed: e11, color: '#ffeedd' }
+
+group:
+  - $: aurora
+    name: Aurora Chamber Orchestra
+    area: Setagaya, Tokyo
+    description: An amateur chamber orchestra of thirty, rehearsing on Sundays in Setagaya. Two concerts a year, classical and romantic.
+    tagList: [$classical, $dvorak9, $hungarian5]
+    joinPolicy: apply
+    recruitList: [{ tag: $viola, count: 2, note: violas for the season }, { tag: $horn, count: 1 }]
+    timeFounded: '20150401_00000000+09'
+    timeCreated: '20230510_09100000+09'
+    account:
+      handle: aurora.orch
+      bio: Amateur chamber orchestra in Setagaya, since 2015. Winter Concert on Dec 13.
+      avatar: { style: badge, icon: violin, color: '#f4a261' }
+      homepage: |
+        ## Who we are
+
+        Aurora is an amateur chamber orchestra of about thirty players, founded in 2015. We rehearse on Sunday afternoons in Setagaya and give two concerts a year.
+
+        ## Joining
+
+        Apply here with what you play. We invite you to a rehearsal first; after it, the section and the conductor decide together. There is a monthly fee of 3,000 yen for the halls.
+
+        ## This season
+
+        Dvořák's ninth symphony for the Winter Concert. We are looking for two violas.
+  - $: sgmo
+    name: Shibuya Game Music Orchestra
+    area: Shibuya, Tokyo
+    description: Forty players and a choir playing game and film music in our own arrangements.
+    tagList: [$gamemusic, $filmmusic, $onewinged, $zeldatheme]
+    joinPolicy: apply
+    recruitList: [{ tag: $harp, count: 1 }, { tag: $horn, count: 1 }]
+    timeFounded: '20200601_00000000+09'
+    timeCreated: '20231101_12100000+09'
+    account:
+      handle: sgmo.tokyo
+      bio: Game and film music, arranged by our own. Game Music Night vol. 3 on Jan 24.
+      avatar: { style: badge, icon: gamepad, color: '#90be6d' }
+  - $: sakura
+    name: Sakura Voices
+    area: Nakano, Tokyo
+    description: A choir open to everyone who likes to sing. Thursday nights in Nakano.
+    tagList: [$choral, $silentnight]
+    joinPolicy: open
+    timeFounded: '20190401_00000000+09'
+    timeCreated: '20240305_10100000+09'
+    account:
+      handle: sakura.voices
+      bio: Everyone sings. Thursdays 19:00 in Nakano.
+      avatar: { style: badge, icon: choir, color: '#cdb4db' }
+  - $: midnight
+    name: Midnight Steps
+    area: Shimokitazawa, Tokyo
+    description: A jazz piano trio. We play standards, and the Sunday sessions at Café Hoshizora.
+    tagList: [$jazz, $atrain]
+    joinPolicy: invite
+    timeFounded: '20220901_00000000+09'
+    timeCreated: '20231101_12200000+09'
+    account:
+      handle: midnight.steps
+      bio: Piano trio. Standards, late.
+      avatar: { style: badge, icon: sax, color: '#264653' }
+
+membership:
+  - { group: $aurora, individual: $kenji, timeJoined: '20150401_00000000+09', skillList: [$cello], roleList: [{ role: owner, timeStart: '20150401_00000000+09' }, { role: $rconductor, timeStart: '20150401_00000000+09' }] }
+  - { group: $aurora, individual: $mika, timeJoined: '20170604_00000000+09', skillList: [$violin], roleList: [{ role: $rconcertmaster, timeStart: '20190401_00000000+09' }, { role: admin, timeStart: '20210401_00000000+09' }] }
+  - { group: $aurora, individual: $haruka, timeJoined: '20190901_00000000+09', skillList: [$flute], roleList: [{ role: $rsection, timeStart: '20220401_00000000+09' }] }
+  - { group: $aurora, individual: $daniel, timeJoined: '20230115_00000000+09', skillList: [$horn] }
+  - { group: $aurora, individual: $takumi, timeJoined: '20180520_00000000+09', skillList: [$doublebass] }
+  - { group: $aurora, individual: $emi, status: left, timeJoined: '20160401_00000000+09', timeEnded: '20250331_00000000+09', skillList: [$cello], roleList: [{ role: $rsection, timeStart: '20200401_00000000+09', timeEnd: '20250331_00000000+09' }] }
+  - { group: $sgmo, individual: $sora, timeJoined: '20200601_00000000+09', skillList: [$piano, $synth], roleList: [{ role: owner, timeStart: '20200601_00000000+09' }, { role: $rconductor, timeStart: '20200601_00000000+09' }] }
+  - { group: $sgmo, individual: $mika, timeJoined: '20210110_00000000+09', skillList: [$violin] }
+  - { group: $sgmo, individual: $haruka, timeJoined: '20250412_00000000+09', skillList: [$flute], via: $appharuka }
+  - { group: $sgmo, individual: $ren, timeJoined: '20200601_00000000+09', skillList: [$timpani, $mallet], roleList: [{ role: admin, timeStart: '20230101_00000000+09' }, { role: $rsection, timeStart: '20220101_00000000+09' }] }
+  - { group: $sgmo, individual: $takumi, timeJoined: '20220301_00000000+09', skillList: [$doublebass] }
+  - { group: $sakura, individual: $yui, timeJoined: '20190401_00000000+09', skillList: [$soprano], roleList: [{ role: owner, timeStart: '20190401_00000000+09' }, { role: $rconductor, timeStart: '20190401_00000000+09' }] }
+  - { group: $sakura, individual: $emi, timeJoined: '20250501_00000000+09', skillList: [$alto] }
+  - { group: $midnight, individual: $sora, timeJoined: '20220901_00000000+09', skillList: [$piano], roleList: [{ role: owner, timeStart: '20220901_00000000+09' }] }
+  - { group: $midnight, individual: $takumi, timeJoined: '20220901_00000000+09', skillList: [$doublebass] }
+  - { group: $midnight, individual: $ren, timeJoined: '20220901_00000000+09', skillList: [$drumkit] }
+
+subgroup:
+  - { $: quartet, group: $aurora, name: Aurora String Quartet, description: "Four of the strings, for the foyer before concerts and for weddings.", tagList: [$bowed], joinPolicy: lead, memberList: [{ individual: $mika, role: lead, timeJoined: '20200105_00000000+09' }, { individual: $kenji, timeJoined: '20200105_00000000+09' }] }
+  - { $: winds, group: $aurora, name: Winds and brass, description: Sectionals of the winds and the brass, the Saturday before each concert., tagList: [$woodwind, $brass], joinPolicy: open, memberList: [{ individual: $haruka, role: lead, timeJoined: '20220410_00000000+09' }, { individual: $daniel, timeJoined: '20230120_00000000+09' }] }
+  - { $: ffteam, group: $sgmo, name: Final Fantasy medley team, description: Those preparing the Final Fantasy medley of Game Music Night., tagList: [$ff7], joinPolicy: open, memberList: [{ individual: $sora, role: lead, timeJoined: '20260901_00000000+09' }, { individual: $mika, timeJoined: '20260905_00000000+09' }, { individual: $ren, timeJoined: '20260905_00000000+09' }] }
+  - { $: percussioncorps, group: $sgmo, name: Percussion corps, description: Everyone who hits things., tagList: [$percussion], joinPolicy: open, memberList: [{ individual: $ren, role: lead, timeJoined: '20220101_00000000+09' }] }
+
+event:
+  - $: winter
+    name: 'Aurora Winter Concert 2026: Dvořák "From the New World"'
+    eventKind: concert
+    isCommercial: true
+    status: published
+    timeStart: '20261213_14000000+09'
+    timeEnd: '20261213_16300000+09'
+    venue: { name: Kinuta Park Hall, area: Setagaya, Tokyo }
+    description: Dvořák's ninth symphony, with Brahms before it. Doors open at 13:30.
+    principalList:
+      - { kind: group, id: $aurora, role: organizer, status: confirmed }
+      - { kind: individual, id: $aiko, role: host, status: confirmed }
+    tagList: [$classical]
+    programList: [{ tag: $hungarian5 }, { tag: $dvorak9 }]
+    openList: [{ tag: $viola, count: 2, note: extra players for the symphony }]
+    ticket: { price: 2000, currency: JPY, note: free under 18 }
+    timeCreated: '20261001_20000000+09'
+    account:
+      handle: aurora.winter2026
+      bio: The Winter Concert of Aurora Chamber Orchestra, Dec 13, Kinuta Park Hall.
+      avatar: { style: badge, icon: concert, color: '#bde0fe' }
+  - { $: rehearsal1, name: 'Rehearsal 1: movements I and II', eventKind: rehearsal, parent: $winter, status: published, visibility: member, timeStart: '20261122_13000000+09', timeEnd: '20261122_17000000+09', venue: { name: Setagaya community center, room 3, area: Setagaya, Tokyo }, principalList: [{ kind: group, id: $aurora, role: organizer, status: confirmed }], timeCreated: '20261001_20100000+09' }
+  - { $: rehearsal2, name: 'Rehearsal 2: movements III and IV', eventKind: rehearsal, parent: $winter, status: published, visibility: member, timeStart: '20261129_13000000+09', timeEnd: '20261129_17000000+09', venue: { name: Setagaya community center, room 3, area: Setagaya, Tokyo }, principalList: [{ kind: group, id: $aurora, role: organizer, status: confirmed }], timeCreated: '20261001_20110000+09' }
+  - { $: rehearsal3, name: Dress rehearsal, eventKind: rehearsal, parent: $winter, status: published, visibility: member, timeStart: '20261212_18000000+09', timeEnd: '20261212_21000000+09', venue: { name: Kinuta Park Hall, area: Setagaya, Tokyo }, principalList: [{ kind: group, id: $aurora, role: organizer, status: confirmed }], timeCreated: '20261001_20120000+09' }
+  - $: autumn
+    name: Aurora Autumn Concert 2026
+    eventKind: concert
+    isCommercial: true
+    status: published
+    timeStart: '20261018_14000000+09'
+    timeEnd: '20261018_16000000+09'
+    venue: { name: Kinuta Park Hall, area: Setagaya, Tokyo }
+    description: Brahms, all afternoon.
+    principalList: [{ kind: group, id: $aurora, role: organizer, status: confirmed }]
+    tagList: [$classical]
+    programList: [{ tag: $hungarian5 }]
+    ticket: { price: 1500, currency: JPY }
+    timeCreated: '20260801_20000000+09'
+    account:
+      handle: aurora.autumn2026
+      bio: The Autumn Concert of Aurora, Oct 18.
+      avatar: { style: badge, icon: concert, color: '#ffd6a5' }
+  - $: gmn
+    name: Game Music Night vol. 3
+    eventKind: concert
+    isCommercial: true
+    status: published
+    timeStart: '20270124_18000000+09'
+    timeEnd: '20270124_20300000+09'
+    venue: { name: Shibuya Sound Studio Hall, area: Shibuya, Tokyo }
+    description: Ninety minutes of game and film music in our own arrangements, with a jazz set by Midnight Steps in the interval.
+    principalList:
+      - { kind: group, id: $sgmo, role: organizer, status: confirmed }
+      - { kind: group, id: $midnight, role: guest, status: invited }
+    tagList: [$gamemusic, $filmmusic]
+    programList: [{ tag: $zeldatheme }, { tag: $summerday }, { tag: $onewinged, note: with choir }]
+    openList: [{ tag: $harp, count: 1 }, { tag: $horn, count: 1 }]
+    ticket: { price: 1800, currency: JPY }
+    timeCreated: '20261020_21000000+09'
+    account:
+      handle: gamemusicnight3
+      bio: Game Music Night vol. 3 by SGMO, Jan 24, Shibuya.
+      avatar: { style: badge, icon: gamepad, color: '#caffbf' }
+  - $: session
+    name: Sunday Jazz Session at Café Hoshizora
+    eventKind: session
+    isCommercial: false
+    status: published
+    timeStart: '20261129_19000000+09'
+    timeEnd: '20261129_22000000+09'
+    venue: { name: Café Hoshizora, area: Kichijoji, Tokyo }
+    description: An open jam. Midnight Steps plays the first set; then anyone who signed up sits in.
+    principalList:
+      - { kind: individual, id: $aiko, role: organizer, status: confirmed }
+      - { kind: group, id: $midnight, role: host, status: confirmed }
+    tagList: [$jazz]
+    programList: [{ tag: $atrain }]
+    openList: [{ tag: $instrument, count: 6, note: any instrument; sign up to sit in }]
+    timeCreated: '20261101_11000000+09'
+    account:
+      handle: hoshizora.session
+      bio: Open jam on Sunday nights at Café Hoshizora, Kichijoji.
+      avatar: { style: badge, icon: sax, color: '#ffe5ec' }
+  - $: carols
+    name: Christmas Carols with Sakura Voices
+    eventKind: concert
+    isCommercial: false
+    status: published
+    timeStart: '20261220_15000000+09'
+    timeEnd: '20261220_16000000+09'
+    venue: { name: Nakano Community Plaza, area: Nakano, Tokyo }
+    description: Carols in the plaza, free, and everyone may sing the last one.
+    principalList:
+      - { kind: group, id: $sakura, role: organizer, status: confirmed }
+      - { kind: individual, id: $haruka, role: guest, status: invited, skillList: [$flute] }
+    tagList: [$choral]
+    programList: [{ tag: $silentnight }]
+    timeCreated: '20261105_19000000+09'
+  - $: workshop
+    name: Bowing workshop for orchestra strings
+    eventKind: workshop
+    isCommercial: true
+    status: draft
+    timeStart: '20261205_10000000+09'
+    timeEnd: '20261205_12000000+09'
+    venue: { name: Studio Kinuta, area: Setagaya, Tokyo }
+    description: Two hours on bow distribution in Dvořák and Brahms, for amateur orchestra strings.
+    principalList: [{ kind: individual, id: $mika, role: organizer, status: confirmed }]
+    tagList: [$bowed, $classical]
+    programList: [{ tag: $dvorak9 }]
+    ticket: { price: 3000, currency: JPY }
+    timeCreated: '20261112_22000000+09'
+    account:
+      handle: mika.workshop
+      bio: A bowing workshop by Mika Tanaka.
+      avatar: { style: badge, icon: violin, color: '#ffd6e0' }
+
+post:
+  - { $: p1, account: $aurora.orch, postKind: performance, event: $autumn, text: "Thank you for coming to our Autumn Concert! Two hundred of you, and an encore of the fifth Hungarian Dance we did not plan.", tagList: [$hungarian5], media: [{ kind: image, title: Bows up for Brahms, icon: violin, color: '#f4a261' }, { kind: video, title: 'Encore: Hungarian Dance No. 5', icon: score, color: '#e9c46a' }], timeCreated: '20261019_10000000+09' }
+  - { $: p2, account: $aurora.winter2026, postKind: announcement, event: $winter, text: "Tickets for the Winter Concert are out: 2,000 yen, free under 18. Dvořák's New World on December 13 at Kinuta Park Hall.", tagList: [$dvorak9], media: [{ kind: image, title: Winter Concert 2026, icon: concert, color: '#bde0fe' }], timeCreated: '20261101_09000000+09' }
+  - { $: p3, account: $aurora.orch, postKind: hiring, text: "Two extra violas for the Winter Concert. Three Sunday rehearsals from Nov 22 and the dress rehearsal on Dec 12.", tagList: [$dvorak9], hiring: { target: { kind: event, id: $winter }, tag: $viola, count: 2, requirement: Dvořák 9 at tempo; all three rehearsals }, timeCreated: '20261102_20000000+09' }
+  - { $: p4, account: $aurora.orch, postKind: hiring, text: "Aurora looks for a second horn, to stay with us.", tagList: [$classical], hiring: { target: { kind: group, id: $aurora }, tag: $horn, count: 1, requirement: Sunday afternoons; romantic repertoire }, timeCreated: '20261025_18000000+09' }
+  - { $: p5, account: $sgmo.tokyo, postKind: hiring, text: "A harpist for Game Music Night! One Summer's Day is not the same without you.", tagList: [$summerday], hiring: { target: { kind: event, id: $gmn }, tag: $harp, count: 1, requirement: four rehearsals in January }, timeCreated: '20261110_21000000+09' }
+  - { $: p6, account: $sgmo.tokyo, postKind: hiring, text: "We need one more horn for the Zelda theme and One-Winged Angel.", tagList: [$zeldatheme], hiring: { target: { kind: event, id: $gmn }, tag: $horn, count: 1, requirement: comfortable up to high C }, timeCreated: '20261108_20000000+09' }
+  - { $: p7, account: $mika.violin, postKind: general, text: "Sectional with the quartet today. The slow movement of the New World is all about the bow speed.", tagList: [$dvorak9], media: [{ kind: image, title: Quartet sectional, icon: violin, color: '#ffd6e0' }], timeCreated: '20261108_18000000+09' }
+  - { $: p8, account: $sora.keys, postKind: general, text: "One-Winged Angel for forty players and choir: the arrangement is done. Parts go out on Monday.", tagList: [$onewinged, $arranging], media: [{ kind: audio, title: Arrangement demo, icon: score, color: '#cde7ff' }], timeCreated: '20261112_23000000+09' }
+  - { $: p9, account: $lena.viola, postKind: general, text: "Just moved to Tokyo from Seoul. Violist looking for an orchestra or a quartet: say hello!", tagList: [$viola], timeCreated: '20261111_09000000+09' }
+  - { $: p10, account: $hoshizora.session, postKind: announcement, event: $session, text: "Open jam on November 29. Midnight Steps plays the first set, then it is yours: sign up in the event to sit in.", tagList: [$jazz], media: [{ kind: image, title: Sunday session, icon: sax, color: '#ffe5ec' }], timeCreated: '20261113_12000000+09' }
+  - { $: p11, account: $sakura.voices, postKind: announcement, event: $carols, text: "Christmas carols in the plaza on December 20. Free, and everyone sings Silent Night with us.", tagList: [$silentnight], timeCreated: '20261109_19000000+09' }
+  - { $: p12, account: $ren.beats, postKind: general, text: "New snare. The neighbours have opinions.", tagList: [$drumkit], media: [{ kind: image, title: The new snare, icon: drum, color: '#ffe5d9' }], timeCreated: '20261114_16000000+09' }
+  - { $: p13, account: $yui.sings, postKind: performance, text: "Sakura Voices at the Nakano autumn festival: thirty voices and one very brave tenor.", tagList: [$choral], media: [{ kind: image, title: Autumn festival, icon: choir, color: '#f1e3ff' }], timeCreated: '20261026_20000000+09' }
+
+application:
+  - { $: appharuka, applicant: $haruka, target: { kind: group, id: $sgmo }, skillList: [$flute], message: I would love to play the flute part of One Summer's Day., status: accepted, timeCreated: '20250405_10000000+09', timeDecided: '20250410_10000000+09', decidedBy: $sora.keys }
+  - { applicant: $lena, target: { kind: group, id: $aurora }, skillList: [$viola], message: "Violist, eight years in the Seoul Amateur Philharmonic. Free every Sunday.", status: pending, timeCreated: '20261111_22000000+09' }
+  - { applicant: $lena, target: { kind: event, id: $winter }, via: $p3, skillList: [$viola], message: I know the New World well and can come to every rehearsal., status: pending, timeCreated: '20261112_08000000+09' }
+  - { applicant: $daniel, target: { kind: event, id: $gmn }, via: $p6, skillList: [$horn], message: High C is fine; I played the Zelda medley in Munich., status: pending, timeCreated: '20261109_21000000+09' }
+
+follow:
+  - { from: $mika.violin, to: $aurora.orch }
+  - { from: $mika.violin, to: $sgmo.tokyo }
+  - { from: $mika.violin, to: $sora.keys }
+  - { from: $kenji.mori, to: $mika.violin }
+  - { from: $sora.keys, to: $mika.violin }
+  - { from: $lena.viola, to: $aurora.orch }
+  - { from: $lena.viola, to: $mika.violin }
+  - { from: $haruka.flute, to: $aurora.orch }
+  - { from: $daniel.horn, to: $aurora.orch }
+  - { from: $daniel.horn, to: $sgmo.tokyo }
+  - { from: $aiko.stage, to: $midnight.steps }
+  - { from: $ren.beats, to: $sora.keys }
+  - { from: $takumi.lowend, to: $aurora.orch }
+  - { from: $emi.cello, to: $sakura.voices }

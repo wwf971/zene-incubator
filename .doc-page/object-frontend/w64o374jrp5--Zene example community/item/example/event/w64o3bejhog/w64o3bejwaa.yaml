@@ -1,0 +1,31 @@
+name: Sunday Jazz Session at Café Hoshizora
+eventKind: session
+isCommercial: false
+status: published
+timeStart: 20261129_19000000+09
+timeEnd: 20261129_22000000+09
+venue:
+  name: Café Hoshizora
+  area: Kichijoji
+description: An open jam. Midnight Steps plays the first set; then anyone who
+  signed up sits in.
+principalList:
+  - kind: individual
+    id: hfu59lp0pke
+    role: organizer
+    status: confirmed
+  - kind: group
+    id: halzyohiz46
+    role: host
+    status: confirmed
+tagList:
+  - 42e92eajahi
+programList:
+  - tag: bvfqae7yhnw
+openList:
+  - tag: aqg9l2xqid6
+    count: 6
+    note: any instrument; sign up to sit in
+timeCreated: 20261101_11000000+09
+account: 3zd8wnepchj
+id: 5p0tv1y5qfn

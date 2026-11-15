@@ -1,0 +1,18 @@
+account: 1h9tpvdf3ia
+postKind: performance
+event: 3cfg77702y5
+text: Thank you for coming to our Autumn Concert! Two hundred of you, and an
+  encore of the fifth Hungarian Dance we did not plan.
+tagList:
+  - j7bc1lv2dsj
+media:
+  - kind: image
+    title: Bows up for Brahms
+    icon: violin
+    color: "#f4a261"
+  - kind: video
+    title: "Encore: Hungarian Dance No. 5"
+    icon: score
+    color: "#e9c46a"
+timeCreated: 20261019_10000000+09
+id: ail55xvb773

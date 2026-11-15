@@ -1,0 +1,17 @@
+name: "Rehearsal 2: movements III and IV"
+eventKind: rehearsal
+parent: 2p6fnziamnm
+status: published
+visibility: member
+timeStart: 20261129_13000000+09
+timeEnd: 20261129_17000000+09
+venue:
+  name: Setagaya community center
+  area: Setagaya
+principalList:
+  - kind: group
+    id: 4y8crqhgglo
+    role: organizer
+    status: confirmed
+timeCreated: 20261001_20110000+09
+id: 3aqot9hxcu1

@@ -1,0 +1,17 @@
+handle: daniel.horn
+name: Daniel Weber
+subject:
+  kind: individual
+  id: 1gjll63l3k9
+bio: Horn player from Munich, in Tokyo since 2022.
+avatar:
+  style: face
+  seed: d5
+  color: "#e2ece9"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20250108_08000000+09
+id: 47atnzziiuc

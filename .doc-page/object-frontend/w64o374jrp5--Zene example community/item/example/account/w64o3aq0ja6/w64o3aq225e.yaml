@@ -1,0 +1,17 @@
+handle: midnight.steps
+name: Midnight Steps
+subject:
+  kind: group
+  id: halzyohiz46
+bio: Piano trio. Standards, late.
+avatar:
+  style: badge
+  icon: sax
+  color: "#264653"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20231101_12200000+09
+id: 5h4kld7r3pa

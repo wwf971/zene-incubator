@@ -1,0 +1,25 @@
+name: Aurora Autumn Concert 2026
+eventKind: concert
+isCommercial: true
+status: published
+timeStart: 20261018_14000000+09
+timeEnd: 20261018_16000000+09
+venue:
+  name: Kinuta Park Hall
+  area: Setagaya
+description: Brahms, all afternoon.
+principalList:
+  - kind: group
+    id: 4y8crqhgglo
+    role: organizer
+    status: confirmed
+tagList:
+  - 8395x0sliqt
+programList:
+  - tag: j7bc1lv2dsj
+ticket:
+  price: 1500
+  currency: JPY
+timeCreated: 20260801_20000000+09
+account: 2romxl0ljxm
+id: 3cfg77702y5

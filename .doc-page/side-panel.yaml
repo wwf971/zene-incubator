@@ -1,0 +1,16 @@
+# The side panel of the package's doc page: the root document, the app, then the design documents
+# from the core concepts down to the details.
+sidePanelById:
+  main:
+    tree:
+      - id: zene
+        text: Zene
+        doc: ~zene/doc/README.md
+        defaultOpen: true
+        children:
+          - doc: ~zene/doc/zene-core.md
+          - doc: ~zene/doc/zene-demo.md
+          - doc: ~zene/doc/zene-data.md
+          - doc: ~zene/doc/zene-action.md
+          - doc: ~zene/doc/zene-ui.md
+          - doc: ~zene/doc/zene-todo.md

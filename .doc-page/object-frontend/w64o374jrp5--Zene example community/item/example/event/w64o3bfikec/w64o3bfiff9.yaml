@@ -1,0 +1,27 @@
+name: Christmas Carols with Sakura Voices
+eventKind: concert
+isCommercial: false
+status: published
+timeStart: 20261220_15000000+09
+timeEnd: 20261220_16000000+09
+venue:
+  name: Nakano Community Plaza
+  area: Nakano
+description: Carols in the plaza, free, and everyone may sing the last one.
+principalList:
+  - kind: group
+    id: g379z6u03oe
+    role: organizer
+    status: confirmed
+  - kind: individual
+    id: bxn7zawzz28
+    role: guest
+    status: invited
+    skillList:
+      - a8luec27vbd
+tagList:
+  - bku8ctv767k
+programList:
+  - tag: 2obz3cx3uw5
+timeCreated: 20261105_19000000+09
+id: ho2ymyusmyd

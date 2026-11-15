@@ -1,0 +1,24 @@
+itemId: w64o3auipyr
+name: ""
+lang: yaml
+contentType: text/yaml
+fileExt: yaml
+owner:
+  ref: frontend:w64o374jrp5
+versionIdHead: w64o3auj84y
+isDeleted: false
+isLocked: false
+timeCreated: 20261115_17513940+09
+versionList:
+  - versionId: w64o3auj84y
+    versionIdPrevList: []
+    time: 20261115_17513940+09
+    note: seeded from script-data/zene-example.yaml
+    size: 400
+    hash: d43b2e25a0da89de652d20a69eceb60570620f6f
+    isLocked: false
+    dependencyList: []
+eventList:
+  - eventType: create
+    time: 20261115_17513940+09
+    versionId: w64o3auj84y

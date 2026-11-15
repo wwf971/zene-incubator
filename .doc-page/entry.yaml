@@ -1,0 +1,12 @@
+# The doc page of the package zene: its documents (doc/), and the demonstration of the app on its
+# example community. Served alone (react-doc dev <this folder>) the package is edited like any doc
+# page, its example object included; listed in a workspace or mounted, it is read-only.
+# design: react-doc main/doc_page_impl_package.md#a-package-as-a-doc-page
+docEntry:
+  title: Zene
+  homeDoc: ~zene/doc/README.md
+source:
+  file: ./source.yaml
+sidePanelById:
+  main:
+    file: ./side-panel.yaml

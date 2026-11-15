@@ -1,0 +1,18 @@
+handle: aurora.orch
+name: Aurora Chamber Orchestra
+subject:
+  kind: group
+  id: 4y8crqhgglo
+bio: Amateur chamber orchestra in Setagaya, since 2015. Winter Concert on Dec 13.
+avatar:
+  style: badge
+  icon: violin
+  color: "#f4a261"
+homepage: gdchcfgk2no
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20230510_09100000+09
+id: 1h9tpvdf3ia

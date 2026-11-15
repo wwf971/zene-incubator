@@ -1,0 +1,17 @@
+handle: sgmo.tokyo
+name: Shibuya Game Music Orchestra
+subject:
+  kind: group
+  id: gb03426w3st
+bio: Game and film music, arranged by our own. Game Music Night vol. 3 on Jan 24.
+avatar:
+  style: badge
+  icon: gamepad
+  color: "#90be6d"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20231101_12100000+09
+id: ae68bdlmg4n

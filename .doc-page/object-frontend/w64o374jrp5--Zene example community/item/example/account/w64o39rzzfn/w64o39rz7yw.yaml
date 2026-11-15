@@ -1,0 +1,17 @@
+handle: ren.beats
+name: Ren Kobayashi
+subject:
+  kind: individual
+  id: i8c3r1cxelw
+bio: Drums for Midnight Steps, everything that can be hit for SGMO.
+avatar:
+  style: face
+  seed: r7
+  color: "#ffe5d9"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20240620_23000000+09
+id: ckh644k9ur7

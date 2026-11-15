@@ -1,0 +1,8 @@
+# The config of the package zene (react-doc: main/doc_page_impl_package.md).
+# Its name and place are fixed: doc-package.yaml at the root of the package.
+name: zene
+description: >-
+  Music groups and events as a frontend object: accounts, people, groups and their subgroups, events
+  and rehearsals, posts, applications and tags as data items, the actions that change them, and the
+  app drawn on a simulated phone.
+packageDependList: []

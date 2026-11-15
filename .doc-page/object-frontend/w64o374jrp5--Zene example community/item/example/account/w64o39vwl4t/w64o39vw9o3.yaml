@@ -1,0 +1,17 @@
+handle: aiko.stage
+name: Aiko Fujita
+subject:
+  kind: individual
+  id: hfu59lp0pke
+bio: Runs the Sunday sessions at Café Hoshizora and helps orchestras find halls.
+avatar:
+  style: face
+  seed: a8
+  color: "#d8f3dc"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20240901_15000000+09
+id: 19gyqpnalvp

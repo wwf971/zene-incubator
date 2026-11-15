@@ -1,0 +1,17 @@
+name: "Rehearsal 1: movements I and II"
+eventKind: rehearsal
+parent: 2p6fnziamnm
+status: published
+visibility: member
+timeStart: 20261122_13000000+09
+timeEnd: 20261122_17000000+09
+venue:
+  name: Setagaya community center
+  area: Setagaya
+principalList:
+  - kind: group
+    id: 4y8crqhgglo
+    role: organizer
+    status: confirmed
+timeCreated: 20261001_20100000+09
+id: hojq6hj5zv9

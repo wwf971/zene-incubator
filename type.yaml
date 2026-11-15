@@ -1,0 +1,47 @@
+# The types of the package zene (react-doc: main/doc_page_impl_type.md#declaring-a-type). Every doc
+# page of a workspace importing the package has them, so an object of the type needs no declaration
+# of its own. design: doc/zene-data.md
+typeList:
+  - id: zene.community
+    label: Music community
+    description: the accounts, people, music groups, events, posts, applications and tags of a music community, as data items
+    icon: users
+    # what it holds (doc/zene-data.md#the-kinds-of-data-items): one data item per entity. Every path is
+    # /{partition}/{kind}/{id}, so no kind fixes a prefix of its paths; the folder of each kind
+    # inside a partition is the kind
+    assetKindList:
+      - { id: account, label: Account, langList: [yaml], groupPath: account }
+      - { id: individual, label: Individual, langList: [yaml], groupPath: individual }
+      - { id: group, label: Music group, langList: [yaml], groupPath: group }
+      - { id: membership, label: Membership, langList: [yaml], groupPath: membership }
+      - { id: subgroup, label: Subgroup, langList: [yaml], groupPath: subgroup }
+      - { id: event, label: Music event, langList: [yaml], groupPath: event }
+      - { id: post, label: Post, langList: [yaml], groupPath: post }
+      - { id: application, label: Application, langList: [yaml], groupPath: application }
+      - { id: follow, label: Follow, langList: [yaml], groupPath: follow }
+      - { id: tag, label: Tag, langList: [yaml], groupPath: tag }
+      # the homepage of an account: a document of the object (react-doc:
+      # main/doc_page_impl_obj_frontend.md#documents-of-an-object), rendered by the page as any
+      # document; its document path is its asset path, {partition}/page/{id}.md
+      - { id: page, label: Homepage, langList: [md], groupPath: page, isDoc: true }
+    # where its items lie (doc/zene-data.md#partitions): a partition is one community, complete in
+    # itself; the app shows one at a time
+    partitionList:
+      - { id: example, label: Example, description: the made-up community of the demonstration, isDefault: true }
+      - { id: playground, label: Playground, description: "a community to try things out in: a copy of the example, kept out of git", isGitIgnored: true }
+    modeList:
+      - id: app
+        label: App
+        description: the app on a simulated phone, beside the session (who is signed in, what each action changed)
+        comp: ZeneApp
+        isDefault: true
+      - id: action
+        label: Actions
+        description: the catalog of actions, as the model declares them (who may, what each changes)
+        comp: ZeneActionTable
+        category: view
+      - id: data
+        label: Data items
+        description: the data items of one partition, by kind, with the changes of the session
+        comp: ZeneDataTable
+        category: view

@@ -1,0 +1,17 @@
+handle: takumi.lowend
+name: Takumi Endo
+subject:
+  kind: individual
+  id: 3meizdwrtqu
+bio: Double bass in three groups, bass guitar when nobody is looking.
+avatar:
+  style: face
+  seed: t9
+  color: "#e0e1dd"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20231205_20000000+09
+id: hlh241u9ws3

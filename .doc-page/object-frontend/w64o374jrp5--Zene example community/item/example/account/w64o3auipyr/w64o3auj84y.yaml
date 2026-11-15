@@ -1,0 +1,17 @@
+handle: aurora.winter2026
+name: 'Aurora Winter Concert 2026: Dvořák "From the New World"'
+subject:
+  kind: event
+  id: 2p6fnziamnm
+bio: The Winter Concert of Aurora Chamber Orchestra, Dec 13, Kinuta Park Hall.
+avatar:
+  style: badge
+  icon: concert
+  color: "#bde0fe"
+viewList:
+  - about
+  - post
+timeCreated: 20261001_20000000+09
+isTemporary: true
+timeExpire: 20270112_16300000+09
+id: cdnn5uk9kkb

@@ -1,0 +1,39 @@
+name: Game Music Night vol. 3
+eventKind: concert
+isCommercial: true
+status: published
+timeStart: 20270124_18000000+09
+timeEnd: 20270124_20300000+09
+venue:
+  name: Shibuya Sound Studio Hall
+  area: Shibuya
+description: Ninety minutes of game and film music in our own arrangements, with
+  a jazz set by Midnight Steps in the interval.
+principalList:
+  - kind: group
+    id: gb03426w3st
+    role: organizer
+    status: confirmed
+  - kind: group
+    id: halzyohiz46
+    role: guest
+    status: invited
+tagList:
+  - avdftln5ek2
+  - egimjwhi7f2
+programList:
+  - tag: 128aag8axmt
+  - tag: 461zujnxm2w
+  - tag: 8x39daednqn
+    note: with choir
+openList:
+  - tag: dgxwrvvm1to
+    count: 1
+  - tag: 59m7q2ih48b
+    count: 1
+ticket:
+  price: 1800
+  currency: JPY
+timeCreated: 20261020_21000000+09
+account: a2b0x25j67y
+id: 1abzpasv120

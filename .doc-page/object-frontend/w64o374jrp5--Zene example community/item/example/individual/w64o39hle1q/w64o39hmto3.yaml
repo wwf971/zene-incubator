@@ -1,0 +1,53 @@
+name: Sora Ito
+area: Shibuya, Tokyo
+timeCreated: 20231101_12000000+09
+roleList:
+  - role: practitioner
+    timeStart: 20100401_00000000+09
+  - role: organizer
+    timeStart: 20200601_00000000+09
+skillList:
+  - tag: hvi7hdlbzqv
+    level: 5
+    yearStart: 2000
+    isPrimary: true
+  - tag: 248spau74f5
+    level: 4
+    yearStart: 2012
+  - tag: eza92gnn6z1
+    level: 5
+    yearStart: 2014
+  - tag: gzc2pb31hgw
+    level: 3
+    yearStart: 2018
+workTagList:
+  - 8x39daednqn
+  - 128aag8axmt
+  - 461zujnxm2w
+  - bvfqae7yhnw
+lookingForList:
+  - arranging commissions
+  - jazz gigs
+availability:
+  zone: "+09"
+  slotList:
+    - day: fri
+      from: 20:00
+      to: 23:30
+    - day: sat
+      from: 10:00
+      to: 22:00
+pricing:
+  isPaidOk: true
+  isFreeOk: false
+  itemList:
+    - label: Arrangement for orchestra
+      amount: 40000
+      currency: JPY
+      unit: per piece
+    - label: Piano for a gig (3 sets)
+      amount: 15000
+      currency: JPY
+      unit: per gig
+account: 00lt0vfcm7q
+id: cq5w1zkbpa9

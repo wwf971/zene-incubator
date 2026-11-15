@@ -1,0 +1,24 @@
+itemId: w64o398ce19
+name: ""
+lang: md
+contentType: text/markdown
+fileExt: md
+owner:
+  ref: frontend:w64o374jrp5
+versionIdHead: w64o398bjxi
+isDeleted: false
+isLocked: false
+timeCreated: 20261115_17513790+09
+versionList:
+  - versionId: w64o398bjxi
+    versionIdPrevList: []
+    time: 20261115_17513790+09
+    note: seeded from script-data/zene-example.yaml
+    size: 375
+    hash: b551859fe9f2f48348e31267444a700e471ec7dd
+    isLocked: false
+    dependencyList: []
+eventList:
+  - eventType: create
+    time: 20261115_17513790+09
+    versionId: w64o398bjxi

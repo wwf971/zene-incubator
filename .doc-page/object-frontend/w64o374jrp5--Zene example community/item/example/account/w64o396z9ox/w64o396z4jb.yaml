@@ -1,0 +1,19 @@
+handle: mika.violin
+name: Mika Tanaka
+subject:
+  kind: individual
+  id: 0om7mlfwcx6
+bio: Violinist in Setagaya. Concertmaster of Aurora, first violin of SGMO. Extra
+  player and teacher on weekends.
+avatar:
+  style: face
+  seed: m2
+  color: "#ffd6e0"
+homepage: 6shcqzgh455
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20240402_21130000+09
+id: av45ncr1jf5

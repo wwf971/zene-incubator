@@ -1,0 +1,13 @@
+# The components of the package zene (doc/README.md): the modes of a music community, rendered by the
+# entry component ObjectFrontend for an object of the type zene.community (type.yaml at the top of the
+# package), never written as blocks themselves.
+compList:
+  - tagName: ZeneApp
+    entry: ./zene-comp.js
+    export: ZeneAppDefine
+  - tagName: ZeneActionTable
+    entry: ./zene-comp.js
+    export: ZeneActionTableDefine
+  - tagName: ZeneDataTable
+    entry: ./zene-comp.js
+    export: ZeneDataTableDefine

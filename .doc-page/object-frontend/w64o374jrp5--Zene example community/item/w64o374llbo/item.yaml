@@ -1,0 +1,25 @@
+itemId: w64o374llbo
+name: ""
+lang: yaml
+contentType: text/yaml
+fileExt: yaml
+owner:
+  ref: frontend:w64o374jrp5
+  role: entry
+versionIdHead: w64o374luv0
+isDeleted: false
+isLocked: false
+timeCreated: 20261115_17513596+09
+versionList:
+  - versionId: w64o374luv0
+    versionIdPrevList: []
+    time: 20261115_17513596+09
+    note: the entry of the frontend object Zene example community
+    size: 125
+    hash: 39fac785bedcae09b3f01c19b858fd1862c3884b
+    isLocked: false
+    dependencyList: []
+eventList:
+  - eventType: create
+    time: 20261115_17513596+09
+    versionId: w64o374luv0

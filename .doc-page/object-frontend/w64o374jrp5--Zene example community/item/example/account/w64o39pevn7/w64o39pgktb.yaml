@@ -1,0 +1,17 @@
+handle: yui.sings
+name: Yui Nakamura
+subject:
+  kind: individual
+  id: 3b0ilj6nn11
+bio: Soprano, and the one who leads Sakura Voices on Thursday nights.
+avatar:
+  style: face
+  seed: y6
+  color: "#f1e3ff"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20240305_10000000+09
+id: gf90iu6lxne

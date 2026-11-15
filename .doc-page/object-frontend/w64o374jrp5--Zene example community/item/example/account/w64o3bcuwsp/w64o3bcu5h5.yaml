@@ -1,0 +1,17 @@
+handle: hoshizora.session
+name: Sunday Jazz Session at Café Hoshizora
+subject:
+  kind: event
+  id: 5p0tv1y5qfn
+bio: Open jam on Sunday nights at Café Hoshizora, Kichijoji.
+avatar:
+  style: badge
+  icon: sax
+  color: "#ffe5ec"
+viewList:
+  - about
+  - post
+timeCreated: 20261101_11000000+09
+isTemporary: true
+timeExpire: 20261229_22000000+09
+id: 3zd8wnepchj

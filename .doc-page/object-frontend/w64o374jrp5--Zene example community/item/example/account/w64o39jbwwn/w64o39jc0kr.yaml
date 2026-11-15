@@ -1,0 +1,17 @@
+handle: haruka.flute
+name: Haruka Sato
+subject:
+  kind: individual
+  id: bxn7zawzz28
+bio: Flute. Leads the winds of Aurora, plays in SGMO.
+avatar:
+  style: face
+  seed: h4
+  color: "#fff1c1"
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20240115_19000000+09
+id: 1hxfkpvwsut

@@ -1,0 +1,19 @@
+handle: sora.keys
+name: Sora Ito
+subject:
+  kind: individual
+  id: cq5w1zkbpa9
+bio: Pianist and arranger. Leads the Shibuya Game Music Orchestra and the trio
+  Midnight Steps.
+avatar:
+  style: face
+  seed: s3
+  color: "#cde7ff"
+homepage: dslq9phx3je
+viewList:
+  - about
+  - post
+  - event
+  - group
+timeCreated: 20231101_12000000+09
+id: 00lt0vfcm7q
