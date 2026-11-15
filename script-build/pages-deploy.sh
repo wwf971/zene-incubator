@@ -34,4 +34,6 @@ if git -C "$site" diff --cached --quiet 2>/dev/null && git -C "$site" rev-parse 
 else
 	git -C "$site" commit -q -m "build the static page from $(git -C "$here" rev-parse --short HEAD)"
 fi
+# a build is tens of MB in hundreds of files: over https git needs a larger buffer to send it at once
+git -C "$site" config http.postBuffer 524288000
 git -C "$site" push -u origin gh-pages
