@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- the colors of the app: zene-bg and zene-accent of doc-page/comp-mdx/Zene.css -->
+    <color name="zene_background">#FFFAF3</color>
+    <color name="zene_accent">#FF6F59</color>
+    <color name="zene_tab_bar">#FFFFFF</color>
+</resources>

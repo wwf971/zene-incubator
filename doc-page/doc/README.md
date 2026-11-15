@@ -41,6 +41,7 @@ items         one item per entity, a partition per community
 | [Timeline](zene-timeline.md) | every relation holds for a period, each end as precise as it is known |
 | [Actions](zene-action.md) | who may do what, and what it changes: the catalog, and where it runs |
 | [The app on a phone](zene-ui.md) | the screens, gestures, forms, icons, and the backend of the demonstration |
+| [The app on Android](zene-deploy-mobile-capacitor.md) | the same components built into an apk with Capacitor, the example built in |
 | [Later](zene-todo.md) | what is left for later |
 
 ## The files

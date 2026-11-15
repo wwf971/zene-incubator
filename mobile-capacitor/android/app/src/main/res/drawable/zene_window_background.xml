@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Behind the web view, shown only where Capacitor keeps the web view clear of the system bars (a web
+     view before Chromium 140): the app's cream under the status bar, the white of the bar of five
+     buttons under the navigation bar (the web view covers the rest of the white strip) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/zene_background" />
+    <item
+        android:drawable="@color/zene_tab_bar"
+        android:gravity="bottom|fill_horizontal"
+        android:height="64dp" />
+</layer-list>

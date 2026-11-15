@@ -15,4 +15,5 @@ sidePanelById:
           - doc: ~zene/doc/zene-timeline.md
           - doc: ~zene/doc/zene-action.md
           - doc: ~zene/doc/zene-ui.md
+          - doc: ~zene/doc/zene-deploy-mobile-capacitor.md
           - doc: ~zene/doc/zene-todo.md

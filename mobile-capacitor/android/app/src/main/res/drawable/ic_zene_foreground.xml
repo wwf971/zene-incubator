@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The note of the app's header (doc-page/comp-mdx/app/part/ZeneIcon.jsx, name note: a 48 x 48
+     drawing), 1.75 times, in the middle of the 108 dp of an adaptive icon (its safe zone: 66 dp) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.75"
+        android:scaleY="1.75"
+        android:translateX="13"
+        android:translateY="13">
+        <path
+            android:pathData="M25,33 V9 c5,3 11,5 10,13"
+            android:fillColor="#00000000"
+            android:strokeColor="#2D2440"
+            android:strokeWidth="2.2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <group
+            android:pivotX="19"
+            android:pivotY="33"
+            android:rotation="-22">
+            <path
+                android:pathData="M11.6,33 a7.4,5.6 0 1,0 14.8,0 a7.4,5.6 0 1,0 -14.8,0 Z"
+                android:fillColor="#FFD166"
+                android:strokeColor="#2D2440"
+                android:strokeWidth="2.2"
+                android:strokeLineJoin="round" />
+        </group>
+        <group
+            android:pivotX="16.6"
+            android:pivotY="31.6"
+            android:rotation="-22">
+            <path
+                android:pathData="M14.4,31.6 a2.2,1.3 0 1,0 4.4,0 a2.2,1.3 0 1,0 -4.4,0 Z"
+                android:fillAlpha="0.55"
+                android:fillColor="#FFFFFF" />
+        </group>
+    </group>
+</vector>

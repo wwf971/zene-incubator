@@ -1,0 +1,13 @@
+{
+  "appId": "io.github.wwf971.zene",
+  "appName": "Zene",
+  "webDir": "dist",
+  "backgroundColor": "#fffaf3",
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover",
+      "style": "LIGHT"
+    }
+  }
+}

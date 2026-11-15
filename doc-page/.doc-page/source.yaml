@@ -12,8 +12,6 @@ rules:
       - .gitignore
       - .DS_Store
       - temp.md
-      # the repository's README, for GitHub; the package's own is doc/README.md
-      - /README.md
       # the seed of the example and its source: tools, not documents
       - script-data/
       - script-build/

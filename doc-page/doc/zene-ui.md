@@ -3,7 +3,7 @@ title: The app on a phone
 description: The screens, gestures and forms of the app, drawn on a simulated phone over the data items.
 ---
 
-The mode **App** of a community draws the app as it will be on a phone: the screen of a phone, the bar of five buttons at the bottom, pages a swipe goes through, screens pushed and swiped back, sheets sliding up. It is a simulation for designing the app and its data together, not the mobile app itself: that will be built with a mobile framework (Flutter, Capacitor or React Native) over the same model and the same actions.
+The mode **App** of a community draws the app as it will be on a phone: the screen of a phone, the bar of five buttons at the bottom, pages a swipe goes through, screens pushed and swiped back, sheets sliding up. It is a simulation for designing the app and its data together. The same components also run on a real phone: [The app on Android](zene-deploy-mobile-capacitor.md) builds them, as they are, into an Android app with Capacitor.
 
 <!--renderComp=DiagramText-->
 ```text

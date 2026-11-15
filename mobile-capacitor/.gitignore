@@ -1,0 +1,9 @@
+# What the app's build makes (doc-page/doc/zene-deploy-mobile-capacitor.md#what-git-keeps): the web
+# build, the apk copied out of the Android build. The Android project keeps its own lists
+# (android/.gitignore, android/app/.gitignore): its build, gradle's state, local.properties, and
+# the copy of dist/ and of capacitor.config.json that `cap sync` puts into it.
+node_modules/
+dist/
+build-apk/
+*.apk
+*.aab

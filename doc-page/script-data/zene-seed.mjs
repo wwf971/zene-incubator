@@ -6,7 +6,8 @@
 //   node script-data/zene-seed.mjs --server http://localhost:45200 [--partition example] [--object <id>] [--dry]
 //
 // A local name ($mika) becomes an id made from the name, so a run again finds the same entities.
-// The yaml library is read from the react-doc checkout (REACT_DOC_DIR, default: beside this repository).
+// The yaml library is read from the react-doc checkout (REACT_DOC_DIR, default: beside this repository,
+// whose folder main/ holds this package in doc-page/).
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
@@ -14,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dirHere = path.dirname(fileURLToPath(import.meta.url));
-const reactDocDir = process.env.REACT_DOC_DIR ?? path.resolve(dirHere, '../../../react-doc');
+const reactDocDir = process.env.REACT_DOC_DIR ?? path.resolve(dirHere, '../../../../react-doc');
 const YAML = createRequire(path.join(reactDocDir, 'main/frontend/'))('yaml');
 const { zeneEventAccountExpireOf } = await import('../comp-mdx/model/ZeneRole.js');
 const { zeneEntityCompact } = await import('../comp-mdx/model/ZeneAction.js');

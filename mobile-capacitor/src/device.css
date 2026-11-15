@@ -1,0 +1,75 @@
+/* The simulated phone of the doc page (doc-page/comp-mdx/Zene.css) made the screen of a real one: no
+   frame, island, drawn status bar or home bar; the screen fills the window, and the room of the system
+   bars is kept by the safe area. Capacitor sets --safe-area-inset-* on Android (its SystemBars plugin,
+   insetsHandling css); env() is the same on a browser that knows it, 0 elsewhere. */
+
+:root {
+	--zene-safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+	--zene-safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+	--zene-safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+	--zene-safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
+}
+
+html,
+body,
+#root {
+	height: 100%;
+	overflow: hidden;
+	overscroll-behavior: none;
+	background: #fffaf3;
+}
+
+.zene-device,
+.zene-device .zene-shell,
+.zene-device .zene-app,
+.zene-device .zene-app-phone {
+	height: 100%;
+	margin: 0;
+}
+
+.zene-device .zene-app {
+	display: block;
+}
+
+.zene-device .zene-phone {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border-radius: 0;
+	background: var(--zene-bg);
+	box-shadow: none;
+}
+
+.zene-device .zene-phone-island,
+.zene-device .zene-status-bar,
+.zene-device .zene-phone-home-bar {
+	display: none;
+}
+
+.zene-device .zene-phone-screen {
+	padding: var(--zene-safe-top) var(--zene-safe-right) 0 var(--zene-safe-left);
+	border-radius: 0;
+}
+
+/* the bar of five buttons takes the room of the gesture bar below it (the drawn home bar's 22px gone) */
+.zene-device .zene-tab-bar {
+	height: auto;
+	padding-bottom: max(8px, var(--zene-safe-bottom));
+}
+
+.zene-device .zene-sheet {
+	padding-bottom: var(--zene-safe-bottom);
+}
+
+.zene-device .zene-sheet.is-menu {
+	padding-bottom: calc(14px + var(--zene-safe-bottom));
+}
+
+.zene-device .zene-toast {
+	bottom: calc(76px + var(--zene-safe-bottom));
+}
+
+/* a link of a homepage to a document of the doc page: there is no document on the device */
+.zene-device .zene-link-local {
+	text-decoration: underline dotted;
+}
